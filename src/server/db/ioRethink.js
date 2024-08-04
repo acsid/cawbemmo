@@ -14,6 +14,7 @@ module.exports = {
 
 	, init: async function (cbReady) {
 		await this.create();
+		this.open = true;
 		cbReady();
 	}
 
@@ -111,7 +112,6 @@ module.exports = {
 
 	, getAllAsync: async function ({
 		table,
-		key,
 		isArray,
 		noDefault
 	}) {

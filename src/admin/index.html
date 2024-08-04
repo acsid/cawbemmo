@@ -9,13 +9,13 @@
 	</head>
 	<body>
 		<header id="top-menu">
-			<button id="user-menu" onclick="showMenu(event)"></button>
+			<button id="users-menu" onclick="buildUsersList(event)">Users</button>
+			<button id="errors-menu" onclick="buildErrorsList(event)">Errors</button>
+			<button id="profile-menu" onclick="showMenu(event)">{{user-profile}}</button>
 		</header>
-		<div id="ui-container">
-			Admin Panel WIP...
-		</div>
-		<div id="user-menu-contextmenu" class="contextmenu">
-			<a href="/api/auth/logout?redirect=/admin/index.html" id="user-logout">Logout</a>
+		<div id="ui-container"></div>
+		<div id="profile-menu-contextmenu" class="contextmenu">
+			<a id="user-logout" href="/api/auth/logout?redirect=/admin/index.html">Logout</a>
 		</div>
 		<form id="login">
 			<img class="logo" src="images/logo.png" alt="">

@@ -86,7 +86,7 @@ define([
 		} catch (err) {
 			console.error(err);
 		}
-	}
+	};
 
 	const printCss = function(cssStyle) {
 		if (typeof cssStyle === "undefined") {
@@ -103,7 +103,7 @@ define([
 				, "padding: 3px calc(50% - 128px)"
 			].join(";");
 		} else if (typeof cssStyle === "object") {
-			return Object.keys(cssStyle).map((csKey) => `${csKey}:${logging.mapArgsToString(cssStyle[csKey])}`).join(";");
+			return Object.keys(cssStyle).map((csKey) => `${csKey}:${logging.valueToString(cssStyle[csKey])}`).join(";");
 		} else if (typeof cssStyle !== "string") {
 			throw new Error(`Unexpected cssStyle "${typeof cssStyle}".`);
 		}
@@ -177,6 +177,10 @@ define([
 		}
 		if (logLevel === 0 || logLevel <= reportLogLevel) {
 			// Send back to server.
+			args = logging.mapArgsToString(args);
+			if (typeof thisLogger?.name !== "undefined" && thisLogger.name !== "System") {
+				args.unshift(`<{${thisLogger.name}}>`);
+			}
 			args.unshift(logLevel);
 			bufferedLogEvents.push(args);
 			processLogBuffer();
@@ -184,7 +188,12 @@ define([
 	};
 
 	window.addEventListener("unhandledrejection", (event) => {
-		bufferedLogEvents.push([ EventLevels.ERROR, "Unhandled promise rejection.", String(event.reason.stack) ]);
+		const stackString = String(event.reason.stack);
+		if (stackString.includes("TypeError: Failed to fetch")) {
+			// When connexion is lost, dont keep those errors.
+			return;
+		}
+		bufferedLogEvents.push([ EventLevels.ERROR, "Unhandled promise rejection.", stackString ]);
 		processLogBuffer();
 	});
 

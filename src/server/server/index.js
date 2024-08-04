@@ -16,7 +16,7 @@ const API_ROUTES = {
 	auth: {
 		secret: undefined
 	}
-}
+};
 
 const {
 	port = 4000
@@ -47,7 +47,12 @@ const onNewLogEvent = function(req, entry) {
 		return;
 	}
 	const logLevel = entry.shift();
-	_.log.UserLog[req.ip].print(logLevel, entry);
+	let userLogger = _.log.UserLog[req.ip];
+	if (typeof entry[0] === "string" && entry[0].length > 4 && entry[0].startsWith("<{") && entry[0].endsWith("}>")) {
+		let loggerName = entry.shift();
+		userLogger = userLogger[loggerName.slice(2, -2)];
+	}
+	userLogger.print(logLevel, entry);
 }
 
 const loadRoute = function(rName, options, loadedAPIs) {
@@ -61,13 +66,14 @@ const loadRoute = function(rName, options, loadedAPIs) {
 };
 
 //Methods
-const init = async () => {
+const init = async function () {
 	const app = express();
-	const server = http.createServer(app);
-	const socketServer = socketIo(server, {
+	this.app = app;
+	this.server = http.createServer(app);
+	this.socketServer = socketIo(this.server, {
 		transports: ["websocket"]
 	});
-	global.cons.sockets = socketServer.sockets;
+	global.cons.sockets = this.socketServer.sockets;
 
 	app.use(compression());
 	if (IS_PROD) {
@@ -132,13 +138,40 @@ const init = async () => {
 	app.get("/", appRoot);
 	app.get(/^(.*)$/, appFile);
 
-	socketServer.on("connection", onConnection);
+	this.socketServer.on("connection", onConnection);
 	_.log.Server.info(`Starting server with 'NODE_ENV=${nodeEnv} REALM=${realmName} SRV_PORT=${port}'`);
-	await new Promise((resolve) => server.listen(port, resolve));
+	await new Promise((resolve) => this.server.listen(port, resolve));
 	_.log.Server.info(startupMessage);
 };
 
-//Exports
+const close = async function () {
+	if (this.closing) {
+		return;
+	}
+	this.closing = true;
+	_.log.Server.debug("Instance is closing...");
+
+	// Ask all clients to disconnect.
+	const sockets = await this.socketServer.fetchSockets();
+	for (const socket of sockets) {
+		socket.emit("dc");
+	}
+	// Wait for client to close the connection.
+	let disconnectCountdown = 10;
+	while (disconnectCountdown > 0 && sockets.some(s => s.connected)) {
+		disconnectCountdown--;
+		await _.asyncDelay(1000);
+	}
+	// Force disconnect all remaining clients.
+	this.socketServer.disconnectSockets();
+	_.log.Server.debug("Sockets closed...");
+
+	// Close the server instance.
+	await new Promise(resolve => this.server.close(resolve));
+	_.log.Server.debug("Server closed...");
+};
+
 module.exports = {
 	init
+	, close
 };

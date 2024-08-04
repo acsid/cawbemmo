@@ -199,7 +199,10 @@ module.exports = {
 		return result;
 	}
 
-	, forceSaveAll: async function (zoneName, zoneId) {
+	, forceSaveAll: function (zoneName, zoneId) {
+		if (!this.players.length) {
+			return Promise.resolve();
+		}
 		const promises = this.players
 			.filter((p) => (zoneName
 				? p.zoneName === zoneName
@@ -219,6 +222,9 @@ module.exports = {
 				});
 				return promise;
 			});
-		await Promise.all(promises);
+		if (promises.length === 1) {
+			return promises[0];
+		}
+		return Promise.all(promises);
 	}
 };

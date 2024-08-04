@@ -5,6 +5,16 @@ define([
 	io,
 	events
 ) {
+	const canReachServer = async () => {
+		try {
+			const response = await fetch("/", {
+				method: "HEAD"
+			});
+			return response.ok;
+		} catch (err) {
+			return false;
+		}
+	};
 	const client = {
 		doneConnect: false
 
@@ -17,7 +27,10 @@ define([
 			this.socket.on("handshake", this.onHandshake.bind(this));
 			this.socket.on("event", this.onEvent.bind(this));
 			this.socket.on("events", this.onEvents.bind(this));
+			// Asked to disconnect.
 			this.socket.on("dc", this.onDisconnect.bind(this));
+			// Was disconnected.
+			this.socket.on("disconnect", this.onDisconnect.bind(this));
 
 			for (const k in this.processAction) {
 				this.processAction[k] = this.processAction[k].bind(this);
@@ -62,8 +75,15 @@ define([
 			}
 		}
 
-		, onDisconnect: function () {
+		, onDisconnect: async function () {
 			this.socket.disconnect();
+			events.emit("onGetAnnouncement", {
+				msg: "Connection lost, please wait while we try to reconnect..."
+				, ttl: 350
+			});
+			do {
+				await _.asyncDelay(3000);
+			} while (!(await canReachServer()));
 			window.location = window.location;
 		}
 

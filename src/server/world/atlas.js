@@ -2,7 +2,7 @@
 const objects = require("../objects/objects");
 const events = require("../misc/events");
 const {
-	getThread, killThread, sendMessageToThread, getThreadFromId, doesThreadExist,
+	getThread, killThread, sendMessageToThread, getThreadFromId,
 	returnWhenThreadsIdle, getThreadStatus, tryFreeUnusedThread
 } = require("./threadManager");
 const { registerCallback, removeCallback } = require("./atlas/registerCallback");
@@ -199,9 +199,7 @@ module.exports = {
 		callback.callback(msg.msg.result);
 	}
 
-	, returnWhenZonesIdle: async function () {
-		await returnWhenThreadsIdle();
-	}
+	, returnWhenZonesIdle: () => returnWhenThreadsIdle()
 
 	, forceSavePlayer: async function (playerId, threadId) {
 		let thread;

@@ -51,7 +51,7 @@ EventLevels.VERBOSE = EventLevels.STANDARD | EventLevels.DEBUG;
 
 Object.freeze(EventLevels);
 
-const createLogHandler = function(printEvent, printFilter) {
+const createLogHandler = (printEvent, printFilter) => {
 	if (typeof printEvent !== "function") {
 		throw new Error("printEvent is not a function.");
 	}
@@ -152,25 +152,42 @@ proxyHandler.get = function (target, propertyKey) {
 };
 Object.freeze(proxyHandler);
 
-const mapArgsToString = function (...args) {
-	return args.map((a) => {
-		const aType = typeof a;
-		if (aType === "undefined") {
-			return "undefined";
-		} else if (aType === "string") {
-			return a;
-		} else if (typeof a.toString === "function") {
-			return a.toString();
+const replaceErrors = (key, value) => {
+	if (value instanceof Error) {
+		// Replace property getters by their values.
+		const error = {};
+		for (const propName of Object.getOwnPropertyNames(value)) {
+			error[propName] = value[propName];
 		}
-		try { // Converting circular structure to JSON
-			return JSON.stringify(a, undefined, 4);
-		} catch (ex) {
-			return ex.toString();
-		}
-	});
+		return error;
+	}
+	return value;
 };
 
-const countRe = function (str, re) {
+const valueToString = (a) => {
+	const aType = typeof a;
+	if (aType === "undefined") {
+		return "undefined";
+	} else if (aType === "string") {
+		return a;
+	} else if (typeof a.toString === "function" && !(a instanceof Error)) {
+		return a.toString();
+	}
+	try {
+		return JSON.stringify(a, replaceErrors, 4);
+	} catch (ex) {
+		// Converting circular structure to JSON
+		return ex.toString();
+	}
+};
+const mapArgsToString = (args) => {
+	if (!Array.isArray(args)) {
+		throw new Error("args must be an array.");
+	}
+	return args.map(valueToString);
+};
+
+const countRe = (str, re) => {
 	if (typeof str !== "string") {
 		throw new Error(`str need to be a string but an unexpected type of '${typeof str}' was received.`);
 	}
@@ -194,6 +211,8 @@ const tmpExport = {
 
 	, countRe
 	, mapArgsToString
+	, replaceErrors
+	, valueToString
 };
 if (typeof define === "function") {
 	define([], tmpExport);

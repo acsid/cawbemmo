@@ -40,6 +40,7 @@ module.exports = {
 					, scope.onTableCreated.bind(scope, t, null)
 				);
 			}
+			scope.open = true;
 			cbReady();
 		}, this);
 	}
