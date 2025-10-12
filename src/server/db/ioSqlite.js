@@ -1,4 +1,4 @@
-let util = require("util");
+const util = require("util");
 const tableNames = require("./tableNames");
 
 const PROMISIFY_FUNCTIONS = [ "all", "get", "run" ];
@@ -14,7 +14,7 @@ module.exports = {
 	, tables: {}
 
 	, init: async function (cbReady) {
-		let sqlite = require("sqlite3").verbose();
+		const sqlite = require("sqlite3").verbose();
 		this.db = new sqlite.Database(this.file, this.onDbCreated.bind(this, cbReady));
 		for (const fName of PROMISIFY_FUNCTIONS) {
 			this.asyncDB[fName] = _.retry(
@@ -40,6 +40,7 @@ module.exports = {
 					, scope.onTableCreated.bind(scope, t, null)
 				);
 			}
+			scope.open = true;
 			cbReady();
 		}, this);
 	}

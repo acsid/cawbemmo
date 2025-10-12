@@ -224,30 +224,32 @@ module.exports = {
 		}
 		if (q.action === "move") {
 			let maxDistance = 1;
+			// If next action is also a move.
 			if (this.actionQueue[0]?.action === "move") {
 				const { x: xOld, y: yOld, instance: { physics } } = this;
-				do {
-					const { data: { x: xNew, y: yNew } } = this.actionQueue[0];
-					if (Math.max(Math.abs(xOld - xNew), Math.abs(yOld - yNew)) <= maxDistance) {
-						q = this.dequeue();
-					} else {
-						break;
-					}
-				} while(this.actionQueue[0]?.action === "move");
-
+				// emit onBeforeTryMove to get sprintChance
 				const moveEvent = {
 					sprintChance: this.stats.values.sprintChance || 0
 				};
 				this.fireEvent("onBeforeTryMove", moveEvent);
-
 				let sprintChance = moveEvent.sprintChance;
+				// Use sprintChance to adjust maxDistance.
 				do {
 					if (Math.floor(Math.random() * 100) < sprintChance && !physics.isTileBlocking(q.data.x, q.data.y)) {
 						q = this.dequeue();
 						maxDistance++;
 					}
 					sprintChance -= 100;
-				} while (sprintChance > 0 && this.actionQueue.length > 0);
+				} while (sprintChance > 0 && this.actionQueue[0]?.action === "move");
+				// Move to furthest tile within maxDistance
+				while(this.actionQueue[0]?.action === "move") {
+					const { data: { x: xNew, y: yNew } } = this.actionQueue[0];
+					if (Math.max(Math.abs(xOld - xNew), Math.abs(yOld - yNew)) <= maxDistance) {
+						q = this.dequeue();
+					} else {
+						break;
+					}
+				}
 			}
 			q.maxDistance = maxDistance;
 			let success = this.performMove(q);

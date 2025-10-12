@@ -110,64 +110,92 @@
 
 	const makeQuerablePromise = function (promise) {
 		if (typeof promise !== 'object') {
-			throw new Error('promise is not an object.')
+			throw new Error('promise is not an object.');
 		}
 		if (!(promise instanceof Promise)) {
-			throw new Error('Argument is not a promise.')
+			throw new Error('Argument is not a promise.');
 		}
 		// Don't modify a promise that's been already modified.
 		if ('isResolved' in promise || 'isRejected' in promise || 'isPending' in promise) {
-			return promise
+			return promise;
 		}
-		let isPending = true
-		let isRejected = false
-		let rejectReason = undefined
-		let isResolved = false
-		let resolvedValue = undefined
+		let isPending = true;
+		let isRejected = false;
+		let rejectReason = undefined;
+		let isResolved = false;
+		let resolvedValue = undefined;
 		const qurPro = promise.then(
 			function(val){
-				isResolved = true
-				isPending = false
-				resolvedValue = val
-				return val
+				isResolved = true;
+				isPending = false;
+				resolvedValue = val;
+				return val;
 			}
 			, function(reason) {
-				rejectReason = reason
-				isRejected = true
-				isPending = false
-				throw reason
+				rejectReason = reason;
+				isRejected = true;
+				isPending = false;
+				throw reason;
 			}
-		)
+		);
 		Object.defineProperties(qurPro, {
-			"isResolved": {
+			isResolved: {
 				get: () => isResolved
 			}
-			, "resolvedValue": {
+			, resolvedValue: {
 				get: () => resolvedValue
 			}
-			, "isPending": {
+			, isPending: {
 				get: () => isPending
 			}
-			, "isRejected": {
+			, isRejected: {
 				get: () => isRejected
 			}
-			, "rejectReason": {
+			, rejectReason: {
 				get: () => rejectReason
 			}
-		})
-		return qurPro
+		});
+		return qurPro;
 	};
 
 	const PromiseSource = function () {
-		const srcPromise = new Promise((resolve, reject) => {
+		let srcPromise;
+		if (typeof Promise.withResolvers === "function") {
+			const { promise, resolve, reject } = Promise.withResolvers();
+			srcPromise = promise;
 			Object.defineProperties(this, {
 				resolve: { value: resolve, writable: false }
 				, reject: { value: reject, writable: false }
-			})
-		})
+			});
+		} else {
+			srcPromise = new Promise((resolve, reject) => {
+				Object.defineProperties(this, {
+					resolve: { value: resolve, writable: false }
+					, reject: { value: reject, writable: false }
+				});
+			});
+		}
 		Object.defineProperties(this, {
-			promise: {value: makeQuerablePromise(srcPromise), writable: false}
-		})
+			promise: {
+				value: makeQuerablePromise(srcPromise)
+				, writable: false
+			}
+			, isResolved: {
+				get: () => this.promise.isResolved
+			}
+			, resolvedValue: {
+				get: () => this.promise.resolvedValue
+			}
+			, isPending: {
+				get: () => this.promise.isPending
+			}
+			, isRejected: {
+				get: () => this.promise.isRejected
+			}
+			, rejectReason: {
+				get: () => this.promise.rejectReason
+			}
+		});
 	};
 
 	const tmpExport = {
@@ -436,7 +464,7 @@
 
 	if (typeof define === "function" && define.amd) {
 		define([
-			"common/assign"
+			"assign"
 		], function(
 			assignModule
 		) {

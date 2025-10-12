@@ -10,6 +10,14 @@ module.exports = {
 		msg: "Quelle es la partie préférée d'un astronaute sur un clavier? ..... L'espace"
 	}, {
 		msg: "La plage dit à l'océan ... c'est vague."
+	}, {
+		msg: "Le croisement entre un chien et un rat? ....... Un chien mira"
+	}, {
+		msg: "c'est quoi le tissu le plus détesté des snipers???.....   le cachemire"
+	}, {
+		msg: "Qu'est-ce qui arrive quand deux poissons s'engueulent? ..... Le thon monte. "
+	}, {
+		msg: "Que fait un hibou dans un feu de forêt?  ....... Hiboucane."
 	}]
 	, vlad: [{
 		msg: "Arrête Igor"
@@ -33,4 +41,28 @@ module.exports = {
 	}, {
 		msg: "FREEZE"
 	}]
+	, pompon: [{
+		msg: "* prrrrrrrrrrr *"
+	}, {
+		msg: "MIAOU"
+	}, {
+		msg: "meow"
+	}, {
+		msg: "myau"
+	}, {
+		msg: "MIAU"
+	}, {
+		msg: "nya"
+	}, {
+		msg: "Myaoo"
+	}, {
+		msg: "meong"
+	}, {
+		msg: "nyaa"
+	}, {
+		msg: "miyav"
+	}, {
+		msg: "meo"
+	}
+	]
 };

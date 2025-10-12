@@ -1,38 +1,28 @@
-let fileLister = require("../misc/fileLister");
-let events = require("../misc/events");
+const fileLister = require("../misc/fileLister");
+const events = require("../misc/events");
 const componentBase = require("./componentBase");
 
-let onReady = null;
+const ignoreFiles = [
+	"components.js"
+	, "componentBase.js"
+];
 
 module.exports = {
 	components: {}
 
-	, init: function (callback) {
-		onReady = callback;
-		events.emit("onBeforeGetComponents", this.components);
-		this.getComponentFolder();
-	}
-
-	, getComponentFolder: function () {
-		const ignoreFiles = ["components.js", "componentBase.js"];
-		const files = fileLister.getFiles("./components/")
-			.filter((f) => !ignoreFiles.includes(f));
-
-		const fLen = files.length;
-		for (let i = 0; i < fLen; i++) {
-			this.getComponentFile(`./${files[i]}`);
+	, init: async function () {
+		await events.emit("onBeforeGetComponents", this.components);
+		const files = fileLister.getFiles("./components/");
+		for (const file of files) {
+			if (ignoreFiles.includes(file)) {
+				continue;
+			}
+			this.getComponentFile("./" + file);
 		}
-
-		onReady();
 	}
-
 	, getComponentFile: function (path) {
-		let cpn = require(path);
-		this.onGetComponent(cpn);
-	}
-
-	, onGetComponent: function (template) {
-		template = _.assign({}, componentBase, template);
+		_.log.components.debug("Loading %s", path);
+		const template = _.assign({}, componentBase, require(path));
 		this.components[template.type] = template;
 	}
 };

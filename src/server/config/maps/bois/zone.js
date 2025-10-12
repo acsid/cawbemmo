@@ -1,6 +1,6 @@
 module.exports = {
 	name: "Bois"
-	, level: [13, 16]
+	, level: [5, 7]
 	, resources: {
 		champignon: {
 			type: "herb"
@@ -15,7 +15,7 @@ module.exports = {
 	, objects: {}
 	, mobs: {
 		default: {
-			level: 13
+			level: 5
 			, faction: "hostile"
 			, regular: {
 				drops: {
@@ -25,7 +25,7 @@ module.exports = {
 			}
 		}
 		, "renard-garous": {
-			level: 13
+			level: 5
 			, faction: "hostile"
 			, regular: {
 				drops: {
@@ -39,7 +39,7 @@ module.exports = {
 			}
 		}
 		, "papillion": {
-			level: 14
+			level: 6
 			, faction: "hostile"
 			, regular: {
 				drops: {
@@ -53,7 +53,7 @@ module.exports = {
 			}
 		}
 		, wezo: {
-			level: 15
+			level: 6
 			, faction: "hostile"
 			, rare: {
 				name: "Boss des wézo"
@@ -82,7 +82,7 @@ module.exports = {
 			}
 		}
 		, Steeeveess: {
-			level: 16
+			level: 7
 			, faction: "hostile"
 			, regular: {
 				drops: {

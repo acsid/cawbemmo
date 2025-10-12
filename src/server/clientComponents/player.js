@@ -19,18 +19,10 @@ define([
 
 		, init: function () {
 			const obj = this.obj;
-
-			obj.addComponent("keyboardMover");
-			obj.addComponent("mouseMover");
-
-			if (isMobile) {
-				obj.addComponent("touchMover");
-			}
+			obj.addComponent("inputs");
 			obj.addComponent("serverActions");
 			obj.addComponent("pather");
-
 			this.hookEvent("teleportToPosition", this.teleportToPosition.bind(this));
-
 			events.emit("onGetPortrait", obj.portrait);
 		}
 

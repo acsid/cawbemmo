@@ -1,6 +1,6 @@
 module.exports = {
 	name: "Depanneur"
-	, level: [10, 14]
+	, level: [4, 6]
 	, addLevel: 0
 	, resources: {}
 	, mobs: {
@@ -19,7 +19,7 @@ module.exports = {
 		}
 
 		, "canette": {
-			level: 8
+			level: 4
 			, faction: "hostile"
 			, regular: {
 				drops: {
@@ -115,7 +115,7 @@ module.exports = {
 		}
 
 		, "rat": {
-			level: 9
+			level: 5
 
 			, regular: {
 				drops: {
@@ -124,7 +124,7 @@ module.exports = {
 					, alsoRandom: true
 					, blueprints: [{
 						chance: 35
-						, name: "Digested Crystal"
+						, name: "queue de rat"
 						, quality: 0
 						, quest: true
 						, sprite: [1, 1]
@@ -209,7 +209,7 @@ module.exports = {
 		}
 
 		, gaetan: {
-			level: 10
+			level: 6
 			, spawnCd: 1714
 
 			, regular: {

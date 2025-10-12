@@ -2,7 +2,7 @@ FORK DE ISLEWARD
 
 CAWBE MMORPG 
 
-[Serveur de test](https://cawbemmo.00stack.in/) [discord](https://discord.gg/ddykVbxwE2)
+[Serveur principale](https://mmo.lecawbe.com/) [discord](https://discord.gg/ddykVbxwE2)
 
 Cawbe MMO Titre de développement.
 Ce jeu es basé sur le jeu ISLEWARD.

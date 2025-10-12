@@ -57,6 +57,7 @@ define([
 		, "spell_4": [ "4" ]
 		, "target": [ "tab" ]
 	};
+	const GAMEPAD_UPDATE_DELAY = 33;
 	const GAMEPAD_AXES_DEFAULT = {
 		horizontal: 0
 		, vertical: 1
@@ -128,6 +129,7 @@ define([
 		, whitelistedKeys: []
 
 		, gamepads: (typeof navigator.getGamepads === "function" ? navigator.getGamepads() : [])
+		, lastGamepadActionsUpdate: 0
 
 		, init: function () {
 			//TODO Load user configs.
@@ -173,25 +175,64 @@ define([
 					, gamepad.axes.length
 				);
 			}
+			if (typeof navigator.getGamepads === "function") {
+				setInterval(this.updateGamepads.bind(this), GAMEPAD_UPDATE_DELAY);
+			}
+		}
+
+		, isUIVisible: function(timestamp) {
+			if (typeof timestamp !== "number") {
+				timestamp = performance.now();
+			}
+			if (this.isUIVisible.lastUpdate > timestamp - 500) {
+				return this.isUIVisible.lastValue;
+			}
+			const isVisible = Boolean($(".modal:visible, .uiOverlay:visible").length);
+			this.isUIVisible.lastUpdate = timestamp;
+			this.isUIVisible.lastValue = isVisible;
+			return isVisible;
 		}
 
 		, updateGamepads: function () {
-			const timestamp = performance.now();
-			let shouldUpdate = false;
+			let lastUpdated = Number.POSITIVE_INFINITY;
+			// Check all connected gamepads for the most stale timestamp (smaller is older).
 			for (const gamepad of this.gamepads) {
 				if (!gamepad) {
 					continue;
 				}
-				if (gamepad.timestamp < timestamp - 10) {
-					shouldUpdate = true;
-					break;
+				if (gamepad.timestamp < lastUpdated) {
+					lastUpdated = gamepad.timestamp;
 				}
 			}
-			if (!shouldUpdate) {
+			const timestamp = performance.now();
+			if (lastUpdated === Number.POSITIVE_INFINITY
+				// When no gamepads connected, check every two seconds.
+				? Math.floor(timestamp / 1000) % 2 === 0
+				// With gamepad connected, poll the data after configured delay.
+				: lastUpdated < timestamp - GAMEPAD_UPDATE_DELAY
+			) {
+				this.gamepads = navigator.getGamepads();
+			}
+			if (lastUpdated === Number.POSITIVE_INFINITY) {
+				if (this.pressedGamepadButtons.length) {
+					// All gamepads disconnected with pressed buttons.
+					for (const button in this.pressedGamepadButtons) {
+						delete this.pressedGamepadButtons[button];
+						const removedActions = this.getMapping("gamepad", button);
+						for (const action of removedActions) {
+							delete this.actions[action];
+						}
+					}
+				}
 				return;
 			}
-			const enableInput = !Boolean($(".modal:visible, .uiOverlay:visible").length);
-			this.gamepads = navigator.getGamepads();
+			if (this.lastGamepadActionsUpdate > timestamp - GAMEPAD_UPDATE_DELAY) {
+				// Was updated recently.
+				return;
+			}
+			this.lastGamepadActionsUpdate = timestamp;
+			//TODO when UI is visible, change action map to allow using the UI with a gamepad.
+			const enableInput = !this.isUIVisible();
 			for (const gamepad of this.gamepads) {
 				if (!gamepad) {
 					continue;
@@ -401,7 +442,6 @@ define([
 		}
 
 		, isGamepadPressed: function (button) {
-			this.updateGamepads();
 			const down = this.pressedGamepadButtons[button];
 			if (down) {
 				if (noConsume) {
@@ -426,7 +466,6 @@ define([
 				const axis = inputAxes[axisName];
 				switch (inputType) {
 					case "gamepad":
-						this.updateGamepads();
 						for (const gamepad of this.gamepads) {
 							if (!gamepad || !gamepad.axes.has(axis)) {
 								continue;

@@ -347,17 +347,11 @@ module.exports = {
 	, forceSavePlayer: async function (msg) {
 		const { playerId } = msg;
 		const player = objects.objects.find((o) => o.serverId === playerId);
-
 		if (!player?.auth) {
-			await io.setAsync({
-				key: new Date()
-				, table: "error"
-				, value: "no auth found for forcesave " + player?.name
-			});
+			_.log.instancer.forceSavePlayer.error("No auth found for forcesave", player?.name);
 			return;
 		}
 		await player.auth.doSave();
-
 		this.resolveCallback(msg);
 	}
 

@@ -30,6 +30,7 @@ define([
 
 			if (this.modal) {
 				this.el.addClass("modal");
+				this.makeElementDraggable();
 			}
 			if (this.hasClose) {
 				this.buildClose();
@@ -209,5 +210,54 @@ define([
 				.appendTo(this.find(".heading").eq(0))
 				.on("click", this.toggle.bind(this));
 		}
-	};
+
+		, makeElementDraggable: function (elmnt) {
+			if (!elmnt) {
+				elmnt = this.el;
+			}
+			if (elmnt instanceof jQuery) {
+				elmnt = elmnt[0];
+			}
+			let lastX = 0, lastY = 0;
+			const elementDrag = function (e) {
+				e.preventDefault();
+				// calculate the new cursor position:
+				const deltaX = lastX - e.clientX;
+				const deltaY = lastY - e.clientY;
+				lastX = e.clientX;
+				lastY = e.clientY;
+				// set the element's new position:
+				elmnt.style.left = `${elmnt.offsetLeft - deltaX}px`;
+				elmnt.style.top = `${elmnt.offsetTop - deltaY}px`;
+			};
+			const closeDragElement = function () {
+				// stop moving when mouse button is released:
+				document.removeEventListener("mouseup", closeDragElement);
+				document.removeEventListener("mousemove", elementDrag);
+			};
+			const dragMouseDown = function (e) {
+				e.preventDefault();
+				// get the mouse cursor position at startup:
+				lastX = e.clientX;
+				lastY = e.clientY;
+				document.addEventListener("mouseup", closeDragElement);
+				// call a function whenever the cursor moves:
+				document.addEventListener("mousemove", elementDrag);
+			};
+			let header;
+			if (elmnt.id) {
+				header = document.getElementById(elmnt.id + "header");
+			}
+			if (!header) {
+				header = this.find(".heading")[0];
+			}
+			if (header) {
+				// if present, the header is where you move the DIV from:
+				header.addEventListener("mousedown", dragMouseDown);
+			} else {
+				// otherwise, move the DIV from anywhere inside the DIV:
+				elmnt.addEventListener("mousedown", dragMouseDown);
+			}
+		}
+	}
 });

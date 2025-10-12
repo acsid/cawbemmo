@@ -31,18 +31,18 @@ define([
 		, postRender: function () {
 			this.onEvent("onOpenOptions", this.show.bind(this));
 
-			this.find(".item.nameplates .name").on("click", events.emit.bind(events, "onUiKeyDown", { key: "v" }));
-			this.find(".item.quests .name").on("click", this.toggleQuests.bind(this));
-			this.find(".item.events .name").on("click", this.toggleEvents.bind(this));
-			this.find(".item.quality .name").on("click", this.toggleQualityIndicators.bind(this));
-			this.find(".item.unusable .name").on("click", this.toggleUnusableIndicators.bind(this));
-			this.find(".item.lastChannel .name").on("click", this.toggleLastChannel.bind(this));
-			this.find(".item.partyView .name").on("click", this.togglePartyView.bind(this));
-			this.find(".item.damageNumbers .name").on("click", this.toggleDamageNumbers.bind(this));
+			this.find("#options-nameplates .name").on("click", events.emit.bind(events, "onUiKeyDown", { key: "v" }));
+			this.find("#options-quests .name").on("click", this.toggleQuests.bind(this));
+			this.find("#options-events .name").on("click", this.toggleEvents.bind(this));
+			this.find("#options-quality .name").on("click", this.toggleQualityIndicators.bind(this));
+			this.find("#options-unusable .name").on("click", this.toggleUnusableIndicators.bind(this));
+			this.find("#options-lastChannel .name").on("click", this.toggleLastChannel.bind(this));
+			this.find("#options-partyView .name").on("click", this.togglePartyView.bind(this));
+			this.find("#options-damageNumbers .name").on("click", this.toggleDamageNumbers.bind(this));
 
 			//Can only toggle fullscreen directly in a listener, not deferred the way jQuery does it,
 			// so we register this handler in a different way
-			this.find(".item.screen .name")[0].addEventListener("click", this.toggleScreen.bind(this));
+			this.find("#options-fullscreen .name")[0].addEventListener("click", this.toggleScreen.bind(this));
 
 			this.find(".item.volume .btn").on("click", this.modifyVolume.bind(this));
 
@@ -63,16 +63,34 @@ define([
 			});
 
 			this.find(".item").on("click", events.emit.bind(events, "onClickOptionsItem"));
+
+			const tabsButtons = this.find(".tabs button");
+			tabsButtons.on("click", this.openTab.bind(this));
+			tabsButtons.first().trigger("click");
+		}
+
+		, openTab: function (event, tabName) {
+			const tabcontents = document.getElementsByClassName("tabcontent");
+			for (let i = tabcontents.length - 1; i >= 0; --i) {
+				tabcontents[i].style.display = "none";
+			}
+			const tablinks = document.getElementsByClassName("tablinks");
+			for (i = tablinks.length - 1; i >= 0; --i) {
+				tablinks[i].classList.remove("active");
+			}
+			if (!tabName) {
+				tabName = event.currentTarget.id.replaceAll("tabbtn", "tab");
+			}
+			const tabcontent = document.getElementById(tabName);
+			tabcontent.style.display = "block";
+			event.currentTarget.classList.add("active");
 		}
 
 		, modifyVolume: function (e) {
-			const el = $(e.target);
-
-			const isIncrease = el.hasClass("increase");
+			const el = e.target;
+			const isIncrease = el.classList.contains("increase")
 			const delta = isIncrease ? 10 : -10;
-
-			const soundType = el.parent().parent().hasClass("sound") ? "sound" : "music";
-
+			const soundType = el.closest(".item.volume").id.split("-").pop();
 			events.emit("onManipulateVolume", {
 				soundType
 				, delta
@@ -91,7 +109,7 @@ define([
 		}
 
 		, onToggleUnusableIndicators: function (state) {
-			this.find(".item.unusable .value").html(state.capitalize());
+			this.find("#options-unusable .value").html(state.capitalize());
 		}
 
 		, toggleQualityIndicators: function () {
@@ -106,14 +124,14 @@ define([
 		}
 
 		, onToggleQualityIndicators: function (state) {
-			this.find(".item.quality .value").html(state.capitalize());
+			this.find("#options-quality .value").html(state.capitalize());
 		}
 
 		, toggleScreen: function () {
 			const state = renderer.toggleScreen();
 			const newValue = (state === "Windowed") ? "Off" : "On";
 
-			this.find(".item.screen .value").html(newValue);
+			this.find("#options-fullscreen .value").html(newValue);
 		}
 
 		, toggleEvents: function () {
@@ -131,24 +149,24 @@ define([
 		, onToggleEventsVisibility: function (state) {
 			const newValue = state ? "On" : "Off";
 
-			this.find(".item.events .value").html(newValue);
+			this.find("#options-events .value").html(newValue);
 		}
 
 		, onToggleQuestsVisibility: function (state) {
-			this.find(".item.quests .value").html(state.capitalize());
+			this.find("#options-quests .value").html(state.capitalize());
 		}
 
 		, onResize: function () {
 			let isFullscreen = (window.innerHeight === screen.height);
 			const newValue = isFullscreen ? "On" : "Off";
 
-			this.find(".item.screen .value").html(newValue);
+			this.find("#options-screen .value").html(newValue);
 		}
 
 		, onToggleNameplates: function (state) {
 			const newValue = state ? "On" : "Off";
 
-			this.find(".item.nameplates .value").html(newValue);
+			this.find("#options-nameplates .value").html(newValue);
 		}
 
 		, toggleAudio: function () {
@@ -160,7 +178,7 @@ define([
 		, onToggleAudio: function (isAudioOn) {
 			const newValue = isAudioOn ? "On" : "Off";
 
-			this.find(".item.audio .value").html(newValue);
+			this.find("#options-audio .value").html(newValue);
 		}
 
 		, toggleLastChannel: function () {
@@ -172,7 +190,7 @@ define([
 		, onToggleLastChannel: function (state) {
 			const newValue = state ? "On" : "Off";
 
-			this.find(".item.lastChannel .value").html(newValue);
+			this.find("#options-lastChannel .value").html(newValue);
 		}
 
 		, togglePartyView: function () {
@@ -182,7 +200,7 @@ define([
 		}
 
 		, onTogglePartyView: function (state) {
-			this.find(".item.partyView .value").html(state.capitalize());
+			this.find("#options-partyView .value").html(state.capitalize());
 		}
 
 		, toggleDamageNumbers: function () {
@@ -192,11 +210,11 @@ define([
 		}
 
 		, onToggleDamageNumbers: function (state) {
-			this.find(".item.damageNumbers .value").html(state.capitalize());
+			this.find("#options-damageNumbers .value").html(state.capitalize());
 		}
 
 		, onVolumeChange: function ({ soundType, volume }) {
-			const item = this.find(`.item.volume.${soundType}`);
+			const item = this.find(`#options-volume-${soundType}`);
 
 			item.find(".value").html(volume);
 

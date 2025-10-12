@@ -4,27 +4,27 @@ const config = {
 	wizard: {
 		name: "Wizard"
 		, sprite: [0, 0]
-		, defaultSpirit: "owl"
+		, defaultSpirit: "concierge"
 		, default: true
 	}
 	, thief: {
 		name: "Thief"
 		, sprite: [1, 0]
-		, defaultSpirit: "lynx"
+		, defaultSpirit: "pee wee"
 		, default: true
 	}
 	, warrior: {
 		name: "Warrior"
 		, sprite: [2, 0]
-		, defaultSpirit: "bear"
+		, defaultSpirit: "party animal"
 		, default: true
 	}
-	, magicien: {
-		name: "Magicien"
-		, sprite: [3, 0]
-		, defaultSpirit: "owl"
-		, default: true
-	}
+	//, magicien: {
+//#		name: "Magicien"#
+//		, sprite: [3, 0]
+//		, defaultSpirit: "necro"
+//		, default: true
+//	}
 };
 
 module.exports = {

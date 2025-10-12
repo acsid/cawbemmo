@@ -35,8 +35,10 @@ module.exports = {
 		}
 		const list = this.events[eventName];
 		if (!list) {
+			//_.log.events.emit.debug("Ignored event %s without subscribers.", eventName);
 			return;
 		}
+		//_.log.events.emit.trace(eventName);
 		const promises = [];
 		for (const callback of list) {
 			const r = callback.apply(null, args);

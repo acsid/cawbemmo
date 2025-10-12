@@ -1,3 +1,18 @@
+/*
+	This module contains an array of all threads. Each thread looks like this:
+
+	{
+		id: 'The equals the map name unless the map is instanced, in which case it will be a GUID. Mods can override this',
+		name: 'The name of the map',
+		instanced: 'Boolean value indicating whether the thread is instanced or not',
+		path: 'The path to the map file',
+		worker: 'The actual thread that has been spawned',
+		isReady: 'Boolean value that turns from false to true as soon as the thread is ready to accept players',
+		promise: 'Used by the getThread method to wait for the thread to be ready, so it can be sent to the atlas',
+		cbOnInitialized: 'The promise resolver',
+		inactive: 'An epoch of when the thread became empty, or null if not empty',
+	}
+*/
 const childProcess = require("child_process");
 const objects = require("../objects/objects");
 const { getMapList, getDefaultMap } = require("./mapManager");
@@ -18,10 +33,10 @@ const getThreadStatus = (thread) => new Promise(
 );
 
 const killThread = (thread) => {
-	_.log.threadManager.debug("Unloading empty zone (Map/%s).", thread.name || thread.id);
 	thread.worker.kill();
 	threads.spliceWhere((t) => t === thread);
 };
+
 const tryFreeUnusedThread = async (thread) => {
 	const threadStatus = await getThreadStatus(thread);
 	const wasInactive = thread.has("inactive");
@@ -29,6 +44,7 @@ const tryFreeUnusedThread = async (thread) => {
 		if (threadStatus.ttl <= 0
 			|| (wasInactive && Date.now() - thread.inactive > threadStatus.ttl * 1000)
 		) {
+			_.log.threadManager.debug("Unloading empty zone (Map/%s).", thread.name || thread.id);
 			killThread(thread);
 			return true;
 		} else if (!wasInactive) {
@@ -167,7 +183,8 @@ const onMessage = (thread, message) => {
 	}
 };
 
-const spawnThread = ({ name, path, instanced }) => {
+const spawnThread = (mapConfig) => {
+	const { name, path, instanced } = mapConfig;
 	const thread = {
 		id: instanced ? _.getGuid() : name
 		, name
@@ -178,7 +195,10 @@ const spawnThread = ({ name, path, instanced }) => {
 	thread.promise = new Promise((resolve) => {
 		thread.cbOnInitialized = resolve;
 	});
-	thread.worker = childProcess.fork("./world/worker", [name]);
+	const workerArgs = {
+		...mapConfig
+	};
+	thread.worker = childProcess.fork("./world/worker", [JSON.stringify(workerArgs)]);
 	thread.worker.on("message", onMessage.bind(null, thread));
 	threads.push(thread);
 	return thread;
@@ -249,6 +269,9 @@ module.exports = {
 
 	, returnWhenThreadsIdle: async () => {
 		return new Promise((res) => {
+			if (!threads.length) {
+				return res();
+			}
 			let doneCount = 0;
 			const onZoneIdle = (thread) => {
 				doneCount++;
@@ -266,4 +289,22 @@ module.exports = {
 	}
 
 	, getThreadStatus
+
+	, close: async (timeout = 30) => {
+		const timeoutTime = Date.now() + (timeout * 1000);
+		while (threads.length && timeoutTime < Date.now()) {
+			const statusList = await Promise.all(threads.map((t) => getThreadStatus(t)));
+			for (let i = statusList.length - 1; i >= 0; --i) {
+				if (statusList[i].playerCount === 0) {
+					killThread(threads[i]);
+				}
+			}
+			if (threads.length) {
+				await _.asyncDelay(250);
+			}
+		}
+		for (let i = threads.length - 1; i >= 0; --i) {
+			killThread(threads[i]);
+		}
+	}
 };

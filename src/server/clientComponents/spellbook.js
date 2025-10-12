@@ -170,7 +170,7 @@ define([
 				return;
 			}
 
-			let target = this.groundTarget || (this.obj.mouseMover || this.obj.touchMover).hoverTile;
+			let target = this.groundTarget || this.obj.inputs.hoverTile;
 			if (spell.autoTargetFollower && !this.target) {
 				target = null;
 			} else if (!spell.targetGround && this.target) {

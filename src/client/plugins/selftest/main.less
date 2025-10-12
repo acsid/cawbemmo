@@ -1,0 +1,114 @@
+@import "../../css/colors.less";
+
+@font-face {
+	font-family: bitty;
+	src: url("../../fonts/bitty.ttf");
+}
+
+body {
+	background-color: @blackB;
+}
+
+.jasmine_html-reporter {
+	background-color: @black;
+	font-family: bitty;
+	font-size: 14px;
+	line-height: 16px;
+
+	.jasmine-banner .jasmine-version {
+		color: @grayA;
+		font-size: 14px;
+	}
+	.jasmine-run-options {
+		border: 3px solid @blueC;
+		color: @blueC;
+		font-size: 19px;
+		line-height: 24px;
+		.jasmine-payload {
+			background-color: @blackB;
+			border: 2px solid @blueD;
+
+			.jasmine-label {
+				color: @blueB;
+			}
+		}
+
+		input[type="checkbox"] {
+			/* Add if not using autoprefixer */
+			-webkit-appearance: none;
+			/* Remove most all native input styles */
+			appearance: none;
+			/* For iOS < 15 */
+			background-color: @black;
+			/* Not removed via appearance - Margin needs to be explicitly set. */
+			margin-top: 0px;
+			margin-bottom: 0px;
+			margin-left: 0px;
+			margin-right: 5px;
+
+			font: inherit;
+			color: currentColor;
+			width: 1.15em;
+			height: 1.15em;
+			border: 0.15em solid currentColor;
+			border-radius: 0.15em;
+			transform: translateY(-0.075em);
+
+			place-content: center;
+			display: inline-grid;
+		}
+		input[type="checkbox"]::before {
+			content: "";
+			width: 0.65em;
+			height: 0.65em;
+			clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+			transform: scale(0);
+			transform-origin: bottom left;
+			transition: 120ms transform ease-in-out;
+			box-shadow: inset 1em 1em @blueB;
+			/* Windows High Contrast Mode */
+			background-color: CanvasText;
+		}
+		input[type="checkbox"]:checked::before {
+			transform: scale(1);
+		}
+		input[type="checkbox"]:focus {
+			outline: 3px solid currentColor;
+			outline-offset: 3px;
+		}
+		input[type="checkbox"]:disabled {
+			color: @blackB;
+			cursor: not-allowed;
+		}
+	}
+	.jasmine-symbol-summary li, .jasmine-symbol-summary li.jasmine-failed {
+		font-size: 24px;
+		line-height: 24px;
+	}
+	.jasmine-symbol-summary li.jasmine-passed {
+		font-size: 32px;
+	}
+	.jasmine-overall-result.jasmine-bar {
+		font-size: 24px;
+		line-height: 32px;
+	}
+	.jasmine-duration {
+		font-size: 24px;
+		line-height: 32px;
+	}
+	.jasmine-bar.jasmine-passed {
+		background-color: #008000;
+	}
+	.jasmine-summary li.jasmine-passed a,
+	.jasmine-symbol-summary li.jasmine-passed:before {
+		color: #008000;
+	}
+	.jasmine-spec-detail .jasmine-description {
+		padding-top: 4px;
+		padding-bottom: 4px;
+	}
+	.jasmine-result-message {
+		color: @grayA;
+	}
+}
+

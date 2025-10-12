@@ -1,7 +1,7 @@
 /* eslint-disable no-process-env */
 
 module.exports = {
-	version: "0.0.7"
+	version: "0.2.1"
 
 	// Instance name, Define REALM for a custom realm name.
 	, realmName: process.env.REALM || "main"

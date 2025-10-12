@@ -1,0 +1,475 @@
+@import "../client/css/colors.less";
+
+@font-face {
+	font-family: bitty;
+	src: url('../fonts/bitty.ttf');
+}
+
+body {
+	background-color: @black;
+	min-width: 90vw;
+	min-height: 90vh;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: bitty;
+	color: @white;
+}
+
+.disabled {
+	opacity: 0.4 !important;
+	pointer-events: none !important;
+}
+
+.hidden {
+	display: none !important;
+}
+
+::-webkit-scrollbar {
+	width: 16px;
+}
+
+::-webkit-scrollbar-track {
+	background-color: @blackB;
+	-webkit-border-radius: 0px;
+	border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+	-webkit-border-radius: 10px;
+	border-radius: 0px;
+	background: @grayC;
+}
+
+:root {
+	scrollbar-color: @grayC @blackB !important;
+	scrollbar-width: thin !important;
+	--color-element-default: @white;
+	--color-element-arcane: @pinkA;
+	--color-element-frost: @blueA;
+	--color-element-fire: @redA;
+	--color-element-holy: @yellowA;
+	--color-element-poison: @tealB;
+}
+
+@topMenuHeight: 32px;
+
+#top-menu {
+	display: none;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100vw;
+	height: @topMenuHeight;
+	background-color: @black;
+	border: 2px solid @blueD;
+	button {
+		background-color: @blueC;
+		border: none;
+		outline: none;
+		cursor: pointer;
+		padding: 6px 16px;
+		transition: 0.3s;
+		font-size: 17px;
+	}
+	/* Change background color of buttons on hover */
+	button:hover {
+		background-color: lighten(@blueC, 10%);
+	}
+	/* Create an active/current buttons class */
+	button.active {
+		background-color: @blueA;
+	}
+}
+#profile-menu {
+	float: right;
+}
+
+.contextmenu {
+	display: none;
+	position: fixed;
+	padding: 5px;
+	z-index: 999999;
+	border: 5px solid @blueD;
+	background-color: fade(@blackD, 95%);
+	padding: 5px;
+	color: @white;
+	text-align: center;
+	line-height: 15px;
+	overflow-y: auto;
+	.list {
+		width: 100%;
+		height: 100%;
+
+		.option {
+			width: 100%;
+			padding: 5px;
+			color: @white;
+			cursor: pointer;
+			display: flex;
+			justify-content: center;
+
+			&:hover:not(.no-hover) {
+				background-color: @blueC;
+			}
+
+			&.divider {
+				line-height: 2px;
+				padding: 0px;
+				margin: 5px 0px;
+				color: transparent;
+				background-color: @grayD;
+			}
+
+			&.no-hover:not(.divider) {
+				color: @grayC;
+			}
+
+			.hotkey {
+				color: @blueA;
+
+				&:not(:empty) {
+					margin-left: 10px;
+				}
+			}
+		}
+	}
+}
+
+@leftWidth: 400px;
+@rightWidth: 400px;
+@boxPadding: 16px;
+@logoWidth: 559px;
+@logoHeight: 200px;
+@boxHeight: 169px;
+@messageHeight: @boxPadding;
+@totalWidth: @rightWidth;
+@totalHeight: (@logoHeight + @boxHeight + (@boxPadding * 3) + @messageHeight);
+
+#login {
+	display: none;
+	width: 562px;
+	height: 475px;
+	flex-direction: column;
+	align-items: center;
+	margin: auto;
+	position: relative;
+	top: 25vh;
+
+	> * {
+		flex-shrink: 0;
+	}
+
+	.logo {
+		width: 562px;
+		height: @logoHeight;
+		margin-bottom: (@boxPadding * 3);
+		filter: drop-shadow(0px -4px 0px @blackD) 
+		drop-shadow(0px 4px 0px @blackD)
+		drop-shadow(4px 0px 0px @blackD) 
+		drop-shadow(-4px 0px 0px @blackD);
+	}
+
+	.right {
+		height: @boxHeight;
+		background-color: #3a3b4a;
+		width: @rightWidth;
+		padding: @boxPadding;
+
+		.label,
+		input {
+			float: left;
+		}
+		.label {
+			width: 30%;
+			padding-top: 10px;
+			color: @greenA;
+		}
+		input {
+			width: 70%;
+		}
+		input,
+		.textbox,
+		input:-webkit-autofill {
+			-webkit-appearance: none;
+			box-shadow: 0 0 0px 20px @black inset;
+			color: @white;
+			-webkit-text-fill-color: @white;
+			margin-bottom: @boxPadding;
+		}
+
+		/* We duplicate this for firefox which doesn't like the webkit selector */
+		input,
+		.textbox {
+			background-color: @black;
+			color: @white;
+			-webkit-text-fill-color: @white;
+			margin-bottom: @boxPadding;
+			filter: none;
+		}
+		.message {
+			height: @messageHeight;
+			width: 200%;
+			margin-left: -50%;
+			margin-top: 36px;
+			float: left;
+			text-align: center;
+			color: @orangeA;
+			filter: brightness(100%)
+			drop-shadow(0px -4px 0px @blackD)
+			drop-shadow(0px 4px 0px @blackD)
+			drop-shadow(4px 0px 0px @blackD)
+			drop-shadow(-4px 0px 0px @blackD);
+			-moz-filter: brightness(100%)
+			drop-shadow(0px -4px 0px @blackD)
+			drop-shadow(0px 4px 0px @blackD)
+			drop-shadow(4px 0px 0px @blackD)
+			drop-shadow(-4px 0px 0px @blackD);
+		}
+		.top-buttons {
+			width: 100%;
+			height: 35px;
+
+			.btn {
+				background-color: @blueC;
+				width: calc((100% - @boxPadding) / 2);
+				float: left;
+				margin-right: @boxPadding;
+				color: @white;
+
+				&:last-child {
+					margin-right: 0px;
+				}
+				&:hover {
+					background-color: @blueD;
+				}
+			}
+		}
+	}
+	.news {
+		margin-top: 40px;
+		color: @white;
+		text-align: center;
+		background-color: @blackB;
+		cursor: pointer;
+		filter: drop-shadow(0px -4px 0px @blackD)
+		drop-shadow(0px 4px 0px @blackD)
+		drop-shadow(4px 0px 0px @blackD)
+		drop-shadow(-4px 0px 0px @blackD);
+	}
+	.spacer-h {
+		height: 61px;
+	}
+}
+
+.el {
+	height: 35px;
+	text-align: center;
+	padding: 0px 0px 0px 0px;
+	background-color: transparent;
+}
+
+.textbox {
+	border: none;
+	outline: none;
+	font-size: 16px;
+}
+div.textbox {
+	padding-top: 6px;
+}
+
+.btn {
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&:hover {
+		background-color: lighten(@black, 10%);
+	}
+}
+.spacer-h {
+	width: 100%;
+}
+
+#ui-container {
+	display: none;
+	width: 100vw;
+	height: 100%;
+	position: fixed;
+	top: @topMenuHeight + 5px;
+
+	.list {
+		display: flex;
+		flex-direction: column;
+		background-color: @blackC;
+
+		.heading {
+			color: @grayC;
+			border-bottom: 2px solid @grayD;
+			margin: 0px 10px 5px 10px;
+			padding-bottom: 5px;
+
+			&:not(:first-child) {
+				margin: 10px 10px 5px 10px;
+			}
+		}
+		.error.item {
+			height: 300px;
+			border: 2px solid @black;
+		}
+		.item {
+			height: 30px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.name {
+				color: @blueB;
+				flex: 1;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				padding: 0px 10px;
+				margin-right: 10px;
+				cursor: pointer;
+
+				&:hover {
+					color: @blueA;
+					background-color: @blackA;
+				}
+			}
+
+			.value {
+				color: @white;
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				padding-right: 10px;
+			}
+			select {
+				background-color: @black;
+			}
+
+			&.volume {
+				flex-wrap: wrap;
+				height: 60px;
+
+				.name {
+					pointer-events: none;
+				}
+
+				.name,
+				.value {
+					width: 50%;
+					height: 30px;
+				}
+
+				.slider {
+					padding: 0px 10px;
+					width: 100%;
+					height: 30px;
+					display: flex;
+					position: relative;
+
+					.btn {
+						width: 30px;
+						margin-top: 5px;
+						height: calc(100% - 10px);
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						color: @white;
+						background-color: @blackA;
+						padding-top: unset;
+
+						&:first-child {
+							margin-right: 10px;
+						}
+
+						&:last-child {
+							margin-left: 10px;
+						}
+
+						&:hover {
+							background-color: @grayD;
+						}
+
+					}
+
+					.bar {
+						width: 100%;
+						background-color: @blueD;
+						border-top: 10px solid @blackC;
+						border-bottom: 10px solid @blackC;
+						height: 100%;
+						position: relative;
+
+						.tick {
+							position: absolute;
+							width: 5px;
+							height: 20px;
+							top: -5px;
+							left: 100%;
+							background-color: @blueA;
+						}
+					}
+				}
+			}
+		}
+	}
+	.modal {
+		border: 5px solid @blackB;
+		background-color: @blackB;
+		color: @blueA;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		text-align: center;
+		max-width: 90vw;
+		max-height: 90vh;
+		min-width: 170px;
+		min-height: 70px;
+		overflow: scroll;
+
+		> .heading {
+			width: 100%;
+			height: 36px;
+			background-color: @blackB;
+			position: sticky;
+			top: -1px;
+			left: 0px;
+
+			.heading-text {
+				color: @blueA;
+				padding-top: 8px;
+				margin: auto;
+			}
+		}
+		.btnClose {
+			position: absolute;
+			background-color: @blackA;
+			color: @orangeA;
+			cursor: pointer;
+			height: 31px;
+			width: 31px;
+			text-align: center;
+			right: 0px;
+			top: 0px;
+			padding-top: 0px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			&:hover {
+				background-color: lighten(@blackA, 10%);
+			}
+		}
+	}
+}
+
+.hasBorderShadow {
+	box-shadow: 0 -2px 0 @black, 0 2px 0 @black, 2px 0 0 @black, -2px 0 0 @black;
+}

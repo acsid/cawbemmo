@@ -4539,7 +4539,7 @@
                         {
                          "name":"cpnPortal",
                          "type":"string",
-                         "value":"{\"zone\":\"cave\",\"pos\":{\"x\":16,\"y\":136}}"
+                         "value":"{\"zone\":\"depanneur\",\"pos\":{\"x\":16,\"y\":136}}"
                         }],
                  "rotation":0,
                  "type":"",

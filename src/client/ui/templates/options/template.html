@@ -2,69 +2,91 @@
 	<div class="heading">
 		<div class="heading-text">Options</div>
 	</div>
+	<div class="tabs">
+		<button id="options-tabbtn-game" class="tablinks">Jeu</button>
+		<button id="options-tabbtn-mapping" class="tablinks">Controles</button>
+		<button id="options-tabbtn-indicators" class="tablinks">Indicateurs</button>
+	</div>
 	<div class="bottom">
-		<div class="list">
-			<div class="heading game">Jeu</div>
-			<div class="item screen">
-				<div class="name">Plein écran</div>
-				<div class="value">Off</div>
-			</div>
-			<div class="item volume sound">
-				<div class="name">Volume son</div>
-				<div class="value">100</div>
-				<div class="slider">
-					<div class="btn decrease">-</div>
-					<div class="bar">
-						<div class="tick"></div>
+		<div id="options-tab-game" class="tabcontent">
+			<div class="list">
+				<div id="options-game-heading" class="heading"></div>
+				<div id="options-fullscreen" class="item">
+					<div class="name">Plein écran</div>
+					<div class="value">Off</div>
+				</div>
+				<div id="options-volume-sound" class="item volume">
+					<div class="name">Volume son</div>
+					<div class="value">100</div>
+					<div class="slider">
+						<div class="btn decrease">-</div>
+						<div class="bar">
+							<div class="tick"></div>
+						</div>
+						<div class="btn increase">+</div>
 					</div>
-					<div class="btn increase">+</div>
+				</div>
+				<div id="options-volume-music" class="item volume">
+					<div class="name">Volume Musique</div>
+					<div class="value">100</div>
+					<div class="slider">
+						<div class="btn decrease">-</div>
+						<div class="bar">
+							<div class="tick"></div>
+						</div>
+						<div class="btn increase">+</div>
+					</div>
+				</div>
+				<div id="options-chat" class="heading">Chat</div>
+				<div id="options-lastChannel" class="item">
+					<div class="name">Ce souvenir du dernier canal</div>
+					<div class="value">On</div>
 				</div>
 			</div>
-			<div class="item volume music">
-				<div class="name">Volume Musique/div>
-				<div class="value">100</div>
-				<div class="slider">
-					<div class="btn decrease">-</div>
-					<div class="bar">
-						<div class="tick"></div>
-					</div>
-					<div class="btn increase">+</div>
+		</div>
+		<div id="options-tab-mapping" class="tabcontent">
+			<div class="list">
+				<div id="options-mapping-heading" class="heading"></div>
+				<div id="options-controller" class="item">
+					<div class="name">{{controller}}</div>
+					<select name="controller" id="options-controller-selector" class="value">
+						<option value="keyboard">{{keyboard}}</option>
+					</select>
 				</div>
 			</div>
-			<div class="heading hud">Affichage</div>
-			<div class="item nameplates">
-				<div class="name">Noms</div>
-				<div class="value">On</div>
-			</div>
-			<div class="item quests">
-				<div class="name">Quêtes</div>
-				<div class="value">On</div>
-			</div>
-			<div class="item events">
-				<div class="name">Évenement</div>
-				<div class="value">On</div>
-			</div>
-			<div class="item partyView">
-				<div class="name">Groupe</div>
-				<div class="value">Full</div>
-			</div>
-			<div class="item damageNumbers">
-				<div class="name">Dommage/div>
-				<div class="value">Element</div>
-			</div>
-			<div class="heading inventory">Inventaire</div>
-			<div class="item quality">
-				<div class="name">Indicateur de qualité</div>
-				<div class="value">Off</div>
-			</div>
-			<div class="item unusable">
-				<div class="name">Inducateur utilisable</div>
-				<div class="value">Off</div>
-			</div>
-			<div class="heading inventory">Chat</div>
-			<div class="item lastChannel">
-				<div class="name">Ce souvenir du dernier canal</div>
-				<div class="value">On</div>
+		</div>
+		<div id="options-tab-indicators" class="tabcontent">
+			<div class="list">
+				<div id="options-indicators-heading" class="heading"></div>
+				<div id="options-nameplates" class="item">
+					<div class="name">Noms</div>
+					<div class="value">On</div>
+				</div>
+				<div id="options-quests" class="item">
+					<div class="name">Quêtes</div>
+					<div class="value">On</div>
+				</div>
+				<div id="options-events" class="item">
+					<div class="name">Évenement</div>
+					<div class="value">On</div>
+				</div>
+				<div id="options-partyView" class="item">
+					<div class="name">Groupe</div>
+					<div class="value">Full</div>
+				</div>
+				<div id="options-damageNumbers" class="item">
+					<div class="name">Dommage</div>
+					<div class="value">Element</div>
+				</div>
+				<div id="options-inventory" class="heading">Inventaire</div>
+				<div id="options-quality" class="item">
+					<div class="name">Indicateur de qualité</div>
+					<div class="value">Off</div>
+				</div>
+				<div id="options-unusable" class="item">
+					<div class="name">Inducateur utilisable</div>
+					<div class="value">Off</div>
+				</div>
 			</div>
 		</div>
 	</div>

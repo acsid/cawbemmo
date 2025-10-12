@@ -13,14 +13,14 @@ module.exports = {
 		beforeEquipItem: function (msg) {
 			if (msg.item.quality > 1) {
 				msg.success = false;
-				msg.msg = "You shun fancy equipment";
+				msg.msg = "Vous refusé le luxe et les équippement puissant";
 			}
 		}
 
 		, beforeLearnAbility: function (msg) {
 			if (msg.item.quality > 1) {
 				msg.success = false;
-				msg.msg = "You shun fancy equipment";
+				msg.msg = "Vous refusé le luxe et les équippement puissant";
 			}
 		}
 	}

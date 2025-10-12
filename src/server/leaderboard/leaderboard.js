@@ -54,16 +54,13 @@ module.exports = {
 			table: "leaderboard"
 			, isArray: true
 		});
-
 		this.list = list.map((l) => ({
 			//This is a bit of a hack. RethinkDB uses 'id' whereas Sqlite uses 'key'
 			name: l.key || l.id
 			, level: l.value.level
 			, prophecies: l.value.prophecies
 		}));
-
 		this.sort();
-
 		this.loaded = true;
 	}
 
@@ -89,12 +86,9 @@ module.exports = {
 				, level: level
 				, prophecies: prophecies
 			};
-
 			this.list.push(exists);
 		}
-
 		this.sort();
-
 		this.save(exists);
 	}
 

@@ -2,7 +2,8 @@ require.config({
 	baseUrl: ""
 	, waitSeconds: 120
 	, paths: {
-		socket: "js/dependencies/socket.io.min"
+		assign: "/common/assign"
+		, socket: "js/dependencies/socket.io.min"
 		, jquery: "js/dependencies/jquery.slim.min"
 		, text: "js/dependencies/text.min"
 		, html: "plugins/html"
@@ -25,7 +26,7 @@ require.config({
 		}
 		, helpers: {
 			deps: [
-				"common/assign"
+				"assign"
 			]
 			, exports: "_"
 		}

@@ -15,27 +15,28 @@ define([
 
 		, mapScale: CANVAS_SCALE * 2
 		, itemColors: {
-			default:  "#FF00FF" // Purple
+			default: [ 255, 0, 255 ] // Purple
 			, mobs: {
-				default: "#FF0000" // Red
+				default: [ 255, 0, 0 ] // Red
 			}
 			, characters: {
-				default: "#00FF00" // Green
+				default: [ 0, 255, 0 ] // Green
 			}
-			, me: "#FFFF00" // Yellow
+			, me: [ 255, 255, 0 ] // Yellow
 			, player: {
-				default: "#FFFF00" // Yellow
+				default: [ 255, 255, 0 ] // Yellow
 			}
 			, hidden: {
-				default: "#ABABAB" // Gray
-				, sound: "#9A9AFF"
+				default: [ 171, 171, 171 ] // Gray
+				, sound: [ 154, 154, 255 ]
 			}
 			, bigObjects: {
-				default: "#0000FF" // Blue
+				default: [ 0, 0, 255 ] // Blue
 			}
 		}
 
 		, postRender: function () {
+			this.mapCanvas = document.createElement("canvas");
 			for (const eventName in this.events) {
 				this.onEvent(eventName, this.events[eventName].bind(this));
 			}
@@ -62,37 +63,54 @@ define([
 			if (!physics.grid) {
 				return;
 			}
-			const canvasElement = this.el[0];
-			canvasElement.width = physics.grid.length * CANVAS_SCALE;
-			canvasElement.height = physics.grid[0].length * CANVAS_SCALE;
-			const ctx = canvasElement.getContext("2d");
-			ctx.translate(canvasElement.width / 2, canvasElement.height / 2);
-			ctx.scale(this.mapScale, this.mapScale);
-			ctx.translate(-player.x, -player.y);
-			ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-			for (let i = 0; i < physics.grid.length; i++) {
-				for (let j = 0; j < physics.grid[i].length; j++) {
-					if (physics.grid[i][j]) {
+			// Render map.
+			this.mapCanvas.width = physics.grid.length;
+			this.mapCanvas.height = physics.grid[0].length;
+			const mapCtx = this.mapCanvas.getContext("2d");
+			mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
+			const rawImage = mapCtx.getImageData(0, 0, physics.grid.length, physics.grid[0].length);
+			const pix = rawImage.data;
+			for (let x = 0; x < physics.grid.length; x++) {
+				for (let y = 0; y < physics.grid[x].length; y++) {
+					const i = (y * rawImage.width + x) * 4;
+					if (physics.grid[x][y]) {
 						// Collision
-						ctx.fillStyle = "rgba(117, 123, 146, 0.2)";
+						pix[i] = 117;
+						pix[i + 1] = 123;
+						pix[i + 2] = 146;
+						pix[i + 3] = 51;
 					} else {
 						// Walkable
-						ctx.fillStyle = "rgba(0, 0, 0, 1)";
+						pix[i] = 0;
+						pix[i + 1] = 0;
+						pix[i + 2] = 0;
+						pix[i + 3] = 255;
 					}
-					ctx.fillRect(i, j, 1, 1);
 				}
 			}
 			objectsModule.objects.forEach((obj) => {
 				if (obj.destroyed || !obj.updateVisibility) {
 					return;
 				}
-				this.drawMapItem(ctx, obj);
+				this.drawMapItem(rawImage, obj);
 			});
 			if (Date.now() % 1000 > 500) { // Blink each half second when obscured.
 				// Draw player again on top of other objects.
-				this.drawMapItem(ctx, window.player);
+				this.drawMapItem(rawImage, window.player);
 			}
-		// 250ms - 4FPS
+			mapCtx.putImageData(rawImage, 0, 0);
+			// Update map view.
+			const viewportCanvas = this.el[0];
+			viewportCanvas.width = this.mapCanvas.width * CANVAS_SCALE;
+			viewportCanvas.height = this.mapCanvas.height * CANVAS_SCALE;
+			const viewCtx = viewportCanvas.getContext("2d");
+			viewCtx.clearRect(0, 0, viewportCanvas.width, viewportCanvas.height);
+			viewCtx.translate(viewportCanvas.width / 2, viewportCanvas.height / 2);
+			viewCtx.scale(this.mapScale, this.mapScale);
+			viewCtx.translate(-player.x, -player.y);
+			viewCtx.imageSmoothingEnabled = false;
+			viewCtx.drawImage(this.mapCanvas, 0, 0);
+		// 250ms - 4 FPS
 		}, 250, true, true)
 
 		, getItemType: function(obj) {
@@ -120,16 +138,21 @@ define([
 				itemTypeInfo = itemTypeInfo.split(".");
 			}
 			const colorDef = this.itemColors[itemTypeInfo[0]];
-			if (typeof colorDef == "string") {
+			if (Array.isArray(colorDef)) {
 				return colorDef;
 			} else if (colorDef) {
 				return colorDef[itemTypeInfo[1]] || colorDef.default;
 			}
 			return this.itemColors.default;
 		}
-		, drawMapItem: function(ctx, obj) {
-			ctx.fillStyle = this.getMapItemColor(obj);
-			ctx.fillRect(obj.x, obj.y, 1, 1);
+		, drawMapItem: function(rawImage, obj) {
+			const pix = rawImage.data;
+			const i = (obj.y * rawImage.width + obj.x) * 4;
+			const colorArr = this.getMapItemColor(obj);
+			pix[i] = colorArr[0];
+			pix[i + 1] = colorArr[1];
+			pix[i + 2] = colorArr[2];
+			pix[i + 3] = 255;
 		}
 
 		, events: {

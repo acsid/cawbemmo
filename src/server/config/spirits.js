@@ -1,29 +1,33 @@
 let events = require("../misc/events");
 
 module.exports = {
-	list: ["bear", "owl", "lynx", "necro"]
+	list: ["concierge", "pee wee", "party animal", "necro"]
 	, portraits: {
-		bear: {
+		"concierge": {
 			x: 0
 			, y: 0
 		}
-		, owl: {
+		, "pee wee": {
 			x: 2
 			, y: 0
 		}
-		, lynx: {
+		, "party animal": {
 			x: 3
+			, y: 0
+		},
+		necro: {
+			x: 1
 			, y: 0
 		}
 	}
 	, spells: {
-		owl: ["magic missile", "ice spear"]
-		, bear: ["slash", "charge"]
-		, lynx: ["flurry", "smokebomb"]
+		"concierge": ["magic missile", "ice spear"]
+		, "pee wee": ["slash", "charge"]
+		, "party animal": ["flurry", "smokebomb"]
 		, necro: ["harvest life", "summon skeleton"]
 	}
 	, stats: {
-		owl: {
+		"concierge": {
 			values: {
 				hpMax: 35
 				, hpPerLevel: 32
@@ -32,7 +36,7 @@ module.exports = {
 				int: 1
 			}
 		}
-		, lynx: {
+		, "pee wee": {
 			values: {
 				hpMax: 45
 				, hpPerLevel: 36
@@ -41,7 +45,7 @@ module.exports = {
 				dex: 1
 			}
 		}
-		, bear: {
+		, "party animal": {
 			values: {
 				hpMax: 55
 				, hpPerLevel: 40
@@ -61,9 +65,9 @@ module.exports = {
 		}
 	}
 	, weapons: {
-		owl: "Gnarled Staff"
-		, lynx: "Dagger"
-		, bear: "Sword"
+		"concierge": "Gnarled Staff"
+		, "pee wee": "Dagger"
+		, "party animal": "Sword"
 		, necro: "Sickle"
 	}
 

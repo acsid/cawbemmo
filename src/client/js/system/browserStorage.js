@@ -2,20 +2,23 @@ define([
 ], function (
 ) {
 	const UNSET_VALUE = "{unset}";
-	const getEntryName = (key) => {
-		return `iwd_${key.toLowerCase()}`;
+	const getEntryName = (key, prefix) => {
+		if (!prefix) {
+			prefix = "iwd";
+		}
+		return `${prefix}_${key.toLowerCase()}`;
 	};
 	const browserStorage = {
-		get: (key) => {
-			const keyName = getEntryName(key);
+		get: function (key) {
+			const keyName = getEntryName(key, this.prefix);
 			return localStorage.getItem(keyName) || UNSET_VALUE;
 		}
-		, set: (key, value) => {
-			const keyName = getEntryName(key);
+		, set: function (key, value) {
+			const keyName = getEntryName(key, this.prefix);
 			localStorage.setItem(keyName, value);
 		}
 	};
-	const buildConfigObj = function(prefix, obj) {
+	const buildConfigObj = (prefix, obj) => {
 		obj.getKeyName = (key) => {
 			return `${prefix}_${key}`;
 		};

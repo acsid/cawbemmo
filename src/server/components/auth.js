@@ -242,10 +242,10 @@ module.exports = {
 			, table: "login"
 			, noParse: true
 		});
-		bcrypt.compare(credentials.password, storedPassword, this.onLogin.bind(this, msg, storedPassword));
+		bcrypt.compare(credentials.password, storedPassword, this.onLogin.bind(this, msg));
 	}
 
-	, onLogin: async function (msg, storedPassword, err, compareResult) {
+	, onLogin: async function (msg, err, compareResult) {
 		const { data: { username } } = msg;
 
 		const socket = this.obj.socket;

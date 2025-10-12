@@ -2,7 +2,7 @@
 const objects = require("../objects/objects");
 const events = require("../misc/events");
 const {
-	getThread, killThread, sendMessageToThread, getThreadFromId, doesThreadExist,
+	getThread, killThread, sendMessageToThread, getThreadFromId,
 	returnWhenThreadsIdle, getThreadStatus, tryFreeUnusedThread
 } = require("./threadManager");
 const { registerCallback, removeCallback } = require("./atlas/registerCallback");
@@ -48,7 +48,7 @@ module.exports = {
 			serverObj.socket.emit("event", {
 				event: "onGetAnnouncement"
 				, data: {
-					msg: "Loading map, please wait as this may take a few moments..."
+					msg: "Chargement de la zone " + zoneName + "... Veuillez patientez"
 					, ttl: 150
 				}
 			});
@@ -129,6 +129,10 @@ module.exports = {
 		) {
 			return this.savePlayersUnloadZone(thread, callback);
 		}
+		if (threadStatus.playerCount === 1) {
+			// Removing last player, flag inactive to be rechecked later.
+			thread.inactive = Date.now();
+		}
 		await new Promise((res) => {
 			sendMessageToThread({
 				threadId: obj.zoneId
@@ -195,9 +199,7 @@ module.exports = {
 		callback.callback(msg.msg.result);
 	}
 
-	, returnWhenZonesIdle: async function () {
-		await returnWhenThreadsIdle();
-	}
+	, returnWhenZonesIdle: () => returnWhenThreadsIdle()
 
 	, forceSavePlayer: async function (playerId, threadId) {
 		let thread;

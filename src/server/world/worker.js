@@ -1,123 +1,144 @@
-//Globals
-global.io = require("../db/io");
+const workerConfig = JSON.parse(process.argv[2]);
+
+// Globals
 global._ = require("../misc/helpers");
+// Configure logger base name
+_.log = _.log.worker[`Map/${workerConfig.name}`];
+// Log warnings
+process.on("warning", (e) => {
+	_.log.warn(`Warning: ${e.toString()}\r\n`, e.stack);
+});
+
+global.io = require("../db/io");
 global.consts = require("../config/consts");
+
 global.instancer = require("./instancer");
+instancer.mapName = workerConfig.name;
+
 global.eventManager = require("../events/events");
 global.clientConfig = require("../config/clientConfig");
 global.rezoneManager = require("./rezoneManager");
+require("../misc/random");
 
-const mapName = process.argv[2];
-// Configure logger base name.
-_.log = _.log.worker[`Map/${mapName}`];
-
-//Imports
-const components = require("../components/components");
 const mods = require("../misc/mods");
-const animations = require("../config/animations");
-const skins = require("../config/skins");
-const factions = require("../config/factions");
-const classes = require("../config/spirits");
-const spellsConfig = require("../config/spellsConfig");
-const spells = require("../config/spells");
-const recipes = require("../config/recipes/recipes");
-const itemTypes = require("../items/config/types");
-const salvager = require("../items/salvager");
-const mapManager = require("../world/mapManager");
-const itemEffects = require("../items/itemEffects");
-const profanities = require("../language/profanities");
 const eventEmitter = require("../misc/events");
 
-//Worker
-instancer.mapName = mapName;
+// Components Imports
+const COMPONENTS_CONFIGURATIONS_PATHS = {
+	components: "../components/components"
 
-const onCpnsReady = async function () {
-	factions.init();
-	skins.init();
-	animations.init();
-	classes.init();
-	spellsConfig.init();
-	spells.init();
-	itemTypes.init();
-	salvager.init();
-	mapManager.init();
-	recipes.init();
-	itemEffects.init();
-	profanities.init();
+	, factions: "../config/factions"
+	, skins: "../config/skins"
+	, animations: "../config/animations"
+
+	, classes: "../config/spirits"
+	, spellsConfig: "../config/spellsConfig"
+	, spells: "../config/spells"
+
+	, itemTypes: "../items/config/types"
+	, salvager: "../items/salvager"
+	, mapManager: "../world/mapManager"
+	, recipes: "../config/recipes/recipes"
+	, itemEffects: "../items/itemEffects"
+	, profanities: "../language/profanities"
+};
+
+(async function () {
+	// Init database
+	await new Promise(resolve => io.init(resolve));
+	// Add crash loggers
+	const onCrash = async (e) => {
+		if (e.toString().indexOf("ERR_IPC_CHANNEL_CLOSED") >= 0) {
+			return;
+		}
+		const errMsg = `Worker Map/${workerConfig.name} Crashed! ${e}\r\n${e.stack}`;
+		//eslint-disable-next-line no-console
+		console.error(errMsg);
+		await io.setAsync({
+			key: new Date().toISOString()
+			, table: "error"
+			, value: errMsg
+		});
+		process.send({ event: "onCrashed"
+			, name: workerConfig.name
+		});
+	};
+	process.on("uncaughtException", onCrash);
+	process.on("unhandledRejection", onCrash);
+	// Load mods
+	await mods.init({ logger: _.log.mods });
+	// and then load the components configurations.
+	await _.requireAll(module, COMPONENTS_CONFIGURATIONS_PATHS, (c) => c.init(), _.log.ComponentsConfiguration);
+
 	rezoneManager.init();
-
 	await clientConfig.init();
 
+	let closing = false;
+	const onClose = async () => {
+		if (closing) {
+			return;
+		}
+		closing = true;
+		_.log.debug("Received SIGTERM, saving before disconnect...");
+		const instances = instancer.instances;
+		for (let i = instances.length - 1; i >= 0; --i) {
+			const objects = instances[i].objects.objects;
+			const oLen = objects.length;
+			for (let j = 0; j < oLen; j++) {
+				const object = objects[j];
+				if (object?.auth?.doSave) {
+					_.log.debug("Saving", object.name);
+					await object.auth.doSave();
+				}
+			}
+		}
+		if (process.connected) {
+			process.disconnect();
+		}
+		_.log.debug("Disconnedted, closing thread.");
+		process.exit();
+	};
+	process.on("SIGINT", onClose);
+	process.on("SIGTERM", onClose);
+
+	// Start listening to messages.
+	process.on("message", (m) => {
+		if (m.module) {
+			const instances = instancer.instances;
+			const iLen = instances.length;
+			for (let i = 0; i < iLen; i++) {
+				const objects = instances[i].objects.objects;
+				const oLen = objects.length;
+				for (let j = 0; j < oLen; j++) {
+					const object = objects[j];
+					if (object.name === m.args[0]) {
+						const mod = object.instance[m.module];
+						return mod[m.method].apply(mod, m.args);
+					}
+				}
+			}
+			return;
+		}
+		if (m.threadModule) {
+			return global[m.threadModule][m.method](m.data);
+		}
+		if (m.method) {
+			return instancer[m.method](m.args);
+		}
+		if (m.event) {
+			return eventEmitter.emit(m.event, m.data);
+		}
+	});
+	// Notify parent that worker is ready.
 	process.send({
 		method: "onReady"
 	});
-};
-
-const onModsReady = function () {
-	components.init(onCpnsReady);
-};
-
-const onCrash = async (e) => {
-	if (e.toString().indexOf("ERR_IPC_CHANNEL_CLOSED") >= 0) {
-		return;
+})().catch(
+	(reason) => {
+		_.log.fatal(`Failed to initialize components: ${reason.toString()}\r\n`, reason.stack);
+		process.send({ event: "onCrashed"
+			, name: workerConfig.name
+		});
+		process.exit();
 	}
-	_.log.fatal(`Error Logged: ${e.toString()}\r\n`, e.stack);
-	await io.setAsync({
-		key: new Date()
-		, table: "error"
-		, value: e.toString() + " | " + e.stack.toString()
-	});
-	process.send({ event: "onCrashed"
-		, name: mapName
-	});
-};
-
-const onWarn = (warning) => {
-	_.log.warn(`Warning: ${e.toString()}\r\n`, e.stack);
-};
-process.on("warning", onWarn);
-
-const onDbReady = async function () {
-	require("../misc/random");
-
-	process.on("uncaughtException", onCrash);
-	process.on("unhandledRejection", onCrash);
-
-	await mods.init({ logger: _.log.mods });
-
-	onModsReady();
-};
-
-io.init(onDbReady);
-
-process.on("message", (m) => {
-	if (m.module) {
-		const instances = instancer.instances;
-		const iLen = instances.length;
-		for (let i = 0; i < iLen; i++) {
-			const objects = instances[i].objects.objects;
-			const oLen = objects.length;
-			let found = false;
-			for (let j = 0; j < oLen; j++) {
-				const object = objects[j];
-
-				if (object.name === m.args[0]) {
-					const mod = object.instance[m.module];
-					mod[m.method].apply(mod, m.args);
-
-					found = true;
-					break;
-				}
-			}
-			if (found) {
-				break;
-			}
-		}
-	} else if (m.threadModule) {
-		global[m.threadModule][m.method](m.data);
-	} else if (m.method) {
-		instancer[m.method](m.args);
-	} else if (m.event) {
-		eventEmitter.emit(m.event, m.data);
-	}
-});
+);

@@ -31,11 +31,8 @@ module.exports = {
 			if (!this.mobName || !this.item) {
 				let keys = Object.keys(mobTypes).filter(function (m) {
 					let mobBlueprint = mobTypes[m];
-
-					return (
-						(m !== "default") &&
-					(mobBlueprint.questItem) &&
-					(mobBlueprint.level <= (this.obj.stats.values.level * 1.35))
+					return (m !== "default" && mobBlueprint.questItem
+						&& (mobBlueprint.level <= (this.obj.stats.values.level * 1.35))
 					);
 				}, this);
 
@@ -53,11 +50,8 @@ module.exports = {
 			}
 		}
 		if (!this.item) {
-			this.setAsync({
-				key: new Date()
-				, table: "error"
-				, value: this.obj.name + " " + this.mobType
-			});
+			_.log.questLootGen.error("Quest item not found!", this.obj.name, this.mobType);
+			return false;
 		}
 		this.name = this.item.name + " Gatherer";
 		this.description = "Loot " + this.have + "/" + this.need + " " + this.item.name + " from " + this.mobName;

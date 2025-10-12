@@ -1,5 +1,5 @@
 module.exports = {
-	version: "05.07.24"
+	version: "07.10.25"
 	, content: `
 Le jeu es présentement en développement.
 Peu planté souvent
@@ -9,6 +9,8 @@ Le jeu garde en mémoire les informations suivante sur vous:
 -Votre nom d'utilisateur
 -Votre Mot de passe
 -Vos personnages
+
+Pour l'instant il es impossible de récupéré un compte si vous oublié le mot de passe,
 
 Nous vous offrons ce service gratuitement et es fournis sans aucune
 garanties.
