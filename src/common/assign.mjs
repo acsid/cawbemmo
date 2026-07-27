@@ -1,4 +1,4 @@
-/** assign.js - A recursive implementation of Object.assign()
+/** assign.mjs - A recursive implementation of Object.assign()
  */
 const assignRecursive = function (newObj, objSrc, remapCallback, path) {
 	if (!objSrc || typeof objSrc !== "object") {
@@ -27,7 +27,7 @@ const assignRecursive = function (newObj, objSrc, remapCallback, path) {
 			} else if (remap.index < 0) {
 				remap.index = newObj.length;
 			}
-			if (remap.hasOwnProperty("value")) {
+			if (Object.hasOwn(remap, "value")) {
 				newObj[remap.index] = assignRecursive(undefined, remap.value);
 			} else {
 				newObj[remap.index] = assignRecursive(newObj[remap.index], objSrc[i], remapCallback, iPath);
@@ -37,6 +37,10 @@ const assignRecursive = function (newObj, objSrc, remapCallback, path) {
 	}
 	if (!newObj) {
 		if (!_.isPlainObject(objSrc)) {
+			if (typeof objSrc.clone === "function") {
+				_.log.assign.trace("Cloning %o using objSrc.clone().", objSrc);
+				return objSrc.clone();
+			}
 			_.log.assign.debug("objSrc is not a plain object! Object %o will be returned unmodified.", objSrc);
 			return objSrc;
 		}
@@ -51,7 +55,7 @@ const assignRecursive = function (newObj, objSrc, remapCallback, path) {
 	}
 	*/
 	for (const propName in objSrc) {
-		if (!objSrc.hasOwnProperty(propName)) {
+		if (!Object.hasOwn(objSrc, propName)) {
 			continue;
 		}
 		if (!remapCallback) {
@@ -70,7 +74,7 @@ const assignRecursive = function (newObj, objSrc, remapCallback, path) {
 		if (!remap.has("index")) {
 			remap.index = propName;
 		}
-		if (remap.hasOwnProperty("value")) {
+		if (Object.hasOwn(remap, "value")) {
 			newObj[remap.index] = assignRecursive(undefined, remap.value);
 		} else {
 			newObj[remap.index] = assignRecursive(newObj[remap.index], objSrc[propName], remapCallback, nPath);
@@ -79,7 +83,7 @@ const assignRecursive = function (newObj, objSrc, remapCallback, path) {
 	return newObj;
 };
 
-const REMAPPERS = {
+export const REMAPPERS = {
 	particles: function(target, value, path, property) {
 		if (Array.isArray(target) && path.endsWith("behaviors") && value.has("type")) {
 			const result = {

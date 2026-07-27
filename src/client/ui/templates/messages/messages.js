@@ -13,6 +13,17 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 const template = await _.loadHTML("/ui/templates/messages/template.html", { raw: true });
 const tplTab = await _.loadHTML("/ui/templates/messages/tplTab.html", { raw: true });
 
+const eventMap = {
+	onGetMessages: "onGetMessages"
+	, onDoWhisper: "onDoWhisper"
+	, onJoinChannel: "onJoinChannel"
+	, onLeaveChannel: "onLeaveChannel"
+	, onClickFilter: "onClickFilter"
+	, onGetCustomChatChannels: "onGetCustomChatChannels"
+	, onKeyDown: "keydown"
+	, onKeyUp: "keyup"
+};
+
 export default {
 	tpl: template
 
@@ -31,16 +42,9 @@ export default {
 	, lastCustomChannel: null
 
 	, postRender: function () {
-		[
-			"onGetMessages"
-			, "onDoWhisper"
-			, "onJoinChannel"
-			, "onLeaveChannel"
-			, "onClickFilter"
-			, "onGetCustomChatChannels"
-			, "onKeyDown"
-			, "onKeyUp"
-		].forEach((e) => this.onEvent(e, this[e].bind(this)));
+		for (const [prop, key] of Object.entries(eventMap)) {
+			this.onEvent(key, this[prop].bind(this));
+		}
 
 		this.find(".filter:not(.channel)").on("click", this.onClickFilter.bind(this));
 
@@ -131,8 +135,8 @@ export default {
 		}
 	}
 
-	, onKeyDown: function (key) {
-		switch (key) {
+	, onKeyDown: function (e) {
+		switch (e.key) {
 			case "enter":
 				this.toggle(true);
 				break;
@@ -147,8 +151,8 @@ export default {
 		}
 	}
 
-	, onKeyUp: function (key) {
-		if (key === "shift") {
+	, onKeyUp: function (e) {
+		if (e.key === "shift") {
 			this.showItemTooltip();
 		}
 	}

@@ -1,20 +1,26 @@
 <div class="uiLogin">
 	<img class="logo" src="images/logo_0.png" alt="">
 	<div class="right hasBorderShadow">
-		<div class="label">Compte</div>
+		<div class="label">${login.username}</div>
 		<input type="text" class="el textbox txtUsername" placeholder="username">
-		<div class="label">MDP</div>
+		<div class="label">${login.password}</div>
 		<input type="password" class="el textbox txtPassword" placeholder="password">
+		<div class="label">${login.language}</div>
+		<select class="el textbox selectLanguage">
+			<option value="">Default</option>
+			<option value="en">English</option>
+			<option value="fr">Francais</option>
+		</select>
 		<div class="top-buttons">
-			<div class="el btn btnRegister">S'enregistré</div>
-			<div class="el btn btnLogin">Connexion</div>
+			<div class="el btn btnRegister">${login.register}</div>
+			<div class="el btn btnLogin">${login.login}</div>
 		</div>
 		<div class="message"></div>
 	</div>
-	<div class="news" location="https://github.com/acsid/cawbemmo">[ GITHUB ]</div>
+	<div class="news" data-href="https://github.com/acsid/cawbemmo">[ GITHUB ]</div>
 	<div class="extra">
-		<div class="el btn btnWiki" location="http://00stack.in">00stack</div>
-		<div class="el btn btnTest" location="/plugins/selftest/SpecRunner.html?random=false&stopSpecOnExpectationFailure=true&stopOnSpecFailure=true">Health Check</div>
+		<div class="el btn btnCredits" data-ui="credits">${credits.pageTitle}</div>
+		<div class="el btn btnSelfTest" data-href="/plugins/selftest/SpecRunner.html?random=false&stopSpecOnExpectationFailure=true&stopOnSpecFailure=true">${login.selfcheck}</div>
 	</div>
-	<div class="version" location="#">$VERSION$</div>
+	<div class="version" data-ui="changeLog">${version}</div>
 </div>

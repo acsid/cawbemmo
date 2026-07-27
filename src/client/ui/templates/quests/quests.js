@@ -1,5 +1,6 @@
 import events from "/js/system/events.js";
 import client from "/js/system/client.js";
+import locale from "/js/locale/index.js";
 import config from "/js/config.js";
 
 import styles from "./styles.css" with { type: "css" };
@@ -11,11 +12,12 @@ const template = await _.loadHTML("/ui/templates/quests/template.html", { raw: t
 const templateQuest = await _.loadHTML("/ui/templates/quests/templateQuest.html", { raw: true });
 
 export default {
-	tpl: template
-
+	container: ".right"
 	, quests: []
-	, container: ".right"
 
+	, beforeRender: function () {
+		this.tpl = locale.getLocalizedMessage(locale.dictionary, template);
+	}
 	, postRender: function () {
 		if (isMobile) {
 			this.el.on("click", this.toggleButtons.bind(this));
@@ -38,27 +40,34 @@ export default {
 	}
 
 	, onObtainQuest: function (quest) {
-		let list = this.el.find(".list");
+		const rewards = [];
+		if (quest.xp) {
+			rewards.push(quest.xp + " xp");
+		}
+		const localeDictionary = {
+			zone: quest.zoneName
+			, name: quest.name
+			, description: quest.description
+		};
+		if (rewards.length > 0) {
+			localeDictionary.reward = `${locale.translate("quests", "reward")}: ${rewards.join(", ")}`;
+		} else {
+			localeDictionary.reward = locale.translate("quests", "noReward");
+		}
 
-		let html = templateQuest
-			.replace("$ZONE$", quest.zoneName)
-			.replace("$NAME$", quest.name)
-			.replace("$DESCRIPTION$", quest.description)
-			.replace("$REWARD$", quest.xp + " xp");
-
+		const list = this.el.find(".list");
+		let html = locale.getLocalizedMessage(Object.assign(localeDictionary, locale.dictionary), templateQuest);
 		let el = $(html)
 			.appendTo(list);
 
 		if (quest.isReady) {
 			el.addClass("ready");
 		}
-
 		if (quest.active) {
 			el.addClass("active");
 		} else if (!quest.isReady) {
 			el.addClass("disabled");
 		}
-
 		el.on("click", this.onClick.bind(this, el, quest));
 
 		this.quests.push({
@@ -67,20 +76,19 @@ export default {
 			, quest: quest
 		});
 
-		let quests = list.find(".quest");
-		quests.toArray().forEach((c) => {
-			let childEl = $(c);
+		const questsElements = list.find(".quest");
+		for (const qElm of questsElements.toArray()) {
+			const childEl = $(qElm);
 			if (childEl.hasClass("active")) {
 				childEl.prependTo(list);
 			}
-		});
+		}
 	}
 
 	, onClick: function (el, quest) {
 		if (!el.hasClass("ready")) {
 			return;
 		}
-
 		client.request({
 			cpn: "player"
 			, method: "performAction"
@@ -95,7 +103,7 @@ export default {
 	}
 
 	, onUpdateQuest: function (quest) {
-		let q = this.quests.find((f) => f.id === quest.id);
+		const q = this.quests.find((f) => f.id === quest.id);
 		q.quest.isReady = quest.isReady;
 
 		q.el.find(".description").html(quest.description);
@@ -110,7 +118,6 @@ export default {
 					msg: "Quest ready for turn-in"
 				});
 			}
-
 			events.emit("onQuestReady", quest);
 		}
 	}

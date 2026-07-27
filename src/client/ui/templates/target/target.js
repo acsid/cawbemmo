@@ -52,8 +52,8 @@ export default {
 			if (target.prophecies) {
 				const inspectContext = [
 					target.name
-					, "----------", {
-						text: "inspect"
+					, "----------"
+					, { text: "inspect"
 						, callback: this.onInspect.bind(this)
 					}
 				];
@@ -75,8 +75,8 @@ export default {
 
 		const talkContext = [
 			target.name
-			, "----------", {
-				text: "talk"
+			, "----------"
+			, { text: "talk"
 				, callback: this.onTalk.bind(this)
 			}
 		];
@@ -156,17 +156,15 @@ export default {
 			if (crushing) {
 				el.find(".infoLevel").addClass("high-level");
 			}
-
 			el.show();
 		}
-
 		if (e && e.button === 2 && this.target) {
 			this.onContextMenu(e);
 		}
 	}
 
 	, buildBar: function (barIndex, value, max) {
-		let box = this.el.find(".statBox").eq(barIndex);
+		const box = this.el.find(".statBox").eq(barIndex);
 
 		let w = Math.floor((value / max) * 100);
 		box.find("[class^=\"stat\"]").css("width", w + "%");
@@ -176,18 +174,15 @@ export default {
 
 	, update: function () {
 		let target = this.target;
-
 		if (!target) {
 			return;
 		}
-
 		if (target.destroyed) {
 			this.onSetTarget();
 			return;
 		}
 
 		let stats = target.stats.values;
-
 		if (stats.level !== this.lastLevel) {
 			this.el.find(".infoLevel")
 				.html("(" + stats.level + ")")
@@ -198,12 +193,10 @@ export default {
 				this.el.find(".infoLevel").addClass("high-level");
 			}
 		}
-
 		if (stats.hp !== this.lastHp) {
 			this.buildBar(0, stats.hp, stats.hpMax);
 			this.lastHp = stats.hp;
 		}
-
 		if (stats.mana !== this.lastMana) {
 			this.buildBar(1, stats.mana, stats.manaMax);
 			this.lastMana = stats.mana;

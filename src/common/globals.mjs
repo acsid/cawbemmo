@@ -52,10 +52,19 @@ Object.defineProperties(Array.prototype, {
 	}
 });
 
+if (typeof Node === "function" && Node.prototype) {
+	Object.defineProperty(Node.prototype, "clone", {
+		enumerable: false, writable: true
+		, value: function () {
+			return this.cloneNode(true);
+		}
+	});
+}
+
 Object.defineProperty(Object.prototype, "has", {
 	enumerable: false, writable: true
 	, value: function (prop) {
-		return (this.hasOwnProperty(prop) && this[prop] !== undefined && this[prop] !== null);
+		return (Object.hasOwn(this, prop) && this[prop] !== undefined && this[prop] !== null);
 	}
 });
 
@@ -105,6 +114,19 @@ Object.defineProperties(String.prototype, {
 		}
 	}
 });
+
+if (typeof Touch === "function" && Touch.prototype) {
+	Object.defineProperty(Touch.prototype, "toPos", {
+		enumerable: false, writable: true
+		, value: function (target, zoom = 1) {
+			const rect = target.getBoundingClientRect();
+			return {
+				x: (this.pageX - rect.left) * zoom
+				, y: (this.pageY - rect.top) * zoom
+			};
+		}
+	});
+}
 
 const makeQuerablePromise = function (promise) {
 	if (typeof promise !== 'object') {
@@ -324,12 +346,12 @@ const tmpExport = {
 				}
 				clearTimeout(timeout);
 			}
-			timeout = setTimeout(function () {
+			timeout = setTimeout(() => {
 				if (!immediate) {
 					applyFn(context, args);
 				}
 				timeout = null;
-			}, wait)
+			}, wait);
 			if (callNow) {
 				applyFn(context, args);
 			}
@@ -464,28 +486,30 @@ const tmpExport = {
 
 	, isPlainObject: function (obj) {
 		const oprop = obj.isPrototypeOf && "isPrototypeOf" || "hasOwnProperty";
-		const hasOwn = Object.prototype.hasOwnProperty;
 		if (!obj
 			|| Object.prototype.toString.call(obj) !== "[object Object]"
 			|| !(oprop in obj)
-			|| hasOwn.call(obj, oprop)
+			|| Object.hasOwn(obj, oprop)
 		) {
 			return false;
 		}
 		if (obj.constructor
-			&& !hasOwn.call(obj, "constructor")
+			&& !Object.hasOwn(obj, "constructor")
 			&& obj.constructor.prototype
-			&& !hasOwn.call(obj.constructor.prototype, oprop)
+			&& !Object.hasOwn(obj.constructor.prototype, oprop)
 		) {
 			return false;
 		}
 		let prop;
 		for (prop in obj) {} // Get last iterable key of obj.
-		return prop === undefined || hasOwn.call(obj, prop);
+		return prop === undefined || Object.hasOwn(obj, prop);
 	}
 };
 
-import assignModule from "./assign.js";
+import assignModule from "./assign.mjs";
 assignModule.assign(tmpExport, assignModule);
+
+import * as mathModule from "./math.mjs";
+assignModule.assign(tmpExport, mathModule);
 
 export default tmpExport;

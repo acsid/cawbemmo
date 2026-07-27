@@ -1,0 +1,4 @@
+# Mocha picks up ./tests/*.{js,mjs,cjs}. Renamed from the default ./test/ to
+# match the plural convention; set explicitly so the spec glob follows.
+spec:
+  - "tests/*.{js,mjs,cjs}"

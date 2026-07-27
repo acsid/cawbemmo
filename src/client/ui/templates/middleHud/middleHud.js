@@ -35,9 +35,9 @@ export default {
 		const action = btn.data("action");
 		if (action) {
 			//Server actions use keyUp
-			events.emit("onKeyUp", action.key);
+			events.emit("keyup", action.key);
 		} else {
-			events.emit("onKeyDown", "g");
+			events.emit("keydown", { key: "g" });
 		}
 	}
 

@@ -33,6 +33,7 @@ export default {
 			let x = -(icon[0] * 64);
 			let y = -(icon[1] * 64);
 
+			//FIXME replace "space" with input action key.
 			let hotkey = (spell.id === 0) ? "space" : spells[i].id;
 
 			const html = templateSpell.replace("$HOTKEY$", hotkey);
@@ -68,7 +69,7 @@ export default {
 	, onClickSpell: function (hotkey, e) {
 		e.preventDefault();
 
-		const key = (hotkey === "space") ? " " : hotkey;
+		const key = (hotkey === "space") ? 0 : hotkey;
 		window.player.spellbook.triggerSpell(key);
 		return false;
 	}

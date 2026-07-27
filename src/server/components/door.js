@@ -82,7 +82,7 @@ module.exports = {
 		}
 
 		obj.syncer.setArray(true, "serverActions", "removeActions", {
-			key: "u"
+			inputAction: "use"
 			, action: {
 				cpn: "door"
 				, method: "unlock"
@@ -99,20 +99,20 @@ module.exports = {
 		}
 
 		let canAction = true;
-		let msg = "Press U to open this door";
+		let msg = language.translate(obj.language, "announcements", "doorOpen");
 
 		if (this.closed) {
 			if (this.locked && !this.canActorUnlockThis(obj)) {
 				canAction = false;
-				msg = "You don't have the key to unlock this door";
+				msg = language.translate(obj.language, "announcements", "doorLocked");
 			}
 		} else {
-			msg = "Press U to close this door";
+			msg = language.translate(obj.language, "announcements", "doorClose");
 		}
 
 		if (canAction) {
 			obj.syncer.setArray(true, "serverActions", "addActions", {
-				key: "u"
+				inputAction: "use"
 				, name: this.closed ? "open door" : "close door"
 				, action: {
 					cpn: "door"

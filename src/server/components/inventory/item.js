@@ -5,16 +5,16 @@ const itemBase = {
 	factions: []
 };
 module.exports = class Item {
-	static #knownClassesTypes = {}
+	static #knownClassesTypes = {};
 
-	static async init() {
+	static async init () {
 	}
 
-	static addType(typeName, typeInstance) {
+	static addType (typeName, typeInstance) {
 		this.#knownClassesTypes[typeName] = typeInstance;
 	}
 
-	static fromJSON(json) {
+	static fromJSON (json) {
 		if (typeof json !== "object") {
 			throw new Error("json object missing!");
 		}
@@ -23,22 +23,22 @@ module.exports = class Item {
 		return _.assign(item, itemBase, json);
 	}
 
-	static getById(id) {
+	static getById (id) {
 		throw new Error("Not implemented!");
 	}
 
-	constructor() {
+	constructor () {
 	}
 
-	get isStackable() {
+	get isStackable () {
 		return (this.material || this.quest || this.quantity) && !this.noStack && !this.uses;
 	}
 
-	get isOnCooldown() {
+	get isOnCooldown () {
 		return (this.cdMax > 0 && this.cd);
 	}
 
-	placeItemOnCooldown(cpnInv, cdMax) {
+	placeItemOnCooldown (cpnInv, cdMax) {
 		this.cd = cdMax || this.cdMax;
 
 		// Find similar items and put them on cooldown too
@@ -49,7 +49,7 @@ module.exports = class Item {
 		}
 	}
 
-	async use(cpnInv, itemId) {
+	async use (cpnInv, itemId) {
 		const obj = cpnInv.obj;
 		const beforeGetCooldownMessage = {
 			obj
@@ -59,7 +59,7 @@ module.exports = class Item {
 		obj.instance.eventEmitter.emit("onBeforeGetItemCd", beforeGetCooldownMessage);
 		obj.fireEvent("onBeforeGetItemCd", beforeGetCooldownMessage);
 
-		if (isOnCooldown(obj, cpnInv, beforeGetCooldownMessage)) {
+		if (this.isOnCooldown(obj, cpnInv, beforeGetCooldownMessage)) {
 			return false;
 		}
 
@@ -83,7 +83,7 @@ module.exports = class Item {
 			return false;
 		}
 
-		placeItemOnCooldown(obj, cpnInv, result);
+		this.placeItemOnCooldown(obj, cpnInv, result);
 		if (this.recipe) {
 			const didLearn = await learnRecipe(obj, this);
 			if (didLearn) {
@@ -130,7 +130,7 @@ module.exports = class Item {
 		return true;
 	}
 
-	toJSON() {
+	toJSON () {
 		const result = _.assign({}, this);
 		if (result.effects) {
 			result.effects = result.effects.map((e) => ({

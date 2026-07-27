@@ -1,22 +1,22 @@
 <div class="uiOptions">
 	<div class="heading">
-		<div class="heading-text">Options</div>
+		<div class="heading-text">${options.pageTitle}</div>
 	</div>
 	<div class="tabs">
-		<button id="options-tabbtn-game" class="tablinks">Jeu</button>
-		<button id="options-tabbtn-mapping" class="tablinks">Controles</button>
-		<button id="options-tabbtn-indicators" class="tablinks">Indicateurs</button>
+		<button id="options-tabbtn-game" class="tablinks">${options.game.pageTitle}</button>
+		<button id="options-tabbtn-mapping" class="tablinks">${options.controllers.pageTitle}</button>
+		<button id="options-tabbtn-indicators" class="tablinks">${options.indicators.pageTitle}</button>
 	</div>
 	<div class="bottom">
 		<div id="options-tab-game" class="tabcontent">
 			<div class="list">
 				<div id="options-game-heading" class="heading"></div>
 				<div id="options-fullscreen" class="item">
-					<div class="name">Plein écran</div>
-					<div class="value">Off</div>
+					<div class="name">${options.game.fullscreen}</div>
+					<div class="value">${options.disabled}</div>
 				</div>
 				<div id="options-volume-sound" class="item volume">
-					<div class="name">Volume son</div>
+					<div class="name">${options.game.volume.sound}</div>
 					<div class="value">100</div>
 					<div class="slider">
 						<div class="btn decrease">-</div>
@@ -27,7 +27,7 @@
 					</div>
 				</div>
 				<div id="options-volume-music" class="item volume">
-					<div class="name">Volume Musique</div>
+					<div class="name">${options.game.volume.music}</div>
 					<div class="value">100</div>
 					<div class="slider">
 						<div class="btn decrease">-</div>
@@ -37,10 +37,10 @@
 						<div class="btn increase">+</div>
 					</div>
 				</div>
-				<div id="options-chat" class="heading">Chat</div>
+				<div id="options-chat" class="heading">${options.game.chat}</div>
 				<div id="options-lastChannel" class="item">
-					<div class="name">Ce souvenir du dernier canal</div>
-					<div class="value">On</div>
+					<div class="name">${options.game.lastChannel}</div>
+					<div class="value">${options.enabled}</div>
 				</div>
 			</div>
 		</div>
@@ -48,9 +48,8 @@
 			<div class="list">
 				<div id="options-mapping-heading" class="heading"></div>
 				<div id="options-controller" class="item">
-					<div class="name">{{controller}}</div>
 					<select name="controller" id="options-controller-selector" class="value">
-						<option value="keyboard">{{keyboard}}</option>
+						<option value="keyboard">${options.controllers.keyboard}</option>
 					</select>
 				</div>
 			</div>
@@ -59,33 +58,33 @@
 			<div class="list">
 				<div id="options-indicators-heading" class="heading"></div>
 				<div id="options-nameplates" class="item">
-					<div class="name">Noms</div>
-					<div class="value">On</div>
+					<div class="name">${options.indicators.nameplates}</div>
+					<div class="value">${options.enabled}</div>
 				</div>
 				<div id="options-quests" class="item">
-					<div class="name">Quêtes</div>
-					<div class="value">On</div>
+					<div class="name">${options.indicators.quests}</div>
+					<div class="value">${options.enabled}</div>
 				</div>
 				<div id="options-events" class="item">
-					<div class="name">Évenement</div>
-					<div class="value">On</div>
+					<div class="name">${options.indicators.events}</div>
+					<div class="value">${options.enabled}</div>
 				</div>
 				<div id="options-partyView" class="item">
-					<div class="name">Groupe</div>
+					<div class="name">${options.indicators.party}</div>
 					<div class="value">Full</div>
 				</div>
 				<div id="options-damageNumbers" class="item">
-					<div class="name">Dommage</div>
+					<div class="name">${options.indicators.damageNumbers}</div>
 					<div class="value">Element</div>
 				</div>
-				<div id="options-inventory" class="heading">Inventaire</div>
+				<div id="options-inventory" class="heading">${options.indicators.inventory}</div>
 				<div id="options-quality" class="item">
-					<div class="name">Indicateur de qualité</div>
-					<div class="value">Off</div>
+					<div class="name">${options.indicators.itemQuality}</div>
+					<div class="value">${options.disabled}</div>
 				</div>
 				<div id="options-unusable" class="item">
-					<div class="name">Inducateur utilisable</div>
-					<div class="value">Off</div>
+					<div class="name">${options.indicators.itemUnusable}</div>
+					<div class="value">${options.disabled}</div>
 				</div>
 			</div>
 		</div>

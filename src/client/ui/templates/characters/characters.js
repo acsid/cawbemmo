@@ -1,7 +1,9 @@
 import client from "/js/system/client.js";
 //import events from "/js/system/events.js";
 import globals from "/js/system/globals.js";
+import spriteRegistry from "/js/system/spriteRegistry.js";
 import uiFactory from "/ui/factory.js";
+import locale from "/js/locale/index.js";
 
 import styles from "./styles.css" with { type: "css" };
 if (!document.adoptedStyleSheets.includes(styles)) {
@@ -12,9 +14,7 @@ const template = await _.loadHTML("/ui/templates/characters/template.html", { ra
 const templateListItem = await _.loadHTML("/ui/templates/characters/templateListItem.html", { raw: true });
 
 export default {
-	tpl: template
-
-	, centered: true
+	centered: true
 	, characterInfo: {}
 	, characters: null
 	, selected: null
@@ -22,6 +22,8 @@ export default {
 	, deleteCount: 0
 
 	, beforeRender: function () {
+		this.tpl = locale.getLocalizedMessage(locale.dictionary, template);
+
 		const { clientConfig: { logoPath } } = globals;
 		if (!logoPath) {
 			return;
@@ -42,17 +44,17 @@ export default {
 
 		this.getCharacters();
 
-		this.onEvent("onKeyDown", this.onKeyDown.bind(this));
+		this.onEvent("keydown", this.onKeyDown.bind(this));
 	}
 
-	, onKeyDown: function (key) {
+	, onKeyDown: function (e) {
 		if (this.el.hasClass("disabled")) {
 			return;
 		}
 
-		if (key === "enter") {
+		if (e.key === "enter") {
 			this.onPlayClick();
-		} else if (key === "up" || key === "down") {
+		} else if (e.key === "up" || e.key === "down") {
 			if (!this.characters || this.selectedIndex === -1) {
 				return;
 			}
@@ -62,7 +64,7 @@ export default {
 				return;
 			}
 
-			const delta = key === "up" ? -1 : 1;
+			const delta = e.key === "up" ? -1 : 1;
 
 			//Clamp index within range [0, numChars - 1]
 			const newIndex = Math.min(Math.max(this.selectedIndex + delta, 0), numChars - 1);
@@ -90,7 +92,7 @@ export default {
 	}
 
 	, onNewClick: function () {
-		uiFactory.build("createCharacter", {});
+		uiFactory.build("createCharacter");
 		this.destroy();
 	}
 
@@ -111,19 +113,15 @@ export default {
 			.empty();
 
 		this.characters
-			.sort(function (a, b) {
-				return (b.level - a.level);
-			})
-			.forEach(function (c, i) {
+			.sort((a, b) => b.level - a.level)
+			.forEach((c, i) => {
 				let charName = c.name;
 				if (c.level !== null) {
-					charName += "<font class=\"color-yellowB\">&nbsp;(" + c.level + ")</font>";
+					charName += `<font class="color-yellowB">&nbsp;(${c.level})</font>`;
 				}
 
-				let html = templateListItem
-					.replace("$NAME$", charName);
-
-				let li = $(html)
+				const html = locale.getLocalizedMessage({ name: charName }, templateListItem);
+				const li = $(html)
 					.appendTo(list);
 
 				li.on("click", this.onCharacterClick.bind(this, c.name, i));
@@ -151,11 +149,14 @@ export default {
 
 		this.find(".btn").removeClass("disabled");
 
-		let spriteY = Math.floor(charInfo.cell / 8);
-		let spirteX = charInfo.cell - (spriteY * 8);
+		const props = spriteRegistry.getSpriteProps({ name: charInfo.sheetName, module: "characters" });
+		// Column count derives from the sheet's pixel width / source size, mirroring the renderer's getTexture (textures.width / size).
+		const charCols = props.sheetWidth / props.size;
+		let spriteY = Math.floor(charInfo.cell / charCols);
+		let spirteX = charInfo.cell - (spriteY * charCols);
 
-		spirteX = -(spirteX * 8);
-		spriteY = -(spriteY * 8);
+		spirteX = -(spirteX * props.size);
+		spriteY = -(spriteY * props.size);
 
 		let spritesheet = charInfo.sheetName;
 		if (spritesheet === "characters") {
@@ -163,7 +164,12 @@ export default {
 		}
 
 		this.find(".sprite")
-			.css("background", `url("${spritesheet}") ${spirteX}px ${spriteY}px`)
+			.css({
+				width: props.width
+				, height: props.height
+				, transform: props.transform
+				, background: `url("${spritesheet}") ${spirteX}px ${spriteY}px`
+			})
 			.show();
 
 		this.find(".name").html(charName);
@@ -209,12 +215,19 @@ export default {
 		if (this.deleteCount < 3) {
 			this.deleteCount++;
 
-			this.setMessage("click delete " + (4 - this.deleteCount) + " more time" + ((this.deleteCount === 3) ? "" : "s") + " to confirm");
+			this.setMessage(
+				locale.translate("characters", "deleteCountdown"
+					, {
+						countdown: 4 - this.deleteCount
+						, s: (this.deleteCount === 3) ? "" : "s"
+					}
+				)
+			);
 
 			this.find(".btnDelete")
 				.removeClass("deleting")
 				.addClass("deleting")
-				.html("delete (" + (4 - this.deleteCount) + ")");
+				.html(`${locale.translate("characters", "delete")} (${4 - this.deleteCount})`);
 
 			return;
 		}
@@ -235,7 +248,7 @@ export default {
 		this.deleteCount = 0;
 		this.find(".btnDelete")
 			.removeClass("deleting")
-			.html("delete");
+			.html(locale.translate("characters", "delete"));
 
 		setTimeout(this.setMessage.bind(this, ""), 5000);
 	}

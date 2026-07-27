@@ -41,7 +41,7 @@ module.exports = {
 		this.proximalPlayers.spliceWhere((p) => p === obj);
 
 		obj.syncer.setArray(true, "serverActions", "removeActions", {
-			key: "u"
+			inputAction: "use"
 			, action: {
 				cpn: "wardrobe"
 				, method: "access"
@@ -63,11 +63,11 @@ module.exports = {
 			this.proximalPlayers.push(obj);
 		}
 
-		let msg = "Press U to access the wardrobe";
+		let msg = language.translate(obj.language, "announcements", "wardrobe");
 
 		obj.syncer.setArray(true, "serverActions", "addActions", {
-			key: "u"
-			, name: "open wardrobe"
+			name: "open wardrobe"
+			, inputAction: "use"
 			, action: {
 				cpn: "wardrobe"
 				, method: "open"

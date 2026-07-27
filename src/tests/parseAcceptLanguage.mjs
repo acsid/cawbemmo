@@ -1,10 +1,11 @@
-//const expect = (await require("chai")).expect;
-//import { expect} from "chai"
-const { parseAcceptLanguage } = require("../server/misc/helpers.js");
+import { expect } from "chai"
 
-let expect;
+//let expect;
+let parseAcceptLanguage;
 before(async () => {
-	expect = (await import("chai")).expect;
+	//expect = (await import("chai")).expect;
+
+	parseAcceptLanguage = (await import("../server/misc/helpers.mjs")).default.parseAcceptLanguage;
 });
 
 describe("parseAcceptLanguage", () => {

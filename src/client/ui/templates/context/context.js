@@ -17,10 +17,10 @@ export default {
 	, postRender: function () {
 		this.onEvent("onContextMenu", this.onContextMenu.bind(this));
 		this.onEvent("onHideContextMenu", this.onMouseDown.bind(this));
-		this.onEvent("mouseDown", this.onMouseDown.bind(this));
-		this.onEvent("onUiKeyDown", this.onUiKeyDown.bind(this));
+		this.onEvent("mousedown", this.onMouseDown.bind(this));
+		this.onEvent("uikeypress", this.onUiKeyPress.bind(this));
 
-		$(".ui-container").on("mouseup", this.onMouseDown.bind(this));
+		$("#ui-container").on("mouseup", this.onMouseDown.bind(this));
 	}
 
 	, onContextMenu: function (config, e) {
@@ -90,7 +90,7 @@ export default {
 		this.el.hide();
 	}
 
-	, onUiKeyDown: function (keyEvent) {
+	, onUiKeyPress: function (keyEvent) {
 		if (!this.config || !this.el.is(":visible")) {
 			return;
 		}

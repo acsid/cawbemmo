@@ -11,6 +11,14 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 const template = await _.loadHTML("/ui/templates/stash/template.html", { raw: true });
 //const tplItem = await _.loadHTML("/ui/templates/inventory/templateItem.html", { raw: true });
 
+const eventMap = {
+	onKeyUp: "keyup"
+	, onKeyDown: "keydown"
+	, onOpenStash: "onOpenStash"
+	, onAddStashItems: "onAddStashItems"
+	, onRemoveStashItems: "onRemoveStashItems"
+};
+
 export default {
 	tpl: template
 
@@ -24,16 +32,9 @@ export default {
 	, hasClose: true
 
 	, postRender: function () {
-		[
-			"onKeyUp"
-			, "onKeyDown"
-			, "onOpenStash"
-			, "onAddStashItems"
-			, "onRemoveStashItems"
-		]
-			.forEach((e) => {
-				this.onEvent(e, this[e].bind(this));
-			});
+		for (const [prop, key] of Object.entries(eventMap)) {
+			this.onEvent(key, this[prop].bind(this));
+		}
 	}
 
 	, build: function () {
@@ -205,8 +206,8 @@ export default {
 		}
 	}
 
-	, onKeyUp: function (key) {
-		if (key === "shift" && this.hoverItem) {
+	, onKeyUp: function (e) {
+		if (e.key === "shift" && this.hoverItem) {
 			this.onHover();
 		}
 	}

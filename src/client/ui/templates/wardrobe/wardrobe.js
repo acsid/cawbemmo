@@ -1,5 +1,6 @@
 import client from "/js/system/client.js";
 import events from "/js/system/events.js";
+import spriteRegistry from "/js/system/spriteRegistry.js";
 
 import styles from "./styles.css" with { type: "css" };
 if (!document.adoptedStyleSheets.includes(styles)) {
@@ -58,14 +59,28 @@ export default {
 
 		this.skin = skin;
 
+		const props = spriteRegistry.getSpriteProps({ name: "characters", module: "wardrobe" });
 		let costume = skin.sprite.split(",");
-		let spriteX = -costume[0] * 8;
-		let spriteY = -costume[1] * 8;
+		let spriteX = -costume[0] * props.size;
+		let spriteY = -costume[1] * props.size;
+
+		// Display size = source size * scale factor, parsed from props.transform (e.g. "scale(8)").
+		// Used to center the absolutely-positioned .sprite.
+		const scaleMatch = (props.transform || "").match(/scale\(([\d.]+)\)/);
+		const displaySize = scaleMatch ? props.size * Number(scaleMatch[1]) : props.size;
 
 		let spritesheet = skin.spritesheet || "../../../images/characters.png";
 
+		const centering = `calc((100% - ${displaySize}px) / 2)`;
 		this.find(".sprite")
-			.css("background", "url(\"" + spritesheet + "\") " + spriteX + "px " + spriteY + "px");
+			.css({
+				width: props.width
+				, height: props.height
+				, transform: props.transform
+				, left: centering
+				, top: centering
+				, background: "url(\"" + spritesheet + "\") " + spriteX + "px " + spriteY + "px"
+			});
 	}
 
 	, apply: function () {

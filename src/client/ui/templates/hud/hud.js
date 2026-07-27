@@ -22,7 +22,7 @@ export default {
 		this.onEvent("onGetPortrait", this.events.onGetPortrait.bind(this));
 		this.onEvent("onGetItems", this.events.onGetItems.bind(this));
 		this.onEvent("onDestroyItems", this.events.onDestroyItems.bind(this));
-		this.onEvent("onKeyDown", this.events.onKeyDown.bind(this));
+		this.onEvent("keydown", this.events.onKeyDown.bind(this));
 
 		this.find(".quickItem")
 			.on("mousemove", this.showQuickItemTooltip.bind(this, true))
@@ -138,8 +138,8 @@ export default {
 			itemEl.data("item", quickItem);
 		}
 
-		, onKeyDown: function (key) {
-			if (key === "r") {
+		, onKeyDown: function (e) {
+			if (e.key === "r") {
 				this.useQuickItem();
 			}
 		}

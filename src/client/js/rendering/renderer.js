@@ -6,6 +6,7 @@ import tileOpacity from "/js/rendering/tileOpacity.js";
 import particles from "/js/rendering/particles.js";
 import shaderOutline from "/js/rendering/shaders/outline.js";
 import spritePool from "/js/rendering/spritePool.js";
+import spriteRegistry from "/js/system/spriteRegistry.js";
 import globals from "/js/system/globals.js";
 
 const particleLayers = ["particlesUnder", "particles"];
@@ -170,17 +171,29 @@ export default {
 		});
 	}
 
-	, toggleScreen: function () {
-		if (window.innerHeight === screen.height) { // isFullscreen
-			// Change to windowed mode.
-			const doc = document;
-			(doc.cancelFullscreen || doc.msCancelFullscreen || doc.mozCancelFullscreen || doc.webkitCancelFullScreen).call(doc);
+	, toggleScreen: async function () {
+		if (!document.fullscreenEnabled) {
+			_.log.requestFullscreen.notice("Fullscreen mode is not available!");
 			return "Windowed";
 		}
-		// Enable fullscreen mode.
-		const el = $("body")[0];
-		(el.requestFullscreen || el.msRequestFullscreen || el.mozRequestFullscreen || el.webkitRequestFullscreen).call(el);
-		return "Fullscreen";
+		if (document.fullscreenElement
+			|| window.innerHeight === screen.height
+		) { // isFullscreen
+			try { // Change to windowed mode.
+				await document.exitFullscreen();
+				return "Windowed";
+			} catch (error) {
+				_.log.exitFullscreen.error(error);
+				return "Fullscreen";
+			}
+		}
+		try { // Enable fullscreen mode.
+			await document.body.requestFullscreen();
+			return "Fullscreen";
+		} catch (error) {
+			_.log.requestFullscreen.error(error);
+			return "Windowed";
+		}
 	}
 
 	, buildTitleScreen: async function () {
@@ -795,7 +808,7 @@ export default {
 		const { fontSize = 14, color = 0xF2F5F5 } = obj;
 
 		const textSprite = new PIXI.Text(text, {
-			fontFamily: "bitty"
+			fontFamily: "var(--main-font)"
 			, fontSize: fontSize
 			, fill: color
 			, stroke: 0x2d2136
@@ -834,8 +847,13 @@ export default {
 
 		const spriteSizes = globals.clientConfig.spriteSizes;
 		const newSize = spriteSizes[sheetName] || 8;
-		obj.w = newSize * scaleMult;
-		obj.h = newSize * scaleMult;
+		//In-world size multiplier from the sheet's <sheet>.json "world" override
+		//(defaults to 1 for sheets without one). Cached on the sprite so
+		//setSpritePosition can derive scale.x from the same value.
+		const { scale: sheetScale = 1 } = spriteRegistry.getSpriteProps({ name: sheetName, module: "world" });
+		sprite.sheetScale = sheetScale;
+		obj.w = newSize * scaleMult * sheetScale;
+		obj.h = newSize * scaleMult * sheetScale;
 		sprite.width = obj.w;
 		sprite.height = obj.h;
 		sprite.texture = this.getTexture(sheetName, cell, newSize);
@@ -854,20 +872,21 @@ export default {
 		sprite.y = (y * scale) + offsetY;
 
 		if (sprite.width > scale) {
+			// Center the oversized sprite over its tile horizontally and stand it on the tile vertically (feet at the tile bottom).
+			const overhang = sprite.width - scale;
 			if (flipX) {
-				sprite.x += scale;
+				sprite.x += (overhang / 2);
 			} else {
-				sprite.x -= scale;
+				sprite.x -= (overhang / 2);
 			}
-
-			sprite.y -= (scale * 2);
+			sprite.y -= overhang;
 		}
 
 		if (oldY !== sprite.y) {
 			this.reorder();
 		}
 
-		sprite.scale.x = flipX ? -scaleMult : scaleMult;
+		sprite.scale.x = flipX ? -(scaleMult * (sprite.sheetScale ?? 1)) : (scaleMult * (sprite.sheetScale ?? 1));
 	}
 
 	, reorder: function () {

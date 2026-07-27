@@ -324,7 +324,7 @@ module.exports = {
 				}
 			} else if (target.aggro && !this.obj.aggro.canAttack(target)) {
 				if (this.obj.player) {
-					this.sendAnnouncement("You don't feel like attacking that target");
+					this.sendAnnouncement(language.translate(this.obj.language, "spellbook", "attackRefused"));
 				}
 				return;
 			}
@@ -332,9 +332,9 @@ module.exports = {
 
 		if (!spell.targetGround && target && !target.aggro && !spell.aura) {
 			if (spell.spellType === "heal") {
-				this.sendAnnouncement("You don't feel like healing that target");
+				this.sendAnnouncement(language.translate(this.obj.language, "spellbook", "healRefused"));
 			} else {
-				this.sendAnnouncement("You don't feel like attacking that target");
+				this.sendAnnouncement(language.translate(this.obj.language, "spellbook", "attackRefused"));
 			}
 
 			return;

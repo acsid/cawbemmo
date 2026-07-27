@@ -3,6 +3,7 @@ import client from "/js/system/client.js";
 import uiFactory from "/ui/factory.js";
 import renderer from "/js/rendering/renderer.js";
 import globals from "/js/system/globals.js";
+import locale from "/js/locale/index.js";
 
 import styles from "./styles.css" with { type: "css" };
 if (!document.adoptedStyleSheets.includes(styles)) {
@@ -18,14 +19,15 @@ export default {
 	, beforeRender: function () {
 		const { clientConfig: { logoPath, changeLog } } = globals;
 		// Add infos to template.
-		const tempEl = $(this.tpl);
+		const localeDictionary = {};
+		if (changeLog) {
+			localeDictionary.version = changeLog.version;
+		} else {
+			localeDictionary.version = "0.0";
+		}
+		const tempEl = $(locale.getLocalizedMessage(Object.assign(localeDictionary, locale.dictionary), this.tpl));
 		if (logoPath) {
 			tempEl.find(".logo").attr("src", logoPath);
-		}
-		if (changeLog) {
-			tempEl.find(".version").html(function () {
-				return $(this).html().replace("$VERSION$", changeLog.version);
-			});
 		}
 		this.tpl = tempEl.prop("outerHTML");
 	}
@@ -36,24 +38,23 @@ export default {
 		this.on(".btnLogin", "click", this.onLoginClick.bind(this));
 		this.on(".btnRegister", "click", this.onRegisterClick.bind(this));
 
+		this.el.find(".selectLanguage")
+			.val(locale.language);
+		this.on(".selectLanguage", "change", this.onSelectLanguage.bind(this));
+		$(`.selectLanguage option[value=""]`).remove();
+
 		this.find(".extra, .version")
-			.appendTo($("<div class=\"uiLoginExtra\"></div>")
-				.appendTo(".ui-container"));
+			.appendTo($("<div class=\"uiLoginExtra\"></div>").appendTo("#ui-container"));
 
-		$(".uiLoginExtra").find(".btn").on("click", this.redirect.bind(this));
+		$(".uiLoginExtra").find(".btn").on("click", uiFactory.onElementActivated.bind(uiFactory));
 
-		$(".news, .version").on("click", this.redirect.bind(this));
+		$(".news, .version").on("click", uiFactory.onElementActivated.bind(uiFactory));
 
 		this.find("input")
 			.on("keyup", this.onKeyDown.bind(this))
 			.eq(0).focus();
 
 		renderer.buildTitleScreen();
-	}
-
-	, redirect: function (e) {
-		let currentLocation = $(e.currentTarget).attr("location");
-		window.open(currentLocation, "_blank");
 	}
 
 	, onKeyDown: function (e) {
@@ -74,6 +75,7 @@ export default {
 		const res = await client.componentProxy.auth.login({
 			username: this.val(".txtUsername")
 			, password: this.val(".txtPassword")
+			, language: locale.language
 		});
 		this.onLogin(res);
 	}
@@ -97,7 +99,26 @@ export default {
 		const res = await client.componentProxy.auth.register({
 			username: this.val(".txtUsername")
 			, password: this.val(".txtPassword")
+			, language: locale.language
 		});
 		this.onLogin(res);
+	}
+
+	, onSelectLanguage: async function () {
+		const langSelector = this.el.find(".selectLanguage");
+		let selectedLanguage = langSelector.val();
+		if (!selectedLanguage) {
+			if (!locale.language) {
+				return;
+			}
+			langSelector.val(locale.language);
+			return;
+		}
+		if (selectedLanguage === locale.language) {
+			return;
+		}
+		await locale.init(selectedLanguage);
+		this.destroy();
+		setTimeout(() => uiFactory.build("login"), 33);
 	}
 };

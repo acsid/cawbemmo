@@ -1,4 +1,5 @@
 @import "../../../css/colors.less";
+
 @boxHeight: 276px;
 @boxPadding: 27px;
 @logoWidth: 559px;
@@ -35,15 +36,12 @@
 
 			.txtClass, .txtCostume {
 				cursor: pointer;
-				-webkit-user-select: none;
+				user-select: none;
 
 				&:active {
 					background-color: @blackC;
 				}
 
-			}
-
-			.txtClass {
 			}
 
 			.label {
@@ -79,7 +77,6 @@
 					&:hover {
 						background-color: @grayC;
 					}
-
 				}
 
 				.txtCostume {
@@ -89,9 +86,7 @@
 					align-items: center;
 					padding: 0px;
 				}
-
 			}
-
 		}
 
 		.right {
@@ -107,15 +102,11 @@
 			margin-bottom: @boxPadding;
 
 			.sprite {
-				width: 16px;
-				height: 16px;
-				transform: scale(8);
 				transform-origin: 0% 0%;
 				image-rendering: optimizeSpeed;
 				image-rendering: pixelated;
 				image-rendering: crisp-edges;
 			}
-
 		}
 
 		.textbox {
@@ -140,7 +131,6 @@
 			&:hover {
 				background-color: @blueB;
 			}
-
 		}
 
 		.message {
@@ -151,7 +141,6 @@
 			text-align: center;
 			color: @redA;
 		}
-
 	}
 
 	.box-right {
@@ -206,15 +195,10 @@
 					&:hover {
 						color: @white;
 					}
-
 				}
-
 			}
-
 		}
-
 	}
-
 }
 
 .mobile .uiCreateCharacter {
@@ -241,5 +225,4 @@
 	.box-right {
 		width: 45%;
 	}
-
 }

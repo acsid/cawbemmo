@@ -10,3 +10,5 @@ firebaseConfig.js
 .directory
 .idea
 .vscode
+AGENTS.md
+.zcode

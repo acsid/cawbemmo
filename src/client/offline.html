@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<title>You are offline</title>
+		<style>
+			body {
+				font-family: helvetica, arial, sans-serif;
+				margin: 0px;
+				width: 100vw;
+				height: 100vh;
+				position: fixed;
+				overflow: hidden;
+				overscroll-behavior: none;
+				background-color: #2d2136;
+				color: rgb(252, 252, 252);
+			}
+			* {
+				box-sizing: border-box;
+				user-select: none;
+			}
+			h1 {
+				font-style: italic;
+				color: #373fff;
+			}
+			p {
+				margin-block: 1rem;
+			}
+			.ui {
+				width: 50%;
+				position: absolute;
+				left: 425px;
+				top: 171px;
+				background-color: #3a3b4a;
+			}
+			.content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				background-color: #3a3b4a;
+			}
+			button {
+				display: block;
+				cursor: pointer;
+				color: rgb(252, 252, 252);
+				background-color: rgb(58, 113, 186);
+			}
+			.hasBorderShadow {
+				box-shadow: 0 -2px 0 #2d2136, 0 2px 0 #2d2136, 2px 0 0 #2d2136, -2px 0 0 #2d2136;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="ui hasBorderShadow">
+			<div class="content">
+				<h1>❌ CawbeMMO ❌</h1>
+				<p>Click the button below to try reloading.</p>
+				<button id="btnReload" type="button">⤾ Reload</button>
+			</div>
+		</div>
+		<script>
+			const RETRY_DELAY = 2500;
+
+			window.addEventListener("online", () => {
+				window.location.reload();
+			});
+
+			async function reloadWhenOnline() {
+				try {
+					const response = await fetch('.');
+					if (response.ok) {
+						window.location.reload();
+						return;
+					}
+				} catch {
+					console.debug("Unable to connect to the server...");
+				}
+				window.setTimeout(reloadWhenOnline, RETRY_DELAY);
+			}
+			window.setTimeout(reloadWhenOnline, RETRY_DELAY);
+
+			const btnReload = document.querySelector("#btnReload");
+			btnReload.addEventListener("click", () => {
+				window.location.reload();
+			});
+		</script>
+	</body>
+</html>

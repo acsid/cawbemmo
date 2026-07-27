@@ -38,8 +38,8 @@ export default {
 		this.onEvent("onToggleUnusableIndicators", this.onToggleUnusableIndicators.bind(this));
 		this.onToggleUnusableIndicators(config.unusableIndicators);
 
-		this.onEvent("onKeyDown", this.onKeyDown.bind(this));
-		this.onEvent("onKeyUp", this.onKeyUp.bind(this));
+		this.onEvent("keydown", this.onKeyDown.bind(this));
+		this.onEvent("keyup", this.onKeyUp.bind(this));
 
 		this.find(".grid")
 			.on("mousemove", this.onMouseMove.bind(this))
@@ -113,7 +113,7 @@ export default {
 	, onToggleQualityIndicators: function (state) {
 		const className = `quality-${state.toLowerCase()}`;
 
-		$(".ui-container")
+		$("#ui-container")
 			.removeClass("quality-off quality-bottom quality-border quality-background")
 			.addClass(className);
 	}
@@ -121,7 +121,7 @@ export default {
 	, onToggleUnusableIndicators: function (state) {
 		const className = `unusable-${state.toLowerCase()}`;
 
-		$(".ui-container")
+		$("#ui-container")
 			.removeClass("unusable-off unusable-border unusable-top unusable-background")
 			.addClass(className);
 	}
@@ -575,16 +575,16 @@ export default {
 		});
 	}
 
-	, onKeyDown: function (key) {
-		if (key === "i") {
+	, onKeyDown: function (e) {
+		if (e.key === "i") {
 			this.toggle();
-		} else if (key === "shift" && this.hoverItem) {
+		} else if (e.key === "shift" && this.hoverItem) {
 			this.onHover();
 		}
 	}
 
-	, onKeyUp: function (key) {
-		if (key === "shift" && this.hoverItem) {
+	, onKeyUp: function (e) {
+		if (e.key === "shift" && this.hoverItem) {
 			this.onHover();
 		}
 	}

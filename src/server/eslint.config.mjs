@@ -65,6 +65,7 @@ export default [{
 			, consts: false
 			, rezoneManager: false
 			, eventManager: false
+			, language: false
 		}
 		, parser: babelParser
 		, parserOptions: {

@@ -7,7 +7,7 @@ export default {
 	, effect: null
 
 	, init: function () {
-		this.obj.on("onKeyDown", this.onKeyDown.bind(this));
+		this.obj.on("inputaction", this.onInputAction.bind(this));
 	}
 
 	, extend: function (msg) {
@@ -63,11 +63,11 @@ export default {
 		}
 	}
 
-	, onKeyDown: function (key) {
-		if (key !== "g") {
+	, onInputAction: function (e) {
+		if (e.actionName !== "gather") {
 			return;
 		}
-
+		//FIXME Send request only if inside valid area.
 		client.request({
 			cpn: "player"
 			, method: "performAction"

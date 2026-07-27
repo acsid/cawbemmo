@@ -1,9 +1,9 @@
 import events from "/js/system/events.js";
 import renderer from "/js/rendering/renderer.js";
-import factory from "/ui/factory.js";
-//import objects from "/js/objects/objects.js";
+import uiFactory from "/ui/factory.js";
 import client from "/js/system/client.js";
 import sound from "/js/sound/sound.js";
+import locale from "/js/locale/index.js";
 
 import styles from "./styles.css" with { type: "css" };
 if (!document.adoptedStyleSheets.includes(styles)) {
@@ -13,35 +13,39 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 const template = await _.loadHTML("/ui/templates/mainMenu/template.html", { raw: true });
 
 export default {
-	tpl: template
-
-	, modal: true
-
+	modal: true
 	, hasClose: true
 
+	, beforeRender: function () {
+		this.tpl = locale.getLocalizedMessage(locale.dictionary, template);
+	}
 	, postRender: function () {
-		this.onEvent("onCloseOptions", this.show.bind(this));
 		this.onEvent("onShowMainMenu", this.show.bind(this));
 
-		this.el.find(".btnOptions").on("click", this.openOptions.bind(this));
-		this.el.find(".btnCharSelect").on("click", this.charSelect.bind(this));
-		this.el.find(".btnLogOut").on("click", this.logOut.bind(this));
-		this.el.find(".btnPatreon").on("click", this.patreon.bind(this));
+		this.el.find("#btnOptions").on("click", this.openOptions.bind(this));
+		this.el.find("#btnCharSelect").on("click", this.charSelect.bind(this));
+		this.el.find("#btnLogOut").on("click", this.logOut.bind(this));
+		this.el.find("#btnCredits").on("click", this.openCredits.bind(this));
 
-		this.onEvent("onResize", this.onResize.bind(this));
-		this.onEvent("onAction", this.onAction.bind(this));
+		this.onEvent("inputaction", this.onInputAction.bind(this));
 	}
 
 	, openOptions: function () {
 		if (isMobile) {
 			this.el.removeClass("active");
 		}
-
-		events.emit("onOpenOptions");
+		uiFactory.getUi("options").show();
 	}
 
-	, patreon: function () {
-		window.open("https://patreon.com/bigbadwaffle", "_blank");
+	, openCredits: function () {
+		const credits = uiFactory.getUi("credits");
+		if (credits) {
+			credits.show();
+			return;
+		}
+		uiFactory.build("credits", {
+			modal: true
+		});
 	}
 
 	, charSelect: async function () {
@@ -58,34 +62,16 @@ export default {
 
 		events.emit("onShowCharacterSelect");
 
-		factory.exitGame();
-
-		factory.build("characters", {});
-	}
-
-	, onResize: function () {
-		let isFullscreen = (window.innerHeight === screen.height);
-		if (isFullscreen) {
-			this.el.find(".btnScreen").html("Windowed");
-		} else {
-			this.el.find(".btnScreen").html("Fullscreen");
-		}
-	}
-
-	, onAfterShow: function () {
-		this.onResize();
-	}
-
-	, beforeHide: function () {
-		this.onResize();
+		uiFactory.exitGame();
+		uiFactory.build("characters");
 	}
 
 	, logOut: function () {
 		window.location = window.location;
 	}
 
-	, onAction: function (action) {
-		if (action === "mainmenu") {
+	, onInputAction: function (e) {
+		if (e.actionName === "mainmenu") {
 			this.toggle();
 		}
 	}

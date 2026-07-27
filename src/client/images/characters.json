@@ -1,0 +1,24 @@
+{
+	"inventory": {
+		"transform": "scale(4)"
+		, "margin": "0px"
+	}
+	, "createCharacter": {
+		"width": "16px"
+		, "height": "16px"
+		, "transform": "scale(8)"
+	}
+	, "characters": {
+		"width": "16px"
+		, "height": "16px"
+		, "transform": "scale(8)"
+	}
+	, "wardrobe": {
+		"width": "16px"
+		, "height": "16px"
+		, "transform": "scale(8)"
+	}
+	, "world": {
+		"scale": 0.5
+	}
+}

@@ -93,9 +93,17 @@ const buildUsersList = async () => {
 	container.appendChild(uiElm);
 };
 
+const showLoginMessage = (text) => {
+	const messageElm = document.querySelector("#login .message");
+	if (messageElm) {
+		messageElm.innerText = text ?? "";
+	}
+};
+
 const onConnected = (accountInfo) => {
 	_.log.submitLoginForm.info("Connected", accountInfo);
 
+	showLoginMessage();
 	const loginElm = document.getElementById("login");
 	loginElm.style.display = "none";
 
@@ -130,6 +138,7 @@ async function submitLoginForm (event) {
 	});
 	if (!res.ok) {
 		_.log.submitLoginForm.info("Request Status: %s - Login failed!", res.statusText);
+		showLoginMessage(`Login failed: ${res.statusText}`);
 		return;
 	}
 	const reply = await res.json();
@@ -263,7 +272,6 @@ async function showMenu(event, menuId) {
 function toggleUiElement(uiElm) {
 	if (uiElm.style.display === "none") {
 		uiElm.style.display = "block";
-		//events.emit("onToggleUi", uiElm);
 		return;
 	}
 	uiElm.style.display = "none";
@@ -348,6 +356,9 @@ async function deleteSelectedText(event) {
 }
 
 window.submitLoginForm = submitLoginForm;
+
+// Clear any prior login error as soon as the user edits a field.
+document.getElementById("login")?.addEventListener("input", () => showLoginMessage());
 
 // Check if user is currently authentified.
 fetch("/api/auth/self").then(async (res) => {

@@ -1,4 +1,4 @@
-module.exports = async ({ serverId, name }, { recipe: { profession, teaches } }) => {
+module.exports = async ({ serverId, name, language: lang }, { recipe: { profession, teaches } }) => {
 	const recipes = await io.getAsync({
 		key: name
 		, table: "recipes"
@@ -12,7 +12,7 @@ module.exports = async ({ serverId, name }, { recipe: { profession, teaches } })
 			, data: {
 				onGetAnnouncement: [{
 					obj: {
-						msg: "You already know that recipe"
+						msg: language.translate(lang, "items", "recipeKnown")
 					}
 					, to: [serverId]
 				}]
@@ -39,7 +39,7 @@ module.exports = async ({ serverId, name }, { recipe: { profession, teaches } })
 		, data: {
 			onGetAnnouncement: [{
 				obj: {
-					msg: "The recipe imprints itself in your mind, then vanishes"
+					msg: language.translate(lang, "items", "recipeLearned")
 				}
 				, to: [serverId]
 			}]

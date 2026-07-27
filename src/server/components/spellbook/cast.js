@@ -27,13 +27,16 @@ const cast = (cpnSpellbook, action, isAuto) => {
 	let success = true;
 	if (spell.cd > 0) {
 		if (!isAuto) {
-			const type = (spell.auto) ? "Weapon" : "Spell";
-			cpnSpellbook.sendAnnouncement(`${type} is on cooldown`);
+			cpnSpellbook.sendAnnouncement(
+				language.translate(obj.language, "spellbook"
+					, spell.auto ? "weaponCooldown" : "spellCooldown"
+				)
+			);
 		}
 		success = false;
 	} else if (spell.manaCost > obj.stats.values.mana) {
 		if (!isAuto) {
-			cpnSpellbook.sendAnnouncement("Insufficient mana to cast spell");
+			cpnSpellbook.sendAnnouncement(language.translate(obj.language, "spellbook", "insufficientMana"));
 		}
 		success = false;
 	} else if (spell.has("range")) {
@@ -48,7 +51,7 @@ const cast = (cpnSpellbook, action, isAuto) => {
 
 		if (distance > range) {
 			if (!isAuto) {
-				cpnSpellbook.sendAnnouncement("Target out of range");
+				cpnSpellbook.sendAnnouncement(language.translate(obj.language, "spellbook", "outOfRange"));
 			}
 			success = false;
 		}
@@ -59,7 +62,7 @@ const cast = (cpnSpellbook, action, isAuto) => {
 	if (spell.needLos && success) {
 		if (!physics.hasLos(~~obj.x, ~~obj.y, ~~action.target.x, ~~action.target.y)) {
 			if (!isAuto) {
-				cpnSpellbook.sendAnnouncement("Target not in line of sight");
+				cpnSpellbook.sendAnnouncement(language.translate(obj.language, "spellbook", "noLineOfSight"));
 			}
 			action.auto = false;
 			success = null;
@@ -94,7 +97,7 @@ const cast = (cpnSpellbook, action, isAuto) => {
 
 			if (!spell.active) {
 				if (1 - obj.stats.values.manaReservePercent < reserve.percentage) {
-					cpnSpellbook.sendAnnouncement("Insufficient mana to cast spell");
+					cpnSpellbook.sendAnnouncement(language.translate(obj.language, "spellbook", "insufficientMana"));
 					return;
 				} obj.stats.addStat("manaReservePercent", reserveEvent.reservePercent);
 			} else {

@@ -4,7 +4,7 @@
 @boxPadding: 16px;
 @logoWidth: 559px;
 @logoHeight: 200px;
-@boxHeight: 169px;
+@boxHeight: 219px;
 @messageHeight: @boxPadding;
 @totalWidth: @rightWidth;
 @totalHeight: (@logoHeight + @boxHeight + (@boxPadding * 3) + @messageHeight);
@@ -68,6 +68,9 @@
 			-webkit-text-fill-color: @white;
 			margin-bottom: @boxPadding;
 			filter: none;
+		}
+		select {
+			width: 70%;
 		}
 		.message {
 			height: @messageHeight;
@@ -153,6 +156,7 @@
 		position: absolute;
 		right: 10px;
 		bottom: 10px;
+		font-size: 18px;
 		color: @yellowA;
 		cursor: pointer;
 		filter: brightness(100%)

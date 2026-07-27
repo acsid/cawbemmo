@@ -34,10 +34,10 @@ module.exports = {
 	, onDbCreated: function (cbReady) {
 		const db = this.db;
 		const scope = this;
-		db.serialize(function () {
+		db.serialize(() => {
 			for (let t of tableNames) {
 				db.run(`CREATE TABLE ${t} (key VARCHAR(50), value TEXT)`
-					, scope.onTableCreated.bind(scope, t, null)
+					, scope.onTableCreated.bind(scope, t, null, null)
 				);
 			}
 			scope.open = true;
@@ -47,25 +47,28 @@ module.exports = {
 
 	, createTable: async function (tableName) {
 		const scope = this;
-		return new Promise((res) => {
+		return new Promise((resolve, reject) => {
 			this.db.run(`CREATE TABLE ${tableName} (key VARCHAR(50), value TEXT)`
-				, scope.onTableCreated.bind(scope, tableName, res)
+				, scope.onTableCreated.bind(scope, tableName, resolve, reject)
 			);
 		});
 	}
-	, onTableCreated: async function (table, callback, err, result) {
+	, onTableCreated: async function (table, resolve, reject, err, result) {
 		if (err) {
 			if (!err.message?.includes(`table ${table} already exists`)) {
-				_.log.ioSQL.error("Table '%s' creation error: %o", table, args);
+				_.log.ioSQL.error("Table '%s' creation error: %o", table, err);
 			}
-		} else {
-			_.log.ioSQL.notice("New table '%s' created.", table);
+			if (reject) {
+				reject(err);
+			}
+			return;
 		}
+		_.log.ioSQL.notice("New table '%s' created.", table);
 		if (result) {
 			_.log.ioSQL.onTableCreated.trace(result);
 		}
-		if (callback) {
-			callback(args);
+		if (resolve) {
+			resolve(result);
 		}
 	}
 

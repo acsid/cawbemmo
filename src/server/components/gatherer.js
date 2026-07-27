@@ -27,7 +27,7 @@ module.exports = {
 		const [ node ] = nodes;
 
 		if (!this.hasSpace(node)) {
-			this.sendAnnouncement("Your bags are too full to gather any more resources.");
+			this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "bagsFull"));
 			return;
 		}
 
@@ -44,7 +44,7 @@ module.exports = {
 
 		if (node.resourceNode.nodeType === "fish") {
 			if (equipment.isSlotEmpty("tool")) {
-				this.sendAnnouncement("You need a fishing rod to fish");
+				this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "needFishingRod"));
 				this.gathering = null;
 				return;
 			}
@@ -72,7 +72,7 @@ module.exports = {
 				this.obj.syncer.set(true, "gatherer", "action", "Fishing");
 			}
 			if (!hasSpace) {
-				this.sendAnnouncement("Your bags are too full to gather any more resources.");
+				this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "bagsFull"));
 			}
 			return;
 		}
@@ -112,7 +112,7 @@ module.exports = {
 		if (isFish) {
 			const catchChance = gatherResult.blueprint.gatherChance + this.obj.stats.values.catchChance;
 			if (Math.floor(Math.random() * 100) >= catchChance) {
-				this.sendAnnouncement("The fish got away");
+				this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "fishGotAway"));
 				this.gathering = null;
 				return;
 			}
@@ -187,7 +187,7 @@ module.exports = {
 
 		if (gathering.destroyed) {
 			if (isFish) {
-				this.sendAnnouncement("The school has been depleted");
+				this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "schoolDepleted"));
 			}
 			this.nodes.spliceWhere((n) => (n === gathering));
 			this.updateServerActions(false);
@@ -215,7 +215,7 @@ module.exports = {
 
 		if (nodeType === "fish") {
 			if (!obj.equipment.eq.has("tool")) {
-				this.sendAnnouncement("You need a fishing rod to fish");
+				this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "needFishingRod"));
 
 				return;
 			}
@@ -223,15 +223,19 @@ module.exports = {
 
 		this.updateServerActions(true);
 
-		let action = null;
+		let promptKey = null;
 		if (nodeType === "fish") {
-			action = "fish for";
+			promptKey = "fishPrompt";
 		} else if (nodeType === "herb") {
-			action = "gather the";
+			promptKey = "herbPrompt";
 		}
-		const actionString = `${action} ${gatherResult.nodeName}`;
-
-		this.sendAnnouncement(`Press U to ${actionString}`);
+		if (promptKey) {
+			this.sendAnnouncement(
+				language.translate(this.obj.language, "gatherer", promptKey
+					, { resource: gatherResult.nodeName }
+				)
+			);
+		}
 
 		this.nodes.spliceWhere((n) => (n === node));
 		this.nodes.push(node);
@@ -266,7 +270,7 @@ module.exports = {
 
 		const action = isAdd ? "addActions" : "removeActions";
 		obj.syncer.setArray(true, "serverActions", action, {
-			key: "u"
+			inputAction: "gather"
 			, action: {
 				cpn: "gatherer"
 				, method: "gather"
@@ -321,7 +325,7 @@ module.exports = {
 
 				if (node.resourceNode.nodeType === "fish") {
 					if (!this.obj.equipment.eq.has("tool")) {
-						this.sendAnnouncement("You need a fishing rod to fish");
+						this.sendAnnouncement(language.translate(this.obj.language, "gatherer", "needFishingRod"));
 
 						if (this.gathering === node) {
 							if (this.gathering.resourceNode.nodeType === "fish") {

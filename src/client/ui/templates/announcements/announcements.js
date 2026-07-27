@@ -1,4 +1,6 @@
 //import events from "/js/system/events.js";
+import input from "/js/input.js";
+import locale from "/js/locale/index.js";
 import styles from "./styles.css" with { type: "css" };
 if (!document.adoptedStyleSheets.includes(styles)) {
 	document.adoptedStyleSheets.push(styles);
@@ -6,6 +8,18 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 
 const template = await _.loadHTML("/ui/templates/announcements/template.html", { raw: true });
 const templateLine = await _.loadHTML("/ui/templates/announcements/templateLine.html", { raw: true });
+
+//Function dictionary for locale.getLocalizedMessage: resolves `key.<action>` tokens against the live keymap (e.g. ${key.gather} -> "G"),
+// and re-emits any other token verbatim. Reuses the locale resolver's ${...} scanning rather than re-implementing it.
+const keyDict = (...parts) => {
+	if (parts[0] === "key" && parts[1]) {
+		const key = input.getKeyForAction(parts[1]);
+		//Fall back to the token's bare name if the action is unbound, matching
+		//how the locale resolver treats unresolved tokens.
+		return key || parts.join(".");
+	}
+	return parts.join(".");
+};
 
 export default {
 	tpl: template
@@ -18,18 +32,18 @@ export default {
 	}
 
 	, onGetAnnouncement: function (e) {
-		if (isMobile) {
-			if (["Appuie sur 'G' pour", "Appuie sur 'U' pour"].some((f) => e.msg.toLowerCase().indexOf(f) > -1)) {
-				return;
-			}
+		if (isMobile && /\$\{key\.\w+\}/.test(e.msg)) {
+			return;
 		}
 
 		this.clearMessage();
 
 		let container = this.find(".list");
 
+		//Resolve ${key.<action>} tokens against the live keymap before display.
+		let msg = locale.getLocalizedMessage(keyDict, e.msg);
 		let html = templateLine
-			.replace("$MSG$", e.msg);
+			.replace("$MSG$", msg);
 
 		let el = $(html)
 			.appendTo(container);

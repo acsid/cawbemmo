@@ -48,7 +48,7 @@ module.exports = {
 			serverObj.socket.emit("event", {
 				event: "onGetAnnouncement"
 				, data: {
-					msg: "Chargement de la zone " + zoneName + "... Veuillez patientez"
+					msg: language.translate(serverObj.socket.data.language, "zone", "loading", { zoneName })
 					, ttl: 150
 				}
 			});

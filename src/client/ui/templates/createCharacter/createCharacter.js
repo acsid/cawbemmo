@@ -1,6 +1,7 @@
 import client from "/js/system/client.js";
 import events from "/js/system/events.js";
 import globals from "/js/system/globals.js";
+import spriteRegistry from "/js/system/spriteRegistry.js";
 import uiFactory from "/ui/factory.js";
 
 import styles from "./styles.css" with { type: "css" };
@@ -106,10 +107,9 @@ export default {
 
 	, back: function () {
 		this.clear();
-
 		this.destroy();
 
-		uiFactory.build("characters", {});
+		uiFactory.build("characters");
 	}
 
 	, create: async function () {
@@ -191,12 +191,19 @@ export default {
 	, setSprite: function () {
 		let classSprite = this.classSprites[this.costume];
 		let costume = classSprite.sprite.split(",");
-		let spirteX = -costume[0] * 16;
-		let spriteY = -costume[1] * 16;
+
+		const props = spriteRegistry.getSpriteProps({ name: "characters", module: "createCharacter" });
+		let spirteX = -costume[0] * props.size;
+		let spriteY = -costume[1] * props.size;
 
 		let spritesheet = classSprite.spritesheet || "../../../images/characters.png";
 
 		this.find(".sprite")
-			.css("background", "url(\"" + spritesheet + "\") " + spirteX + "px " + spriteY + "px");
+			.css({
+				width: props.width
+				, height: props.height
+				, transform: props.transform
+				, background: "url(\"" + spritesheet + "\") " + spirteX + "px " + spriteY + "px"
+			});
 	}
 };

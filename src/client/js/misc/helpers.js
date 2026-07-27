@@ -1,15 +1,14 @@
 /* eslint-disable no-console */
-import gExports from "/common/globals.js";
-import logging from "/common/logging.js";
+import gExports from "/common/globals.mjs";
+import logging from "/common/logging.mjs";
 
 const urlParams = Object.fromEntries(window.location.search.substr(1).split("&").map((k) => k.split("=")));
 
 window.isMobile = (
-	urlParams.forceMobile === "true" ||
-	/Mobi|Android/i.test(navigator.userAgent) ||
-	(
-		navigator.platform === "MacIntel" &&
-		navigator.maxTouchPoints > 1
+	urlParams.forceMobile === "true"
+	|| /Mobi|Android/i.test(navigator.userAgent)
+	|| (navigator.platform === "MacIntel"
+		&& navigator.maxTouchPoints > 1
 	)
 );
 
@@ -51,7 +50,12 @@ const getColor = function (level) {
 	}
 };
 
+let nextSendDelay = 0;
 const sendLogBuffer = async function (logData) {
+	if (nextSendDelay > 0) {
+		await _.asyncDelay(nextSendDelay);
+		nextSendDelay = 0;
+	}
 	const response = await fetch("/log", {
 		method: "POST"
 		, headers: {
@@ -60,6 +64,7 @@ const sendLogBuffer = async function (logData) {
 		, body: JSON.stringify(logData)
 	});
 	if (!response.ok) {
+		nextSendDelay = (response.headers.get("Retry-After") || 5) * 1000;
 		throw new Error(`HTTP${response.status}:${response.statusText}`);
 	}
 	return await response.json();

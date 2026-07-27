@@ -10,10 +10,6 @@ const events = require("../misc/events");
 const mapObjects = require("./map/mapObjects");
 const canPathFromPos = require("./map/canPathFromPos");
 
-let mapFile = null;
-let mapScale = null;
-let padding = null;
-
 const objectifyProperties = (oldProperties) => {
 	if (!oldProperties || !Array.isArray(oldProperties)) {
 		return oldProperties || {};
@@ -31,6 +27,7 @@ module.exports = {
 	, layers: []
 
 	, mapFile: null
+	, mapScale: 32
 
 	//The size of the base map, before mods are applied
 	, originalSize: {
@@ -42,6 +39,7 @@ module.exports = {
 		w: 0
 		, h: 0
 	}
+	, padding: null
 
 	, custom: null
 
@@ -95,17 +93,16 @@ module.exports = {
 			resourceSpawner.register(r, resources[r]);
 		}
 
-		mapFile = require(`../${this.path}/${this.name}/map`);
-		this.mapFile = mapFile;
+		this.mapFile = require(`../${this.path}/${this.name}/map`);
 		//Fix for newer versions of Tiled
 		this.mapFile.properties = objectifyProperties(this.mapFile.properties);
 
-		mapScale = mapFile.tilesets[0].tileheight;
+		this.mapScale = this.mapFile.tilesets[0].tileheight;
 
-		this.custom = mapFile.properties.custom;
+		this.custom = this.mapFile.properties.custom;
 
-		if (mapFile.properties.spawn) {
-			this.spawn = JSON.parse(mapFile.properties.spawn);
+		if (this.mapFile.properties.spawn) {
+			this.spawn = JSON.parse(this.mapFile.properties.spawn);
 			if (!this.spawn.push) {
 				this.spawn = [this.spawn];
 			}
@@ -120,7 +117,7 @@ module.exports = {
 			, map: this.layers
 			, collisionMap: this.collisionMap
 			, clientObjects: this.objBlueprints
-			, padding: padding
+			, padding: this.padding
 			, hiddenRooms: this.hiddenRooms
 		};
 	}
@@ -134,7 +131,7 @@ module.exports = {
 		this.randomMap.templates = _.assign([], this.rooms);
 		generateMappings(this.randomMap, this);
 
-		if (!mapFile.properties.isRandom) {
+		if (!this.mapFile.properties.isRandom) {
 			for (let i = 0; i < this.size.w; i++) {
 				let row = this.layers[i];
 				for (let j = 0; j < this.size.h; j++) {
@@ -205,18 +202,17 @@ module.exports = {
 			}
 		}
 		physics.init(this.collisionMap);
-		padding = mapFile.properties.padding;
-		mapFile = null;
+		this.padding = this.mapFile.properties.padding;
 	}
 
 	, build: async function () {
 		const mapSize = {
-			w: mapFile.width
-			, h: mapFile.height
+			w: this.mapFile.width
+			, h: this.mapFile.height
 		};
 		this.originalSize = {
-			w: mapFile.width
-			, h: mapFile.height
+			w: this.mapFile.width
+			, h: this.mapFile.height
 		};
 		await events.emit("onBeforeGetMapSize", this.name, mapSize);
 
@@ -241,12 +237,10 @@ module.exports = {
 
 		this.collisionMap = _.get2dArray(w, h);
 
-		const layers = mapFile.layers.filter(
+		const layers = this.mapFile.layers.filter(
 			(l) => l.objects
 		).concat(
-			mapFile.layers.filter(
-				(l) => !l.objects
-			)
+			this.mapFile.layers.filter((l) => !l.objects)
 		);
 
 		//Rooms need to be ahead of exits
@@ -274,7 +268,7 @@ module.exports = {
 					map: this.name
 					, layer: layerName
 					, objects: data
-					, mapScale
+					, mapScale: this.mapScale
 					, size: this.size
 				});
 				const len = data.length;
@@ -324,7 +318,7 @@ module.exports = {
 			, x
 			, y
 			, layerName
-			, tilesets: mapFile.tilesets
+			, tilesets: this.mapFile.tilesets
 			, sheetName: null
 		};
 		//FIXME missing await
@@ -387,8 +381,8 @@ module.exports = {
 			cell.properties = objectifyProperties(cell.properties);
 			cell.polyline = cell.polyline || cell.polygon;
 
-			const x = Math.round(cell.x / mapScale);
-			const y = Math.round(cell.y / mapScale) - 1;
+			const x = Math.round(cell.x / this.mapScale);
+			const y = Math.round(cell.y / this.mapScale) - 1;
 
 			let clientObj = (layerName === "clientObjects");
 			let cellInfo = this.getCellInfo(cell.gid, x, y, layerName);
@@ -429,13 +423,13 @@ module.exports = {
 				|| layerName === "hiddenRooms"
 			) {
 				blueprint.y++;
-				blueprint.width = Math.round(cell.width / mapScale);
-				blueprint.height = Math.round(cell.height / mapScale);
+				blueprint.width = Math.round(cell.width / this.mapScale);
+				blueprint.height = Math.round(cell.height / this.mapScale);
 			} else if (cell.width === 24) {
 				blueprint.x++;
 			}
 			if (cell.polyline) {
-				mapObjects.polyline(this.size, blueprint, cell, mapScale);
+				mapObjects.polyline(this.size, blueprint, cell, this.mapScale);
 			}
 
 			if (layerName === "rooms") {
@@ -461,7 +455,7 @@ module.exports = {
 				blueprint.interior = cell.properties?.interior;
 				blueprint.discoverable = cell.properties?.discoverable;
 				blueprint.layer = Math.floor(cell.properties?.layer || 0);
-				if (!mapFile.properties.isRandom) {
+				if (!this.mapFile.properties.isRandom) {
 					this.hiddenRooms.push(blueprint);
 				} else {
 					const room = this.rooms.find((r) => {
@@ -475,8 +469,8 @@ module.exports = {
 					room.objects.push(blueprint);
 				}
 			} else if (!clientObj) {
-				if (!mapFile.properties.isRandom) {
-					spawners.register(blueprint, blueprint.spawnCd || mapFile.properties.spawnCd);
+				if (!this.mapFile.properties.isRandom) {
+					spawners.register(blueprint, blueprint.spawnCd || this.mapFile.properties.spawnCd);
 				} else {
 					const room = this.rooms.find((r) => {
 						return !(
@@ -490,8 +484,8 @@ module.exports = {
 				}
 			} else {
 				if (cell.width && !cell.polyline) {
-					blueprint.width = Math.round(cell.width / mapScale);
-					blueprint.height = Math.round(cell.height / mapScale);
+					blueprint.width = Math.round(cell.width / this.mapScale);
+					blueprint.height = Math.round(cell.height / this.mapScale);
 				}
 				const obj = objects.buildObjects([blueprint], true).getSimple(true);
 				this.objBlueprints.push(obj);

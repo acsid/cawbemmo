@@ -2,10 +2,6 @@ const express = require("express");
 const events = require("../../misc/events");
 const fileLister = require("../../misc/fileLister");
 
-const willHandle = (url) => {
-	return Object.keys(restEndpoints).some((k) => url.includes(`/${k}`));
-};
-
 const EXPRESS_ROUTES_HANDLERS = [
 	"all", "get", "put", "post", "delete"
 ];
@@ -45,5 +41,4 @@ const createRouter = (options, modules) => {
 
 module.exports = {
 	createRouter
-	, willHandle
 };

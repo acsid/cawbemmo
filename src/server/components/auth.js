@@ -1,6 +1,5 @@
 //Imports
 const bcrypt = require("bcrypt-nodejs");
-const messages = require("../language/messages");
 const skins = require("../config/skins");
 const profanities = require("../language/profanities");
 const fixes = require("../fixes/fixes");
@@ -17,6 +16,24 @@ const LOGIN_ILLEGAL_CHARS = [
 //This section of code is in charge of ensuring that we only ever create one account at a time,
 // since we don't have a read/write lock on the characters table, we have to address it in code
 const createLock = new _.Lock("createPlayer");
+
+//Apply the login-screen language selection (sent with login/register) to both
+//the connection's sockData and the player obj. sockData.language is the source
+//of truth; obj.language is the copy that ships to the worker at zone-in.
+const applyLanguageSelection = function (obj, selected) {
+	if (!selected || typeof selected !== "string") {
+		return;
+	}
+	if (!language.availableLanguages.includes(selected)) {
+		return;
+	}
+	if (obj?.socket?.data) {
+		obj.socket.data.language = selected;
+	}
+	if (obj) {
+		obj.language = selected;
+	}
+};
 
 //Component Definition
 module.exports = {
@@ -232,12 +249,13 @@ module.exports = {
 
 	, login: async function (msg) {
 		let credentials = msg.data;
+		applyLanguageSelection(this.obj, credentials.language);
 
 		if (credentials.username === "" || credentials.password === "") {
-			msg.callback(messages.login.allFields);
+			msg.callback(language.translate(this.obj.language, "login", "allFields"));
 			return;
 		} else if (credentials.username.length > 32) {
-			msg.callback(messages.login.maxUsernameLength);
+			msg.callback(language.translate(this.obj.language, "login", "maxUsernameLength"));
 			return;
 		}
 		const storedPassword = await io.getAsync({
@@ -253,7 +271,7 @@ module.exports = {
 
 		const socket = this.obj.socket;
 		if (!compareResult) {
-			msg.callback(messages.login.incorrect);
+			msg.callback(language.translate(this.obj.language, "login", "incorrect"));
 			const clientIp = socket?.request.connection.remoteAddress;
 			_.log.auth.notice("Player(%s) from %s - Login denied! Invalid password for %s", this.obj.id, clientIp, username);
 			return;
@@ -315,15 +333,16 @@ module.exports = {
 
 	, register: async function (msg) {
 		const credentials = msg.data;
+		applyLanguageSelection(this.obj, credentials.language);
 		if (credentials.username === "" || credentials.password === "") {
-			msg.callback(messages.login.allFields);
+			msg.callback(language.translate(this.obj.language, "login", "allFields"));
 			return;
 		} else if (credentials.username.length > 32) {
-			msg.callback(messages.login.maxUsernameLength);
+			msg.callback(language.translate(this.obj.language, "login", "maxUsernameLength"));
 			return;
 		}
 		if (credentials.username.indexOfAny(LOGIN_ILLEGAL_CHARS) >= 0) {
-			msg.callback(messages.login.illegal);
+			msg.callback(language.translate(this.obj.language, "login", "illegal"));
 			return;
 		}
 
@@ -348,7 +367,7 @@ module.exports = {
 			, noParse: true
 		});
 		if (exists) {
-			msg.callback(messages.login.exists);
+			msg.callback(language.translate(this.obj.language, "login", "exists"));
 			return;
 		}
 		bcrypt.hash(credentials.password, null, null, this.onHashGenerated.bind(this, msg));
@@ -385,11 +404,11 @@ module.exports = {
 
 		let error = null;
 		if (!this.username) {
-			error = messages.createCharacter.notConnected;
+			error = language.translate(this.obj.language, "createCharacter", "notConnected");
 		} else if (typeof name !== "string" || name.length < 3 || name.length > 12) {
-			error = messages.createCharacter.nameLength;
+			error = language.translate(this.obj.language, "createCharacter", "nameLength");
 		} else if (name.indexOf("  ") >= 0 || !name.isAlphanumeric() || !profanities.isClean(name)) {
-			error = messages.login.invalid;
+			error = language.translate(this.obj.language, "login", "invalid");
 		} else if (!spirits.list.includes(data.class)) {
 			error = "invalid or missing class";
 		}
@@ -407,7 +426,7 @@ module.exports = {
 				, noDefault: true
 			});
 			if (exists) {
-				msg.callback(messages.login.charExists);
+				msg.callback(language.translate(this.obj.language, "login", "charExists"));
 				return;
 			}
 

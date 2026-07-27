@@ -9,7 +9,7 @@ const isOnCooldown = (obj, cpnInv, { item, cd }) => {
 		, data: {
 			onGetAnnouncement: [{
 				obj: {
-					msg: "That item is on cooldown"
+					msg: language.translate(obj.language, "items", "onCooldown")
 				}
 				, to: [obj.serverId]
 			}]

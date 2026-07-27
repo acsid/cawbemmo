@@ -2,6 +2,7 @@ import events from "/js/system/events.js";
 import client from "/js/system/client.js";
 //import input from "/js/input.js";
 //import config from "/js/config.js";
+import locale from "/js/locale/index.js";
 import renderItem from "/ui/shared/renderItem.js";
 
 import styles from "./styles.css" with { type: "css" };
@@ -11,85 +12,88 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 
 const template = await _.loadHTML("/ui/templates/equipment/template.html", { raw: true });
 
-const getStatsAsStrings = function (stats, section) {
-	switch (section) {
-		case "info": return {
-			niveau: stats.level
-			, "prochain niveau": (stats.xpMax - stats.xp).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "xp"
-			, gap1: ""
-			, Argent: window.player.trade.gold
-			, gap2: ""
-			, hp: `${Math.floor(stats.hp)}/${Math.floor(stats.hpMax)}`
-			, mana: `${Math.floor(stats.mana)}/${Math.floor(stats.manaMax)}`
-			, "hp regen": stats.regenHp
-			, "mana regen": Math.floor(stats.regenMana) + "%"
-			, gap3: ""
-			, str: stats.str
-			, int: stats.int
-			, dex: stats.dex
-			, vit: stats.vit
-		};
-		case "offense": return {
-			"Chance de coup critique global": stats.critChance.toFixed(1) + "%"
-			, "Multiplicateur de coup critique": stats.critMultiplier.toFixed(1) + "%"
-			, "Chance d'attaque critique": (stats.critChance + stats.attackCritChance).toFixed(1) + "%"
-			, "Multiplicateur d'attaque critique": (stats.critMultiplier + stats.attackCritMultiplier).toFixed(1) + "%"
-			, "Chance de magie critique": (stats.critChance + stats.spellCritChance).toFixed(1) + "%"
-			, "Multiplicateur de magie critique": (stats.critMultiplier + stats.spellCritMultiplier).toFixed(1) + "%"
-			, gap1: ""
-			, "Augmentation Arcane": stats.elementArcanePercent + "%"
-			, "Augmentation de Feu": stats.elementFirePercent + "%"
-			, "Augmentation de glace": stats.elementFrostPercent + "%"
-			, "Augmentation saint": stats.elementHolyPercent + "%"
-			, "Augmentation de poision": stats.elementPoisonPercent + "%"
-			, "Augmentation physique": stats.physicalPercent + "%"
-			, gap2: ""
-			, "Augementation magique": stats.spellPercent + "%"
-			, gap3: ""
-			, "Vitesse d'attaque": (100 + stats.attackSpeed) + "%"
-			, "Vitesse d'incantation": (100 + stats.castSpeed) + "%"
-		};
-		case "défense": return {
-			armor: stats.armor
-			, "Chance de bloqué des attaques": stats.blockAttackChance + "%"
-			, "Chance de bloqué des incantation": stats.blockSpellChance + "%"
-			, gap1: ""
-			, "Chance d'évité une attaque": stats.dodgeAttackChance.toFixed(1) + "%"
-			, "Chance d'évité une incantation": stats.dodgeSpellChance.toFixed(1) + "%"
-			, gap2: ""
-			, "Résistance arcane": stats.elementArcaneResist
-			, "Résistance au feu": stats.elementFireResist
-			, "Résistance au gel": stats.elementFrostResist
-			, "Résistance au dégats saint": stats.elementHolyResist
-			, "Résistance au poison": stats.elementPoisonResist
-			, gap3: ""
-			, "Résistance global": stats.elementAllResist
-			, gap4: ""
-			, "Vie gagné par coup": stats.lifeOnHit
-		};
-		case "autres": return {
-			"Qualité des items": stats.magicFind + "%"
-			, "Quantité des items": stats.itemQuantity + "%"
-			, gap1: ""
-			, "Chance de courir": (stats.sprintChance?.toFixed(2) || 0) + "%"
-			, gap2: ""
-			, "Augmentation d'expériance": stats.xpIncrease + "%"
-			, gap3: ""
-			, "Chance d'attrapé un poisson": stats.catchChance + "%"
-			, "Vitesse de pêche": stats.catchSpeed + "%"
-			, "Chance de poisson rare": stats.fishRarity + "%"
-			, "Augmentation du poid": stats.fishWeight + "%"
-			, "Chance de pêché des items": stats.fishItems + "%"
-		};
-		default: throw new Error(`Erreur écran non trouvé "${section}"`);
+const getStatsAsStrings = (playerStats) => ({
+	basic: {
+		"${stats.level}": playerStats.level
+		, "${stats.nextLevel}": (playerStats.xpMax - playerStats.xp).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "xp"
+		, gap1: ""
+		, "${stats.gold}": playerStats.gold
+		, gap2: playerStats.has("gold")
+		, "${stats.hp}": `${Math.floor(playerStats.hp)}/${Math.floor(playerStats.hpMax)}`
+		, "${stats.mana}": `${Math.floor(playerStats.mana)}/${Math.floor(playerStats.manaMax)}`
+		, "${stats.regenHp}": playerStats.regenHp
+		, "${stats.regenMana}": Math.floor(playerStats.regenMana) + "%"
+		, gap3: ""
+		, "${stats.str}": playerStats.str
+		, "${stats.int}": playerStats.int
+		, "${stats.dex}": playerStats.dex
+		, "${stats.vit}": playerStats.vit
 	}
+	, offense: {
+		"${equipment.critChance}": playerStats.critChance.toFixed(1) + "%"
+		, "${equipment.critMultiplier}": playerStats.critMultiplier.toFixed(1) + "%"
+		, "${equipment.attackCritChance}": (playerStats.critChance + playerStats.attackCritChance).toFixed(1) + "%"
+		, "${equipment.attackCritMultiplier}": (playerStats.critMultiplier + playerStats.attackCritMultiplier).toFixed(1) + "%"
+		, "${equipment.spellCritChance}": (playerStats.critChance + playerStats.spellCritChance).toFixed(1) + "%"
+		, "${equipment.spellCritMultiplier}": (playerStats.critMultiplier + playerStats.spellCritMultiplier).toFixed(1) + "%"
+		, gap1: ""
+		, "${stats.elementArcanePercent}": playerStats.elementArcanePercent + "%"
+		, "${stats.elementFirePercent}": playerStats.elementFirePercent + "%"
+		, "${stats.elementFrostPercent}": playerStats.elementFrostPercent + "%"
+		, "${stats.elementHolyPercent}": playerStats.elementHolyPercent + "%"
+		, "${stats.elementPoisonPercent}": playerStats.elementPoisonPercent + "%"
+		, "${stats.physicalPercent}": playerStats.physicalPercent + "%"
+		, gap2: ""
+		, "${stats.spellPercent}": playerStats.spellPercent + "%"
+		, gap3: ""
+		, "${stats.attackSpeed}": (100 + playerStats.attackSpeed) + "%"
+		, "${stats.castSpeed}": (100 + playerStats.castSpeed) + "%"
+	}
+	, defense: {
+		"${stats.armor}": playerStats.armor
+		, "${stats.blockAttackChance}": playerStats.blockAttackChance + "%"
+		, "${stats.blockSpellChance}": playerStats.blockSpellChance + "%"
+		, gap1: ""
+		, "${stats.dodgeAttackChance}": playerStats.dodgeAttackChance.toFixed(1) + "%"
+		, "${stats.dodgeSpellChance}": playerStats.dodgeSpellChance.toFixed(1) + "%"
+		, gap2: ""
+		, "${stats.elementArcaneResist}": playerStats.elementArcaneResist
+		, "${stats.elementFireResist}": playerStats.elementFireResist
+		, "${stats.elementFrostResist}": playerStats.elementFrostResist
+		, "${stats.elementHolyResist}": playerStats.elementHolyResist
+		, "${stats.elementPoisonResist}": playerStats.elementPoisonResist
+		, gap3: ""
+		, "${stats.elementAllResist}": playerStats.elementAllResist
+		, gap4: ""
+		, "${stats.lifeOnHit}": playerStats.lifeOnHit
+	}
+	, other: {
+		"${stats.magicFind}": playerStats.magicFind + "%"
+		, "${stats.itemQuantity}": playerStats.itemQuantity + "%"
+		, gap1: ""
+		, "${stats.sprintChance}": (playerStats.sprintChance?.toFixed(2) || 0) + "%"
+		, gap2: ""
+		, "${stats.xpIncrease}": playerStats.xpIncrease + "%"
+		, gap3: ""
+		, "${stats.catchChance}": playerStats.catchChance + "%"
+		, "${stats.catchSpeed}": playerStats.catchSpeed + "%"
+		, "${stats.fishRarity}": playerStats.fishRarity + "%"
+		, "${stats.fishWeight}": playerStats.fishWeight + "%"
+		, "${stats.fishItems}": playerStats.fishItems + "%"
+	}
+});
+
+const eventMap = {
+	onGetStats: "onGetStats"
+	, onGetItems: "onGetItems"
+	, onInspectTarget: "onInspectTarget"
+	, toggle: "onShowEquipment"
+	, onKeyDown: "keydown"
+	, onKeyUp: "keyup"
 };
 
 export default {
-	tpl: template
-
-	, centered: true
-
+	centered: true
 	, modal: true
 	, hasClose: true
 
@@ -102,18 +106,15 @@ export default {
 
 	, isInspecting: false
 
+	, beforeRender: function () {
+		this.tpl = locale.getLocalizedMessage(locale.dictionary, template);
+	}
 	, postRender: function () {
-		this.onEvent("onGetStats", this.onGetStats.bind(this));
-		this.onEvent("onGetItems", this.onGetItems.bind(this));
-
-		this.onEvent("onInspectTarget", this.onInspectTarget.bind(this));
-
-		this.onEvent("onShowEquipment", this.toggle.bind(this));
+		for (const [prop, key] of Object.entries(eventMap)) {
+			this.onEvent(key, this[prop].bind(this));
+		}
 
 		this.find(".tab").on("click", this.onTabClick.bind(this));
-
-		this.onEvent("onKeyDown", this.onKeyDown.bind(this));
-		this.onEvent("onKeyUp", this.onKeyUp.bind(this));
 	}
 
 	, beforeHide: function () {
@@ -134,15 +135,15 @@ export default {
 		this.onHoverItem(null, null, null);
 	}
 
-	, onKeyDown: function (key) {
-		if (key === "j") {
+	, onKeyDown: function (e) {
+		if (e.key === "j") {
 			this.toggle();
-		} else if (key === "shift" && this.hoverItem) {
+		} else if (e.key === "shift" && this.hoverItem) {
 			this.onHoverItem(this.hoverEl, this.hoverItem, this.hoverCompare);
 		}
 	}
-	, onKeyUp: function (key) {
-		if (key === "shift" && this.hoverItem) {
+	, onKeyUp: function (e) {
+		if (e.key === "shift" && this.hoverItem) {
 			this.onHoverItem(this.hoverEl, this.hoverItem, null);
 		}
 	}
@@ -338,7 +339,7 @@ export default {
 
 				itemEl
 					.find(".icon")
-					.css("background", "url(\"" + spriteSheet + "\") " + imgX + "px " + imgY + "px")
+					.css("background", `url("${spriteSheet}") ${imgX}px ${imgY}px`)
 					.on("mousedown", this.equipItem.bind(this, item, slot))
 					.on("mousemove", this.onHoverItem.bind(this, itemEl, item, null))
 					.on("mouseleave", this.onHoverItem.bind(this, null, null));
@@ -465,21 +466,38 @@ export default {
 			.children("*:not(.tabs)")
 			.remove();
 
-		const newStats = getStatsAsStrings(stats, this.find(".tab.selected").html());
-		for (const statName in newStats) {
+		if (!stats.has("gold")) { //FIXME Gold should be in playerStats...
+			_.log.equipment.warn("stats.gold is missing in %o", stats);
+			stats = _.assign({
+				gold: window.player.trade.gold
+			}, stats);
+		}
+		const newStats = getStatsAsStrings(stats);
+		const tabName = this.find(".tab.selected").data("id");
+		const sectionInfo = newStats[tabName];
+		for (const statName in sectionInfo) {
 			let label = "";
-			let value = "";
-			const isGap = statName.startsWith("gap");
-			if (!isGap) {
-				label = statName + ": ";
-				value = newStats[statName];
+			let value = sectionInfo[statName];
+			const valueType = typeof value;
+			if (valueType === "undefined") {
+				continue;
 			}
-			const row = $(`<div class=\"stat\"><font class=\"q0\">${label}</font><font color=\"#999\">${value}</font></div>`)
+			const isGap = statName.startsWith("gap");
+			if (isGap) {
+				if (value) {
+					value = "";
+				} else if (valueType === "boolean") {
+					continue;
+				}
+			} else {
+				label = locale.getLocalizedMessage(locale.dictionary, statName) + ": ";
+			}
+			const row = $(`<div class="stat"><font class="q0">${label}</font><font color="#999">${value}</font></div>`)
 				.appendTo(container);
 
-			if (statName === "gold") {
+			if (statName === "${stats.gold}") {
 				row.addClass("gold");
-			} else if (statName === "level" || statName === "next level") {
+			} else if (statName === "${stats.level}" || statName === "${stats.nextLevel}") {
 				row.addClass("blueText");
 			}
 			if (isGap) {

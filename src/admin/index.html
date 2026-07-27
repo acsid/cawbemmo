@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta name="Description" content="Adminitrator Panel">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>CawbeMMO - Admins</title>
 		<link rel="stylesheet" href="main.css">
 		<link rel="icon" href="images/favicon.ico">
@@ -11,7 +12,7 @@
 		<header id="top-menu">
 			<button id="users-menu" onclick="buildUsersList(event)">Users</button>
 			<button id="errors-menu" onclick="buildErrorsList(event)">Errors</button>
-			<button id="profile-menu" onclick="showMenu(event)">{{user-profile}}</button>
+			<button id="profile-menu" onclick="showMenu(event)">Account</button>
 		</header>
 		<div id="ui-container"></div>
 		<div id="profile-menu-contextmenu" class="contextmenu">
@@ -25,7 +26,6 @@
 				<div class="label">MDP</div>
 				<input type="password" class="el textbox txtPassword" placeholder="password" name="password" autocomplete="current-password">
 				<div class="top-buttons">
-					<input id="btnRegister" class="el btn" value="S'enregistré" type="button" onclick="submitLoginForm(event)">
 					<input id="btnLogin" class="el btn" value="Connexion" type="button" onclick="submitLoginForm(event)">
 				</div>
 				<div class="message"></div>

@@ -22,6 +22,12 @@ describe("Client", () => {
 		const template = document.createElement("template");
 		expect("content" in template).toBeTrue();
 	});
+	it("can import css", async () => {
+		const styles = await import("./main.css", {
+			with: { type: "css" }
+		});
+		expect(styles).toBeDefined();
+	});
 	describe("localstorage", () => {
 		const cleanStorage = function () {
 			// Remove all storage items created while testing.

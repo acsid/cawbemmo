@@ -1,11 +1,9 @@
-//import logging from "../../common/logging.js";
-//import gExports from "../../common/globals.js";
-const logging = require("../../common/logging").default;
-const gExports = require("../../common/globals").default;
+import logging from "../../common/logging.mjs";
+import gExports from "../../common/globals.mjs";
 
 let consoleLogLevel = (process.env.NODE_ENV === "production"
 	? logging.EventLevels.STANDARD
-	: logging.EventLevels.DEBUG
+	: logging.EventLevels.VERBOSE
 );
 if (process.env.LOG_LEVEL) {
 	consoleLogLevel = Number.parseInt(process.env.LOG_LEVEL);
@@ -124,7 +122,8 @@ const printEvent = function (thisLogger, logLevel, args) {
 	//}
 };
 
-module.exports = gExports.CONSTANTS(gExports, {
+//module.exports = gExports.CONSTANTS(gExports, {
+export default gExports.CONSTANTS(gExports, {
 	parseAcceptLanguage: (languageHeaderValue, options = {}) => {
 		if (!languageHeaderValue) {
 			return [];

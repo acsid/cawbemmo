@@ -1,8 +1,8 @@
 @import "../../css/colors.less";
 
 @font-face {
-	font-family: bitty;
-	src: url("../../fonts/bitty.ttf");
+	font-family: sburbits;
+	src: url('../../fonts/sburbits.ttf');
 }
 
 body {
@@ -11,25 +11,25 @@ body {
 
 .jasmine_html-reporter {
 	background-color: @black;
-	font-family: bitty;
-	font-size: 14px;
-	line-height: 16px;
+	font-family: sburbits;
+	font-size: 20px;
+	line-height: 22px;
 
 	.jasmine-banner .jasmine-version {
 		color: @grayA;
-		font-size: 14px;
+		font-size: 20px;
 	}
 	.jasmine-run-options {
-		border: 3px solid @blueC;
-		color: @blueC;
+		border: 3px solid @yellowC;
+		color: @yellowC;
 		font-size: 19px;
 		line-height: 24px;
 		.jasmine-payload {
 			background-color: @blackB;
-			border: 2px solid @blueD;
+			border: 2px solid @yellowD;
 
 			.jasmine-label {
-				color: @blueB;
+				color: @yellowB;
 			}
 		}
 
@@ -65,7 +65,7 @@ body {
 			transform: scale(0);
 			transform-origin: bottom left;
 			transition: 120ms transform ease-in-out;
-			box-shadow: inset 1em 1em @blueB;
+			box-shadow: inset 1em 1em @yellowB;
 			/* Windows High Contrast Mode */
 			background-color: CanvasText;
 		}
@@ -89,11 +89,11 @@ body {
 		font-size: 32px;
 	}
 	.jasmine-overall-result.jasmine-bar {
-		font-size: 24px;
+		font-size: 28px;
 		line-height: 32px;
 	}
 	.jasmine-duration {
-		font-size: 24px;
+		font-size: 28px;
 		line-height: 32px;
 	}
 	.jasmine-bar.jasmine-passed {

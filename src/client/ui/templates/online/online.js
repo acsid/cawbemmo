@@ -27,7 +27,7 @@ export default {
 
 		this.onEvent("onGetSocialActions", this.onGetSocialActions.bind(this));
 		this.onEvent("onShowOnline", this.toggle.bind(this));
-		this.onEvent("onKeyDown", this.onKeyDown.bind(this));
+		this.onEvent("keydown", this.onKeyDown.bind(this));
 
 		_.log.online.debug("Requesting PlayerList");
 		client.request({
@@ -47,8 +47,8 @@ export default {
 		this.actions = actions;
 	}
 
-	, onKeyDown: function (key) {
-		if (key === "o") {
+	, onKeyDown: function (e) {
+		if (e.key === "o") {
 			this.toggle();
 		}
 	}

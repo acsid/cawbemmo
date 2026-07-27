@@ -1,29 +1,30 @@
 <!doctype html>
 <html>
 	<head>
-		<meta name="Description" content="The world's only open source, moddable, roguelike MMO.">
-		<meta name="mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="viewport" content="user-scalable=no">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta charset="utf-8"/>
+		<meta name="Description" content="The world's only open source, moddable, roguelike MMO."/>
+		<meta name="mobile-web-app-capable" content="yes"/>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="viewport" content="user-scalable=no"/>
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 		<title>CawbeMMO</title>
-		<link rel="stylesheet" href="css/loader.css">
-		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/loader.css"/>
+		<link rel="stylesheet" href="css/main.css"/>
 		<script src="js/dependencies/jquery.slim.min.js"></script>
 		<script src="js/dependencies/pixi.min.js"></script>
 		<script src="/js/dependencies/pixi.particles.min.js"></script>
 		<script type="module" src="js/system/addons.js"></script>
 		<script type="module" src="js/main.js"></script>
-		<link rel="icon" href="images/favicon.ico">
-		<link rel="apple-touch-icon" href="images/icon.png">
-		<link rel="manifest" href="/manifest.json">
+		<link rel="icon" href="images/favicon.ico"/>
+		<link rel="apple-touch-icon" href="images/icon.png"/>
+		<link rel="manifest" href="/manifest.json"/>
 	</head>
 	<body>
-		<div class="canvas-container"></div>
-		<div class="ui-container">
+		<div id="canvas-container" class="canvas-container"></div>
+		<div id="ui-container" class="ui-container">
 			<div class="right"></div>
 		</div>
-		<div class="loader-container">
+		<div id="loader-container" class="loader-container">
 			<div class="loader"></div>
 			<div class="loader-text">Loading/Chargement...</div>
 		</div>

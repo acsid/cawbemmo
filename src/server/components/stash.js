@@ -136,7 +136,7 @@ module.exports = {
 		const actionType = active ? "addActions" : "removeActions";
 		obj.syncer.setArray(true, "serverActions", actionType, {
 			id: "openStash"
-			, key: "u"
+			, inputAction: "use"
 			, action: {
 				cpn: "stash"
 				, method: "open"
@@ -150,7 +150,7 @@ module.exports = {
 			return;
 		}
 
-		let msg = "Press U to access your Shared Stash";
+		let msg = language.translate(obj.language, "announcements", "stash");
 		obj.instance.syncer.queue("onGetAnnouncement", {
 			src: obj.id
 			, msg: msg

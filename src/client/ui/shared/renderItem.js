@@ -1,5 +1,6 @@
 import events from "/js/system/events.js";
 import globals from "/js/system/globals.js";
+import spriteRegistry from "/js/system/spriteRegistry.js";
 
 const tplItem = `
 	<div class="renderItem item">
@@ -31,14 +32,14 @@ const renderItemManager = {
 		events.emit("onShowItemTooltip", item, ttPos, true);
 	}
 
-	, onKeyDown: function (key) {
-		if (key === "shift" && this.hoverItem) {
+	, onKeyDown: function (e) {
+		if (e.key === "shift" && this.hoverItem) {
 			this.onHover();
 		}
 	}
 
-	, onKeyUp: function (key) {
-		if (key === "shift" && this.hoverItem) {
+	, onKeyUp: function (e) {
+		if (e.key === "shift" && this.hoverItem) {
 			this.onHover();
 		}
 	}
@@ -52,8 +53,8 @@ const renderItemManager = {
 	}
 };
 
-events.on("onKeyDown", renderItemManager.onKeyDown.bind(renderItemManager));
-events.on("onKeyUp", renderItemManager.onKeyUp.bind(renderItemManager));
+events.on("keydown", renderItemManager.onKeyDown.bind(renderItemManager));
+events.on("keyup", renderItemManager.onKeyUp.bind(renderItemManager));
 
 const addTooltipEvents = (el, item) => {
 	const leaveHandler = renderItemManager.onMouseLeave.bind(renderItemManager, el, item);
@@ -174,6 +175,10 @@ export default (container, item, useEl, manageTooltip, getItemContextConfig, sho
 	if (getItemContextConfig) {
 		addContextEvents(itemEl, item, getItemContextConfig);
 	}
-	itemEl.addClass(`spriteSize${size}`);
+	//Scale/margin for filling icon frame live in the per-sheet <sheet>.less override (injected by spriteRegistry at init),
+	//targeted via this class. Sheets without an override render at their source size.
+	if (spriteRegistry.getSpriteCSS({ name: sheetName })) {
+		itemEl.addClass(`sprite-${sheetName}-inventory`);
+	}
 	return itemEl;
 };

@@ -1,28 +1,3 @@
-const workerConfig = JSON.parse(process.argv[2]);
-
-// Globals
-global._ = require("../misc/helpers");
-// Configure logger base name
-_.log = _.log.worker[`Map/${workerConfig.name}`];
-// Log warnings
-process.on("warning", (e) => {
-	_.log.warn(`Warning: ${e.toString()}\r\n`, e.stack);
-});
-
-global.io = require("../db/io");
-global.consts = require("../config/consts");
-
-global.instancer = require("./instancer");
-instancer.mapName = workerConfig.name;
-
-global.eventManager = require("../events/events");
-global.clientConfig = require("../config/clientConfig");
-global.rezoneManager = require("./rezoneManager");
-require("../misc/random");
-
-const mods = require("../misc/mods");
-const eventEmitter = require("../misc/events");
-
 // Components Imports
 const COMPONENTS_CONFIGURATIONS_PATHS = {
 	components: "../components/components"
@@ -41,8 +16,34 @@ const COMPONENTS_CONFIGURATIONS_PATHS = {
 	, itemEffects: "../items/itemEffects"
 	, profanities: "../language/profanities"
 };
-
 (async function () {
+	const workerConfig = JSON.parse(process.argv[2]);
+
+	// Globals
+	global._ = (await import("../misc/helpers.mjs")).default;
+	// Configure logger base name
+	_.log = _.log.worker[`Map/${workerConfig.name}`];
+	// Log warnings
+	process.on("warning", (e) => {
+		_.log.warn(`Warning: ${e.toString()}\r\n`, e.stack);
+	});
+
+	global.io = require("../db/io");
+	global.consts = require("../config/consts");
+
+	global.instancer = require("./instancer");
+	instancer.mapName = workerConfig.name;
+
+	global.eventManager = require("../events/events");
+	global.clientConfig = require("../config/clientConfig");
+	global.rezoneManager = require("./rezoneManager");
+	require("../misc/random");
+
+	global.language = (await import("../language/index.mjs")).default;
+
+	const mods = require("../misc/mods");
+	const eventEmitter = require("../misc/events");
+
 	// Init database
 	await new Promise((resolve) => io.init(resolve));
 	// Add crash loggers

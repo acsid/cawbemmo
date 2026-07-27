@@ -1,8 +1,22 @@
 @import "../client/css/colors.less";
 
 @font-face {
-	font-family: bitty;
-	src: url('../fonts/bitty.ttf');
+	font-family: sburbits;
+	src: url('../fonts/sburbits.ttf');
+}
+
+:root {
+	scrollbar-color: @grayC @blackB !important;
+	scrollbar-width: thin !important;
+
+	--color-element-default: @white;
+	--color-element-arcane: @pinkA;
+	--color-element-frost: @blueA;
+	--color-element-fire: @redA;
+	--color-element-holy: @yellowA;
+	--color-element-poison: @tealB;
+
+	--main-font: sburbits;
 }
 
 body {
@@ -13,7 +27,7 @@ body {
 
 * {
 	box-sizing: border-box;
-	font-family: bitty;
+	font-family: var(--main-font);
 	color: @white;
 }
 
@@ -40,17 +54,6 @@ body {
 	-webkit-border-radius: 10px;
 	border-radius: 0px;
 	background: @grayC;
-}
-
-:root {
-	scrollbar-color: @grayC @blackB !important;
-	scrollbar-width: thin !important;
-	--color-element-default: @white;
-	--color-element-arcane: @pinkA;
-	--color-element-frost: @blueA;
-	--color-element-fire: @redA;
-	--color-element-holy: @yellowA;
-	--color-element-poison: @tealB;
 }
 
 @topMenuHeight: 32px;

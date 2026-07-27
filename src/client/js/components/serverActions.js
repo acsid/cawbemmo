@@ -1,6 +1,11 @@
 import client from "/js/system/client.js";
 import events from "/js/system/events.js";
-import input from "/js/input.js";
+
+const isSameAction = function (a, b) {
+	return a.data?.targetId === b.data?.targetId
+		&& a.cpn === b.cpn
+		&& a.method === b.method;
+};
 
 export default {
 	type: "serverActions"
@@ -8,59 +13,54 @@ export default {
 	, actions: []
 
 	, init: function (blueprint) {
-		this.hookEvent("onKeyUp", this.onKeyUp.bind(this));
+		this.hookEvent("inputaction", this.onInputAction.bind(this));
 	}
 
 	, hasAction: function (actionId) {
 		return this.actions.some((a) => a.id === actionId);
 	}
-
-	, onKeyUp: function (key) {
-		if (!input.isKeyAllowed(key)) {
-			return;
-		}
-
-		this.actions.forEach((a) => {
-			if (a.key !== key) {
-				return;
-			}
-
-			client.request({
-				cpn: "player"
-				, method: "performAction"
-				, data: a.action
-			});
+	, execAction: function (action) {
+		return client.request({
+			cpn: "player"
+			, method: "performAction"
+			, data: action
 		});
+	}
+
+	, onInputAction: function (e) {
+		for (const a of this.actions) {
+			if (a.inputAction !== e.actionName) {
+				continue;
+			}
+			this.execAction(a.action);
+		}
 	}
 
 	, extend: function (blueprint) {
 		if (blueprint.addActions) {
-			blueprint.addActions.forEach(function (a) {
-				this.actions.spliceWhere((f) => f.key === a.key);
-
-				let exists = this.actions.some(function (ta) {
-					return ((ta.targetId === a.targetId) && (ta.cpn === a.cpn) && (ta.method === a.method));
+			for (const a of blueprint.addActions) {
+				this.actions.spliceWhere((f) => {
+					if (f.key && f.key === a.key) {
+						return true;
+					}
+					if (f.actionName && f.actionName === a.actionName) {
+						return true;
+					}
 				});
+				const exists = this.actions.some((ta) => isSameAction(ta.action, a.action));
 				if (exists) {
-					return;
+					continue;
 				}
-
 				this.actions.push(a);
-			}, this);
-
+			}
 			delete blueprint.addActions;
 		}
-
 		if (blueprint.removeActions) {
-			blueprint.removeActions.forEach(function (a) {
-				this.actions.spliceWhere(function (ta) {
-					return ((ta.targetId === a.targetId) && (ta.cpn === a.cpn) && (ta.method === a.method));
-				});
-			}, this);
-
+			for (const a of blueprint.removeActions) {
+				this.actions.spliceWhere((ta) => isSameAction(ta.action, a.action));
+			}
 			delete blueprint.removeActions;
 		}
-
 		events.emit("onGetServerActions", this.actions);
 	}
 

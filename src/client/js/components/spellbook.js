@@ -42,8 +42,8 @@ export default {
 
 		this.obj.on("onDeath", this.onDeath.bind(this));
 		this.obj.on("onMobHover", this.onMobHover.bind(this));
-		this.obj.on("mouseDown", this.onMouseDown.bind(this));
-		this.obj.on("onAction", this.onAction.bind(this));
+		this.obj.on("mousedown", this.onMouseDown.bind(this));
+		this.obj.on("inputaction", this.onInputAction.bind(this));
 	}
 
 	, extend: function (blueprint) {
@@ -70,7 +70,7 @@ export default {
 	}
 
 	, getSpell: function (number) {
-		const spellNumber = (number === " ") ? 0 : Number.parseInt(number);
+		const spellNumber = Number.parseInt(number);
 		return this.spells.find((s) => s.id === spellNumber);
 	}
 
@@ -78,23 +78,19 @@ export default {
 		this.hoverTarget = target;
 	}
 
-	, onMouseDown: function (e, target) {
-		if (isMobile && this.groundTargetSpell) {
-			// Allow attacking ground on mobile.
-			this.groundTarget = {
+	, onMouseDown: function (e) {
+		if (isMobile && this.groundTargetSpell) { // Allow attacking ground on mobile.
+			this.triggerSpell(this.groundTargetSpell, {
 				x: Math.floor(e.worldX / scale)
 				, y: Math.floor(e.worldY / scale)
-			};
-			this.triggerSpell(this.groundTargetSpell);
+			});
 			this.groundTargetSpell = null;
+			return;
 		}
-		// Allow attack with mouse.
-		if (this.target
-			&& (
-				target?.id === this.target.id
-				|| this.hoverTarget?.id === this.target.id
-			)
-		) {
+		if (!isMobile && e?.button === 0
+			&& this.hoverTarget && this.target
+			&& this.hoverTarget.id === this.target.id
+		) { // Allow attack with mouse.
 			client.request({
 				cpn: "player"
 				, method: "castSpell"
@@ -107,7 +103,7 @@ export default {
 			return;
 		}
 		// Update current target
-		this.target = target || this.hoverTarget;
+		this.target = this.hoverTarget;
 		// Update target sprite
 		if (this.target) {
 			this.targetSprite.x = this.target.x * scale;
@@ -128,52 +124,26 @@ export default {
 		events.emit("onSetTarget", this.target, null);
 	}
 
-	, onAction: function (action) {
-		if (action === "target") {
+	, onInputAction: function (e) {
+		if (e.actionName === "target") {
 			this.tabTarget();
 			return;
 		}
-		if (action.startsWith(ACTION_HEADER)) {
-			this.triggerSpell(action.substring(ACTION_HEADER.length));
+		if (e.actionName.startsWith(ACTION_HEADER)) {
+			this.triggerSpell(e.actionName.substring(ACTION_HEADER.length));
 		}
 	}
 
-	, triggerSpell: function (key) {
-		if (isNaN(key)) {
-			return;
-		}
+	, triggerSpell: function (key, target) {
 		let spell = this.getSpell(key);
 		if (!spell) {
+			_.log.spellbook.error("Spell %s not found!", key);
 			return;
 		}
-
-		let isShiftDown = input.isKeyDown("shift");
-
-		let oldTarget = null;
-		if (isShiftDown || spell.targetPlayerPos) {
-			oldTarget = this.target;
-			this.target = this.obj;
-		}
-
-		if (!spell.aura && !spell.targetGround && !spell.autoTargetFollower && !this.target) {
-			return;
-		}
-
-		let target = this.groundTarget || this.obj.inputs.hoverTile;
-		if (spell.autoTargetFollower && !this.target) {
-			target = null;
-		} else if (!spell.targetGround && this.target) {
-			target = this.target.id;
-		} else if (spell.targetPlayerPos) {
-			isShiftDown = true;
-		}
-		if (isShiftDown) {
-			this.target = oldTarget;
-		}
-		if (target === this.obj && spell.noTargetSelf) {
-			return;
-		}
-		if (isMobile && spell.targetGround && !spell.targetPlayerPos && !this.groundTarget) {
+		if (isMobile && !target
+			&& spell.targetGround
+			&& !spell.targetPlayerPos
+		) { // Allow attacking ground on mobile.
 			if (this.groundTargetSpell === key) {
 				this.groundTargetSpell = null;
 				events.emit("onGetAnnouncement", {
@@ -187,6 +157,32 @@ export default {
 			});
 			return;
 		}
+
+		const targetSelf = input.isKeyDown("shift") || spell.targetPlayerPos;
+		if (!spell.aura
+			&& !targetSelf
+			&& !spell.targetGround
+			&& !spell.autoTargetFollower
+			&& !this.target
+		) {
+			_.log.spellbook.debug("Spell %s requires a target!", spell.name);
+			return;
+		}
+
+		if (!target) {
+			target = this.obj.inputs.hoverTile;
+		}
+		if (spell.autoTargetFollower && !this.target) {
+			target = null;
+		} else if (!spell.targetGround && this.target) {
+			target = this.target.id;
+		} else if (targetSelf) {
+			target = this.obj.id;
+		}
+		if (target === this.obj && spell.noTargetSelf) {
+			_.log.spellbook.trace("Spell %s can't target self!", spell.name);
+			return;
+		}
 		if (target) {
 			client.request({
 				cpn: "player"
@@ -195,12 +191,9 @@ export default {
 					priority: input.isKeyDown("ctrl")
 					, spell: spell.id
 					, target: target
-					, self: isShiftDown
+					, self: targetSelf
 				}
 			});
-		}
-		if (isMobile) {
-			this.groundTarget = null;
 		}
 	}
 

@@ -43,9 +43,9 @@ const createTemplate = function () {
 };
 
 export default {
-	tpl: createTemplate()
-	, init: function () {
+	beforeRender: function () {
 		events.on("loaderProgress", setLoaderProgress);
+		this.tpl = createTemplate();
 	}
 	, beforeDestroy: function () {
 		events.off("loaderProgress", setLoaderProgress);

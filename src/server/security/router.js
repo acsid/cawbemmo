@@ -17,7 +17,7 @@ const DATA_TYPES_VALIDATORS = {
 
 const keysCorrect = function (obj, specs) {
 	const specsValid = specs.every(({ key, dataType, optional, spec }) => {
-		if (!Object.hasOwnProperty.call(obj, key)) {
+		if (!Object.hasOwn(obj, key)) {
 			return optional;
 		}
 		if (!dataType) {

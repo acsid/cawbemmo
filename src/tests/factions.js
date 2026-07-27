@@ -8,8 +8,8 @@ describe("factions", function() {
 	let expect;
 	before(async () => {
 		expect = (await import("chai")).expect;
-		global._ = require("../server/misc/helpers");
-		const logging = require("../common/logging.js");
+		global._ = (await import("../server/misc/helpers.mjs")).default;
+		const logging = (await import("../common/logging.mjs")).default;
 		_.log = logging.createLogger({ name: "System", loggerCtor: logging.createLogHandler((thisLogger, logLevel, args) => console.info.apply(console, args), () => true)});
 
 		Faction.init();

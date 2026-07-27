@@ -1,14 +1,3 @@
-require("./globals");
-
-process.on("warning", (e) => {
-	_.log.warn(`Warning: ${e.toString()}\r\n`, e.stack);
-});
-
-const server = require("./server/index");
-const mods = require("./misc/mods");
-const fixes = require("./fixes/fixes");
-const { close: closeThreadManager } = require("./world/threadManager");
-
 const COMPONENTS_CONFIGURATIONS_PATHS = {
 	routerConfig: "./security/routerConfig"
 	, animations: "./config/animations"
@@ -28,6 +17,16 @@ const COMPONENTS_CONFIGURATIONS_PATHS = {
 };
 
 (async function () {
+	await import("./globals.mjs");
+	process.on("warning", (e) => {
+		_.log.warn(`Warning: ${e.toString()}\r\n`, e.stack);
+	});
+
+	const server = (await import("./server/index.js")).default;
+	const mods = (await import("./misc/mods.js")).default;
+	const fixes = (await import("./fixes/fixes.js")).default;
+	const { close: closeThreadManager } = (await import("./world/threadManager.js")).default;
+
 	await new Promise((resolve) => io.init(resolve));
 	await fixes.fixDb();
 

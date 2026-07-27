@@ -8,6 +8,7 @@ const jVerify = util.promisify(jwt.verify);
 
 let jwtSecret = require("crypto").randomBytes(35).toString("hex");
 
+// eslint-disable-next-line max-lines-per-function
 const createRouter = (options) => {
 	if (options?.secret) {
 		jwtSecret = options.secret;
@@ -17,13 +18,13 @@ const createRouter = (options) => {
 	}
 	const router = express.Router();
 	router.route("/self").get(async (req, res) => {
-		const token = req.cookies.jwt
+		const token = req.cookies.jwt;
 		if (!token) {
-			return res.status(204).send();
+			return res.status(204).send(); // 204 No Content
 		}
 		try {
 			const decodedToken = await jVerify(token, jwtSecret);
-			if (!decodedToken.level) {
+			if (!decodedToken.username) {
 				return res.status(204);
 			}
 			const accountInfo = await io.getAsync({
@@ -42,7 +43,7 @@ const createRouter = (options) => {
 		}
 	});
 	router.route("/login").post(async (req, res, next) => {
-		const { username, password } = req.body
+		const { username, password } = req.body;
 		if (!username || !password) {
 			return res.status(400).jsonp({
 				message: "Login not successful"
@@ -119,17 +120,17 @@ const createRouter = (options) => {
 		return res.redirect("/");
 	});
 	router.route("/token").get(async (req, res) => {
-		const token = req.cookies.jwt;
+		let token = req.query.jwt || req.cookies.jwt;
 		if (!token) {
 			return res.status(401).json({ message: "Not authorized, jwt token not available" });
 		}
 		try {
 			const decodedToken = await jVerify(token, jwtSecret);
-			if (decodedToken.level < reqLevel) {
+			if (!decodedToken.username || typeof decodedToken.level !== "number") {
 				return res.status(401).json({ message: "Not authorized" });
 			}
-			const maxAge = 3 * 60 * 60;
-			const token = jwt.sign(
+			const maxAge = req.query.expires || 3 * 60 * 60;
+			token = jwt.sign(
 				{
 					username: decodedToken.username
 					, level: decodedToken.level
@@ -161,20 +162,20 @@ const createRouter = (options) => {
 		}
 	});
 	router.route("/register").post(async (req, res, next) => {
-		const { username, password } = req.body
+		const { username, password } = req.body;
 		if (!username || !password) {
 			return res.status(400).jsonp({
 				message: "Username or Password not present"
-			})
+			});
 		}
 		if (password.length < 6) {
-			return res.status(400).jsonp({ message: "Password less than 6 characters" })
+			return res.status(400).jsonp({ message: "Password less than 6 characters" });
 		}
 		try {
 			throw new Error("Not implemented...");
 			const user = await User.create({
-				username,
-				password,
+				username
+				, password
 			});
 			res.status(200).jsonp({
 				message: "User successfully created"
@@ -184,7 +185,7 @@ const createRouter = (options) => {
 			res.status(401).jsonp({
 				message: "User creation failed"
 				, error: err.mesage
-			})
+			});
 		}
 	});
 	return router;
@@ -198,7 +199,7 @@ const createAuth = (reqLevel) => {
 		}
 		try {
 			const decodedToken = await jVerify(token, jwtSecret);
-			if (decodedToken.level < reqLevel) {
+			if (!decodedToken.username || decodedToken.level < reqLevel) {
 				return res.status(401).json({ message: "Not authorized" });
 			}
 			next();

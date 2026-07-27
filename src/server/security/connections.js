@@ -26,6 +26,11 @@ module.exports = {
 		p.addComponent("auth");
 		p.addComponent("player");
 
+		// Ship the connection's detected language onto the player object so it
+		// round-trips into the worker at zone-in (getSimple + the worker's field copy)
+		// and stays available server-side for announcement translation.
+		p.language = socket.data.language || "en";
+
 		objects.pushObjectToList(p);
 		this.players.push(p);
 

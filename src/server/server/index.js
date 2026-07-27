@@ -5,12 +5,11 @@ const socketIo = require("socket.io");
 
 const express = require("express");
 const compression = require("compression");
-//const minify = require("express-minify");
+const minify = require("express-minify");
 const lessMiddleware = require("less-middleware");
 const cookieParser = require("cookie-parser");
 
 const fileLister = require("../misc/fileLister");
-const rest = require("../security/rest");
 
 const API_ROUTES = {
 	auth: {
@@ -37,7 +36,7 @@ const sharedFolders = [
 	, "/mods"
 ];
 
-const onNewLogEvent = function(req, entry) {
+const onNewLogEvent = function (req, entry) {
 	if (typeof entry !== "object") {
 		_.log.UserLog[req.ip].info(entry);
 		return;
@@ -53,15 +52,25 @@ const onNewLogEvent = function(req, entry) {
 		userLogger = userLogger[loggerName.slice(2, -2)];
 	}
 	userLogger.print(logLevel, entry);
-}
+};
 
-const loadRoute = function(rName, options, loadedAPIs) {
-	const routeModule = require("./routes/" + rName);
+const loadRoute = async function (routeName, filePath) {
+	if (!filePath) {
+		filePath = routeName;
+	}
+	_.log["server/index"].trace("Loading %s", filePath);
+	const options = API_ROUTES[routeName] || {};
+	let routeModule;
+	if (filePath.endsWith(".mjs")) {
+		routeModule = (await import("./routes/" + filePath)).default;
+	} else {
+		routeModule = require("./routes/" + filePath);
+	}
 	if ("createRouter" in routeModule) {
-		routeModule.router = routeModule.createRouter(options, loadedAPIs);
+		routeModule.router = routeModule.createRouter(options, API_ROUTES);
 		delete routeModule.createRouter;
 	}
-	loadedAPIs[rName] = routeModule;
+	API_ROUTES[routeName] = routeModule;
 	return routeModule;
 };
 
@@ -76,14 +85,38 @@ const init = async function () {
 	global.cons.sockets = this.socketServer.sockets;
 
 	app.use(compression());
-	//if (IS_PROD) {
-	//	app.use(minify());
-	//}
+	if (IS_PROD) {
+		app.use(minify());
+	}
 
 	app.use(cookieParser());
 	app.use(express.json({ limit: "50mb" }));
 
-	app.post("/log", (req, res) => {
+	for (const apiName in API_ROUTES) {
+		const routeModule = await loadRoute(apiName);
+		if (routeModule.router) {
+			app.use("/api/" + apiName, routeModule.router);
+		}
+	}
+
+	const routeFiles = fileLister.getFiles("./server/routes/");
+	for (const fName of routeFiles) {
+		if (!fName.endsWith(".js") && !fName.endsWith(".mjs")) {
+			continue;
+		}
+		const apiName = fName.slice(0, fName.lastIndexOf("."));
+		if (API_ROUTES[apiName]) {
+			continue;
+		}
+		const routeModule = await loadRoute(apiName, fName);
+		if (routeModule.router) {
+			app.use("/api/" + apiName, routeModule.router);
+		}
+	}
+
+	const logWindowMs = 60 * 1000;
+	const logLimit = 8;
+	app.post("/log", API_ROUTES.limiter.create(logWindowMs, logLimit), (req, res) => {
 		if (Array.isArray(req.body)) {
 			for (const entry of req.body) {
 				onNewLogEvent(req, entry);
@@ -94,25 +127,6 @@ const init = async function () {
 		res.send({ response: "ok" });
 	});
 
-	const loadedAPIs = {};
-	for (const apiName in API_ROUTES) {
-		const routeModule = loadRoute(apiName, API_ROUTES[apiName], loadedAPIs);
-		app.use("/api/" + apiName, routeModule.router);
-		API_ROUTES[apiName] = routeModule;
-	}
-	const routeFiles = fileLister.getFiles("./server/routes/");
-	for (const fName of routeFiles) {
-		if (!fName.endsWith(".js")) {
-			continue;
-		}
-		const apiName = fName.slice(0, fName.lastIndexOf("."));
-		if (API_ROUTES[apiName]) {
-			continue;
-		}
-		const routeModule = loadRoute(apiName, {}, loadedAPIs);
-		app.use("/api/" + apiName, routeModule.router);
-		API_ROUTES[apiName] = routeModule;
-	}
 	app.get("/admin", (req, res, next) => {
 		if (req.path === "/admin") {
 			return res.redirect("/admin/index.html");
@@ -123,7 +137,7 @@ const init = async function () {
 	app.get("/admin/js/", API_ROUTES.auth.createAuth(99), appFile);
 
 	app.use((req, res, next) => {
-		if (!rest.willHandle(req.url) && !sharedFolders.some((s) => req.url.startsWith(s))) {
+		if (!sharedFolders.some((s) => req.url.startsWith(s))) {
 			req.url = `/client/${req.url}`;
 		}
 		next();
@@ -132,8 +146,6 @@ const init = async function () {
 		once: IS_PROD
 		, force: !IS_PROD
 	}));
-
-	rest.init(app);
 
 	app.get("/", appRoot);
 	app.get(/^(.*)$/, appFile);
@@ -158,7 +170,7 @@ const close = async function () {
 	}
 	// Wait for client to close the connection.
 	let disconnectCountdown = 10;
-	while (disconnectCountdown > 0 && sockets.some(s => s.connected)) {
+	while (disconnectCountdown > 0 && sockets.some((s) => s.connected)) {
 		disconnectCountdown--;
 		await _.asyncDelay(1000);
 	}
@@ -167,7 +179,7 @@ const close = async function () {
 	_.log.Server.debug("Sockets closed...");
 
 	// Close the server instance.
-	await new Promise(resolve => this.server.close(resolve));
+	await new Promise((resolve) => this.server.close(resolve));
 	_.log.Server.debug("Server closed...");
 };
 

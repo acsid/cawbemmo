@@ -4,7 +4,6 @@
 	display: none;
 	width: 600px;
 	height: 350px;
-	border: 5px solid @blackB;
 	text-align: center;
 	background-color: @blackC;
 
@@ -86,17 +85,11 @@
 			}
 
 			.preview {
-				padding-left: calc((100% - (8 * 16px)) / 2);
 				position: relative;
 				height: calc(100% - 80px);
 
 				.sprite {
-					width: 8px;
-					height: 8px;
 					position: absolute;
-					left: calc((100% - (8 * 16px)) / 2);
-					top: calc((100% - (8 * 16px)) / 2);
-					transform: scale(16);
 					transform-origin: 0% 0%;
 					image-rendering: optimizeSpeed;
 					image-rendering: pixelated;

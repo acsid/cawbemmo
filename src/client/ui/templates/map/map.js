@@ -9,6 +9,10 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 const template = await _.loadHTML("/ui/templates/map/template.html", { raw: true });
 
 const CANVAS_SCALE = 4;
+const eventMap = {
+	onGetObject: "onGetObject"
+	, onKeyDown: "keydown"
+};
 
 export default {
 	tpl: template
@@ -35,13 +39,18 @@ export default {
 		}
 	}
 
+	, mapCanvas: null
+	, mapCtx: null
+	, viewCtx: null
+	, rawImage: null
+
 	, postRender: function () {
-		this.mapCanvas = document.createElement("canvas");
-		for (const eventName in this.events) {
-			this.onEvent(eventName, this.events[eventName].bind(this));
+		for (const [prop, key] of Object.entries(eventMap)) {
+			this.onEvent(key, this[prop].bind(this));
 		}
+		this.mapCanvas = document.createElement("canvas");
 		this.el.on("click", this.toggleMap.bind(this));
-		this.uiContainer = $(".ui-container");
+		this.uiContainer = $("#ui-container");
 		this.el.addClass("uiMapMini");
 		this.el.css("display", "block");
 	}
@@ -63,14 +72,27 @@ export default {
 		if (!physics.grid) {
 			return;
 		}
+
 		// Render map.
-		this.mapCanvas.width = physics.grid.length;
-		this.mapCanvas.height = physics.grid[0].length;
-		const mapCtx = this.mapCanvas.getContext("2d", { willReadFrequently: true });
-		mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
-		const rawImage = mapCtx.getImageData(0, 0, physics.grid.length, physics.grid[0].length);
-		const pix = rawImage.data;
-		const imgWidth = rawImage.width;
+		if (this.mapCtx
+			&& this.mapCanvas.width === physics.grid.length
+			&& this.mapCanvas.height === physics.grid[0].length
+		) {
+			this.mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
+		} else {
+			this.mapCanvas.width = physics.grid.length;
+			this.mapCanvas.height = physics.grid[0].length;
+			this.mapCtx = this.mapCanvas.getContext("2d", { willReadFrequently: false });
+		}
+		if (!this.rawImage
+			|| this.rawImage.width !== physics.grid.length
+			|| this.rawImage.height !== physics.grid[0].length
+		) {
+			this.rawImage = this.mapCtx.getImageData(0, 0, physics.grid.length, physics.grid[0].length);
+		}
+
+		const pix = this.rawImage.data;
+		const imgWidth = this.rawImage.width;
 		for (let x = 0; x < physics.grid.length; x++) {
 			for (let y = 0; y < physics.grid[x].length; y++) {
 				const i = (y * imgWidth + x) * 4;
@@ -89,28 +111,35 @@ export default {
 				}
 			}
 		}
-		objectsModule.objects.forEach((obj) => {
+		for (const obj of objectsModule.objects) {
 			if (obj.destroyed || !obj.updateVisibility) {
-				return;
+				continue;
 			}
-			this.drawMapItem(rawImage, obj);
-		});
+			this.drawMapItem(this.rawImage, obj);
+		}
 		if (Date.now() % 1000 > 500) { // Blink each half second when obscured.
 			// Draw player again on top of other objects.
-			this.drawMapItem(rawImage, window.player);
+			this.drawMapItem(this.rawImage, window.player);
 		}
-		mapCtx.putImageData(rawImage, 0, 0);
+		this.mapCtx.putImageData(this.rawImage, 0, 0);
+
 		// Update map view.
 		const viewportCanvas = this.el[0];
-		viewportCanvas.width = this.mapCanvas.width * CANVAS_SCALE;
-		viewportCanvas.height = this.mapCanvas.height * CANVAS_SCALE;
-		const viewCtx = viewportCanvas.getContext("2d");
-		viewCtx.clearRect(0, 0, viewportCanvas.width, viewportCanvas.height);
-		viewCtx.translate(viewportCanvas.width / 2, viewportCanvas.height / 2);
-		viewCtx.scale(this.mapScale, this.mapScale);
-		viewCtx.translate(-player.x, -player.y);
-		viewCtx.imageSmoothingEnabled = false;
-		viewCtx.drawImage(this.mapCanvas, 0, 0);
+		if (this.viewCtx) {
+			this.viewCtx.reset();
+		} else {
+			viewportCanvas.width = this.mapCanvas.width * CANVAS_SCALE;
+			viewportCanvas.height = this.mapCanvas.height * CANVAS_SCALE;
+			this.viewCtx = viewportCanvas.getContext("2d");
+		}
+
+		this.viewCtx.translate(viewportCanvas.width / 2, viewportCanvas.height / 2);
+		this.viewCtx.scale(this.mapScale, this.mapScale);
+		this.viewCtx.translate(-window.player.x, -window.player.y);
+
+		this.viewCtx.imageSmoothingEnabled = false;
+		this.viewCtx.drawImage(this.mapCanvas, 0, 0);
+
 	// 250ms = 4 FPS
 	}, 250, true, true)
 
@@ -148,43 +177,46 @@ export default {
 	}
 	, drawMapItem: function (rawImage, obj) {
 		const pix = rawImage.data;
-		const i = (obj.y * rawImage.width + obj.x) * 4;
 		const colorArr = this.getMapItemColor(obj);
-		pix[i] = colorArr[0];
-		pix[i + 1] = colorArr[1];
-		pix[i + 2] = colorArr[2];
-		pix[i + 3] = 255;
+		for (let x = (obj.width || 1) - 1; x >= 0; --x) {
+			for (let y = (obj.height || 1) - 1; y >= 0; --y) {
+				const i = ((obj.y + y) * rawImage.width + (obj.x + x)) * 4;
+				pix[i] = colorArr[0];
+				pix[i + 1] = colorArr[1];
+				pix[i + 2] = colorArr[2];
+				pix[i + 3] = 255;
+			}
+		}
 	}
 
-	, events: {
-		onGetObject: function (object) {
-			if (!object.id) {
-				return;
-			}
-			this.drawMap();
+	, onGetObject: function (object) {
+		if (!object.id) {
+			return;
 		}
-		, onKeyDown: function (key) {
-			if (!key) {
-				return;
-			}
-			if (this.el.css("display") !== "block") {
-				// Map hidden...
-				return;
-			}
-			if (key === "m") {
-				this.toggleMap();
-				return;
-			}
-			if (key === "13" && this.mapScale > CANVAS_SCALE) {
-				this.mapScale--;
-				this.drawMap();
-				return;
-			}
-			if (key === "11" && this.mapScale < 11) {
-				this.mapScale++;
-				this.drawMap();
-				return;
-			}
+		this.drawMap();
+	}
+
+	, onKeyDown: function (e) {
+		if (!e?.key) {
+			return;
+		}
+		if (this.el.css("display") !== "block") {
+			// Map hidden...
+			return;
+		}
+		if (e.key === "m") {
+			this.toggleMap();
+			return;
+		}
+		if (e.key === "93" && this.mapScale > CANVAS_SCALE) {
+			this.mapScale--;
+			this.drawMap();
+			return;
+		}
+		if (e.key === "91" && this.mapScale < 11) {
+			this.mapScale++;
+			this.drawMap();
+			return;
 		}
 	}
 };

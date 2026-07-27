@@ -62,6 +62,11 @@ const routerConfig = {
 							key: "password"
 							, dataType: "string"
 						}
+						, {
+							key: "language"
+							, dataType: "string"
+							, optional: true
+						}
 					]
 				}
 				, register: {
@@ -75,6 +80,11 @@ const routerConfig = {
 						, {
 							key: "password"
 							, dataType: "string"
+						}
+						, {
+							key: "language"
+							, dataType: "string"
+							, optional: true
 						}
 					]
 				}

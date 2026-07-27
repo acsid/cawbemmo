@@ -7,25 +7,22 @@ import physics from "/js/misc/physics.js";
 const MASTER_VOLUME = 0.3;
 const MIN_DISTANCE = 10;
 
+const distanceFalloff = (d) => _.clamp(1 - (d * d) / (MIN_DISTANCE * MIN_DISTANCE), 0, 1);
+
 let soundVolume = config.soundVolume;
 let musicVolume = config.musicVolume;
 
 const globalScopes = ["ui"];
-const minDistance = 10;
-const fadeDuration = 1800;
 
 window.Howler.volume(MASTER_VOLUME);
 
 export default {
 	sounds: []
-
 	, muted: false
-
-	, currentMusic: null
 
 	, init: function () {
 		events.on("onToggleAudio", this.onToggleAudio.bind(this));
-		events.on("onPlaySound", this.playSound.bind(this));
+		events.on("onPlaySound", this.play.bind(this));
 		events.on("onPlaySoundAtPosition", this.onPlaySoundAtPosition.bind(this));
 		events.on("onManipulateVolume", this.onManipulateVolume.bind(this));
 
@@ -78,158 +75,141 @@ export default {
 	}
 
 	, onPlaySoundAtPosition: function ({ position: { x, y }, file, volume }) {
+		if (window.player?.x === undefined) {
+			return;
+		}
 		const { player: { x: playerX, y: playerY } } = window;
 		const dx = Math.abs(x - playerX);
 		const dy = Math.abs(y - playerY);
 		const distance = Math.max(dx, dy);
-
-		const useVolume = volume * (1 - (Math.pow(distance, 2) / Math.pow(minDistance, 2)));
+		if (distance >= MIN_DISTANCE) {
+			return;
+		}
 
 		//eslint-disable-next-line no-undef, no-unused-vars
 		const sound = new Howl({
 			src: [file]
-			, volume: useVolume
+			, volume: (soundVolume / 100) * distanceFalloff(distance) * (volume ?? 1)
 			, loop: false
 			, autoplay: true
 			, html5: false
 		});
 	}
 
-	, playSound: function (soundName) {
-		const soundEntry = this.sounds.find((s) => s.name === soundName);
-		if (!soundEntry) {
+	, play: function (entry, volume = 1) {
+		if (typeof entry === "string") {
+			entry = this.sounds.find((s) => s.name === entry);
+		}
+		if (!entry) {
+			throw new Error("Sound entry not found!");
+		}
+		if (!entry.sound) {
+			entry.sound = this.loadSound(entry.file, entry.loop, true, volume);
 			return;
 		}
-
-		const { sound } = soundEntry;
-
-		sound.volume(soundVolume / 100);
-		sound.play();
+		entry.sound.volume(volume);
+		entry.sound.play();
 	}
 
-	, playSoundHelper: function (soundEntry, volume) {
-		const { sound } = soundEntry;
-
-		if (!sound) {
-			const { file, loop } = soundEntry;
-			soundEntry.sound = this.loadSound(file, loop, true, volume);
-			return;
+	, fade: function (entry, volume, fadeDuration = 0) {
+		if (typeof entry === "string") {
+			entry = this.sounds.find((s) => s.name === entry);
 		}
-		soundEntry.volume = volume;
-		volume *= (soundVolume / 100);
-
-		if (sound.playing()) {
-			if (sound.volume() === volume) {
-				return;
+		let updated = false;
+		if (!entry.sound) {
+			entry.sound = this.loadSound(entry.file, entry.loop, Boolean(volume > 0), 0.01);
+			updated = true;
+		}
+		const curVol = entry.sound.volume();
+		if (Math.abs(curVol - volume) > 0.001) {
+			if (fadeDuration > 0) {
+				entry.sound.fade(curVol, volume, fadeDuration);
+			} else {
+				entry.sound.volume(volume);
 			}
-			sound.volume(volume);
-		} else {
-			sound.volume(volume);
-			sound.play();
+			updated = true;
 		}
+		const isPlaying = entry.sound.playing();
+		if (isPlaying && curVol <= 0) {
+			entry.sound.stop();
+			updated = true;
+		}
+		if (!isPlaying && volume > 0) {
+			entry.sound.play();
+			updated = true;
+		}
+		return updated;
 	}
 
-	, playMusicHelper: function (soundEntry) {
-		const { sound } = soundEntry;
-		if (!sound) {
-			const { file, loop } = soundEntry;
-			soundEntry.volume = musicVolume;
-			soundEntry.sound = this.loadSound(file, loop, true, musicVolume / 100);
-			return;
+	, stop: function (entry) {
+		if (typeof entry === "string") {
+			entry = this.sounds.find((s) => s.name === entry);
 		}
-		if (!sound.playing()) {
-			soundEntry.volume = 0;
-			sound.volume(0);
-			sound.play();
+		if (!entry?.sound?.playing()) {
+			return false;
 		}
-		if (this.currentMusic === soundEntry && sound.volume() === musicVolume / 100) {
-			return;
-		}
-		this.currentMusic = soundEntry;
-		sound.fade(sound.volume(), (musicVolume / 100), fadeDuration);
+		entry.sound.stop();
+		entry.sound.volume(0);
 	}
 
-	, stopSoundHelper: function (soundEntry) {
-		const { sound, music } = soundEntry;
-		if (!sound || !sound.playing()) {
-			return;
-		}
-		if (music) {
-			sound.fade(sound.volume(), 0, fadeDuration);
-		} else {
-			sound.stop();
-			sound.volume(0);
-		}
-	}
-
-	, updateSounds: function (playerX, playerY) {
-		this.sounds.forEach((s) => {
-			const { x, y, area, music, scope } = s;
-			if (music || scope === "ui") {
-				return;
+	, updateSounds: function (x, y) {
+		for (const s of this.sounds) {
+			if (s.music || s.scope === "ui") {
+				continue;
 			}
 			let distance = 0;
-			if (!area) {
-				let dx = Math.abs(x - playerX);
-				let dy = Math.abs(y - playerY);
+			if (!s.area) {
+				let dx = Math.abs(s.x - x);
+				let dy = Math.abs(s.y - y);
 				distance = Math.max(dx, dy);
-			} else if (!physics.isInPolygon(playerX, playerY, area)) {
-				distance = physics.distanceToPolygon([playerX, playerY], area);
+			} else if (!physics.isInPolygon(x, y, s.area)) {
+				distance = physics.distanceToPolygon([x, y], s.area);
 			}
-			if (distance > minDistance) {
-				this.stopSoundHelper(s);
-				return;
+			if (distance > MIN_DISTANCE) {
+				this.stop(s);
+				continue;
 			}
-			//Exponential fall-off
-			const volume = s.maxVolume * (1 - (Math.pow(distance, 2) / Math.pow(minDistance, 2)));
-			this.playSoundHelper(s, volume);
-		});
+			const volume = s.maxVolume * distanceFalloff(distance) * (soundVolume / 100);
+			this.fade(s, volume);
+		}
 	}
 
 	, updateMusic: function (playerX, playerY) {
-		const sounds = this.sounds;
-
-		const areaMusic = sounds.filter((s) => s.music && s.area);
-
-		//All music that should be playing because we're in the correct polygon
-		const playMusic = areaMusic.filter((s) => physics.isInPolygon(playerX, playerY, s.area));
-
-		//All music that should stop playing because we're in the incorrect polygon
-		const stopMusic = areaMusic.filter((s) => s.sound && s.sound.playing() && !playMusic.some((m) => m === s));
-
-		//Stop or start defaultMusic, depending on whether anything else was found
-		const defaultMusic = sounds.filter((a) => a.defaultMusic);
-		if (defaultMusic) {
-			if (!playMusic.length) {
-				defaultMusic.forEach((m) => this.playMusicHelper(m));
-			} else {
-				defaultMusic.forEach((m) => this.stopSoundHelper(m));
+		if (typeof this._musicPlaying !== "boolean") {
+			this._musicPlaying = true;
+		}
+		let musicPlaying = false;
+		for (const s of this.sounds) {
+			if (s.music && s.area) {
+				if (physics.isInPolygon(playerX, playerY, s.area)) { // Should be playing because we're in the area
+					this.fade(s, musicVolume / 100);
+					musicPlaying = true;
+				} else if (s.sound?.playing()) { // Should stop playing because we're not in the area
+					this.fade(s, 0);
+					musicPlaying = true;
+				}
+			}
+			if (s.defaultMusic) { // Stop or start defaultMusic, depending on whether anything else was playing last iteration.
+				if (this._musicPlaying) {
+					this.fade(s, 0);
+				} else {
+					this.fade(s, musicVolume / 100);
+				}
 			}
 		}
-
-		//If there's a music entry in both 'play' and 'stop' that shares a fileName, we'll just ignore it. This happens when you
-		// move to a building interior, for example. Unfortunately, we can't have different volume settings for these kinds of entries.
-		// The one that starts playing first will get priority
-		const filesPlaying = [...playMusic.map((p) => p.file), ...stopMusic.map((p) => p.file)];
-		playMusic.spliceWhere((p) => filesPlaying.filter((f) => f === p.file).length > 1);
-		stopMusic.spliceWhere((p) => filesPlaying.filter((f) => f === p.file).length > 1);
-
-		stopMusic.forEach((m) => this.stopSoundHelper(m));
-		playMusic.forEach((m) => this.playMusicHelper(m));
+		this._musicPlaying = musicPlaying;
 	}
 
-	, update: function (playerX, playerY) {
-		this.updateSounds(playerX, playerY);
-		this.updateMusic(playerX, playerY);
+	, update: function (x, y) {
+		this.updateSounds(x, y);
+		this.updateMusic(x, y);
 	}
 
 	, addSound: function (
 		{ name: soundName, scope, file, volume = 1, x, y, w, h, area, music, defaultMusic, loop, autoLoad }
 	) {
 		if (this.sounds.some((s) => s.file === file)) {
-			if (window.player?.x !== undefined) {
-				this.update(window.player.x, window.player.y);
-			}
+			_.log.sound.error("Sound file %s is already loaded!", file);
 			return;
 		}
 		if (!area && w) {
@@ -240,35 +220,29 @@ export default {
 				, [x, y + h]
 			];
 		}
-		let sound = null;
-		if (typeof autoLoad === "object") {
-			sound = this.loadSound(file, loop, false, music ? 0 : volume, autoLoad);
-		} else if (autoLoad) {
-			sound = this.loadSound(file, loop, false, music ? 0 : volume);
-		}
-		if (music) {
-			volume = 0;
-		}
-		const soundEntry = {
+		const entry = {
 			name: soundName
-			, sound
 			, scope
 			, file
-			, loop
-			, x
-			, y
-			, volume
-			, maxVolume: volume
-			, area
-			, music
-			, defaultMusic
+			, x, y, area
+			, loop: Boolean(loop)
+			, music: Boolean(music)
+			, defaultMusic: Boolean(defaultMusic)
+
+			, maxVolume: _.clamp(volume, 0, 1)
 		};
-		this.sounds.push(soundEntry);
+		this.sounds.push(entry);
+
+		if (typeof autoLoad === "object") {
+			entry.sound = this.loadSound(file, loop, false, music ? 0 : volume, autoLoad);
+		} else if (autoLoad) {
+			entry.sound = this.loadSound(file, loop, false, music ? 0 : volume);
+		}
 
 		if (window.player?.x !== undefined) {
 			this.update(window.player.x, window.player.y);
 		}
-		return soundEntry;
+		return entry;
 	}
 
 	, loadSound: function (file, loop = false, autoplay = false, volume = 1, onLoad = undefined) {
@@ -290,18 +264,13 @@ export default {
 	}
 
 	, onToggleAudio: function (isAudioOn) {
-		this.muted = !isAudioOn;
-		this.sounds.forEach((s) => {
-			if (!s.sound) {
-				return;
-			}
-			s.sound.mute(this.muted);
-		});
-		if (!window.player) {
-			return;
+		this.muted = (isAudioOn === undefined ? !this.muted : !isAudioOn);
+		//eslint-disable-next-line no-undef
+		Howler.mute(this.muted);
+
+		if (window.player?.x !== undefined) {
+			this.update(window.player.x, window.player.y);
 		}
-		const { player: { x, y } } = window;
-		this.update(x, y);
 	}
 
 	, onManipulateVolume: function ({ soundType, delta }) {
@@ -310,18 +279,25 @@ export default {
 		} else if (soundType === "music") {
 			musicVolume = Math.max(0, Math.min(100, musicVolume + delta));
 		}
-		const volume = soundType === "sound" ? soundVolume : musicVolume;
 
+		const volume = soundType === "sound" ? soundVolume : musicVolume;
 		events.emit("onVolumeChange", {
 			soundType
 			, volume
 		});
 
-		const { player: { x, y } } = window;
-		this.update(x, y);
+		if (window.player?.x !== undefined) {
+			this.update(window.player.x, window.player.y);
+		}
 	}
 
-	, destroySoundEntry: function (soundEntry) {
-		this.sounds.spliceWhere((s) => s === soundEntry);
+	, destroySoundEntry: function (entry) {
+		if (entry.sound) {
+			if (entry.sound.playing()) {
+				entry.sound.stop();
+			}
+			entry.sound.unload();
+		}
+		this.sounds.spliceWhere((s) => s === entry);
 	}
 };

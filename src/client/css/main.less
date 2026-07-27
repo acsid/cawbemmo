@@ -1,5 +1,9 @@
 @import "colors.less";
 
+:root {
+  --main-font: sburbits;
+}
+
 body,
 html {
 	position: fixed;
@@ -12,6 +16,13 @@ body {
 	width: 100vw;
 	height: 100vh;
 	background-color: @black;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: var(--main-font);
+	-webkit-touch-callout: none;
+	user-select: none;
 }
 
 .ui-container {
@@ -51,17 +62,6 @@ body {
 	flex-direction: row-reverse;
 }
 
-* {
-	box-sizing: border-box;
-	font-family: bitty;
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
 .canvas-container {
 	position: relative;
 	float: left;
@@ -90,10 +90,6 @@ body {
 [class^="ui"] {
 	input,
 	textarea {
-		-webkit-user-select: text;
-		-khtml-user-select: text;
-		-moz-user-select: text;
-		-ms-user-select: text;
 		user-select: text;
 	}
 
@@ -150,6 +146,13 @@ body {
 				background-color: lighten(@blackA, 10%);
 			}
 		}
+	}
+	&.modal:focus,
+	&.modal:focus-visible {
+		outline: none;
+	}
+	&.modal:focus > .heading {
+		background-color: @blueD;
 	}
 }
 
@@ -265,22 +268,6 @@ body {
 		.icon {
 			filter: brightness(160%);
 			-moz-filter: brightness(160%);
-		}
-	}
-
-	&.spriteSize8 {
-		.icon {
-			transform: scale(4);
-			-webkit-transform: scale(4);
-			margin: 16px;
-		}
-	}
-
-	&.spriteSize24 {
-		.icon {
-			transform: scale(4);
-			-webkit-transform: scale(4);
-			margin: -44px -16px;
 		}
 	}
 }

@@ -1,7 +1,7 @@
 {
     "socket.io": "4.8.1"
     , "howler": "2.2.4"
-    , "pixijs": "7.4.2"
     , "pixi-particles": "4.3.1"
-    , "jquery": "3.6.0"
+    , "pixijs": "7.4.3"
+    , "jquery": "3.7.1"
 }

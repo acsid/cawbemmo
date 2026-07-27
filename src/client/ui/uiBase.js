@@ -11,26 +11,31 @@ export default {
 	, eventCallbacks: {}
 
 	, render: function () {
-		let container = ".ui-container";
-		if (this.container) {
-			container += " > " + this.container;
-		}
 		if (this.beforeRender) {
 			this.beforeRender();
 		}
 
+		let container = "#ui-container";
+		if (this.container) {
+			container += " > " + this.container;
+		}
 		_.log.uiBase.trace("Loading template %o to container %s", this.tpl, container);
-		this.el = $(this.tpl)
-			.appendTo(container)
-			.data("ui", this);
-		_.log.uiBase.trace("UI %o loaded element %o", this, this.el);
-
+		if (typeof this.tpl === "object" && this.tpl instanceof Element && this.tpl.nodeName === "TEMPLATE") {
+			this.el = $(this.tpl.content.childNodes)
+				.appendTo(container)
+				.data("ui", this);
+		} else {
+			this.el = $(this.tpl)
+				.appendTo(container)
+				.data("ui", this);
+		}
 		this.el.on("mouseenter", this.onMouseEnter.bind(this, true));
 		this.el.on("mouseleave", this.onMouseEnter.bind(this, false));
 
 		if (this.modal) {
 			this.el.addClass("modal");
 			this.makeElementDraggable();
+			this.el.attr("tabindex", -1); // Allow modal windows to be focused.
 		}
 		if (this.hasClose) {
 			this.buildClose();
@@ -42,16 +47,20 @@ export default {
 			this.centeredX = true;
 			this.centeredY = true;
 		}
-		if ((this.centeredX) || (this.centeredY)) {
+		if (this.centeredX || this.centeredY) {
 			this.center(this.centeredX, this.centeredY);
 		}
 		this.registerUiEvents();
-
 		this.shown = this.el.is(":visible");
+		_.log.uiBase.trace("UI %o loaded element %o", this, this.el);
 
 		events.emit("onAfterRenderUi", {
 			ui: this
 		});
+
+		if (this.modal && this.shown) {
+			this.el.focus();
+		}
 	}
 
 	, registerUiEvents: function () {
@@ -73,7 +82,7 @@ export default {
 		} else {
 			el = $(el);
 		}
-		el.on(eventName, function (e) {
+		el.on(eventName, (e) => {
 			callback(e, eventName);
 		});
 	}
@@ -111,8 +120,12 @@ export default {
 
 	, show: function () {
 		if (this.shown) {
+			if (this.modal) {
+				this.el.focus();
+			}
 			return;
 		}
+
 		if (this.modal) {
 			//Close any other open modal
 			$(".modal").toArray().forEach((el) => {
@@ -123,6 +136,7 @@ export default {
 			});
 		}
 		this.shown = true;
+
 		if (this.isFlex) {
 			this.el.css("display", "flex");
 		} else {
@@ -131,9 +145,13 @@ export default {
 		if (this.onAfterShow) {
 			this.onAfterShow();
 		}
-		if ((this.centeredX) || (this.centeredY)) {
+		if (this.centeredX || this.centeredY) {
 			this.center(this.centeredX, this.centeredY);
 		}
+		if (this.modal) {
+			this.el.focus();
+		}
+
 		events.emit("onShowUi", this);
 	}
 
@@ -149,6 +167,7 @@ export default {
 		if (this.afterHide) {
 			this.afterHide();
 		}
+
 		events.emit("onHideUi", this);
 	}
 
@@ -199,24 +218,24 @@ export default {
 	}
 
 	, toggle: function () {
-		if (!this.shown) {
-			this.show();
-		} else {
+		if (this.shown) {
 			this.hide();
+		} else {
+			this.show();
 		}
-		events.emit("onToggleUi", this);
 	}
 
 	, buildClose: function () {
-		$("<div class=\"btn btnClose\">X</div>")
+		$(`<div class="btn btnClose">X</div>`)
 			.appendTo(this.find(".heading").eq(0))
-			.on("click", this.toggle.bind(this));
+			.on("click", this.hide.bind(this));
 	}
 
 	, makeElementDraggable: function (elmnt) {
 		if (!elmnt) {
 			elmnt = this.el;
 		}
+		// eslint-disable-next-line no-undef
 		if (elmnt instanceof jQuery) {
 			elmnt = elmnt[0];
 		}

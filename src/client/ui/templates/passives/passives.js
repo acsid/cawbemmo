@@ -1,7 +1,7 @@
 import events from "/js/system/events.js";
 import client from "/js/system/client.js";
 import locale from "/js/locale/index.js";
-import input from "/ui/templates/passives/input.js";
+import input from "/js/input.js";
 
 import styles from "./styles.css" with { type: "css" };
 if (!document.adoptedStyleSheets.includes(styles)) {
@@ -21,21 +21,40 @@ const constants = {
 
 const performAction = client.componentProxy.player.performAction;
 
-export default {
-	tpl: template
+const percentageStats = [
+	"addCritChance"
+	, "addCritMultiplier"
+	, "addAttackCritChance"
+	, "addAttackCritMultiplier"
+	, "addSpellCritChance"
+	, "addSpellCritMultiplier"
+	, "sprintChance"
+	, "xpIncrease"
+	, "blockAttackChance"
+	, "blockSpellChance"
+	, "dodgeAttackChance"
+	, "dodgeSpellChance"
+	, "attackSpeed"
+	, "castSpeed"
+	, "itemQuantity"
+	, "magicFind"
+	, "catchChance"
+	, "catchSpeed"
+	, "fishRarity"
+	, "fishWeight"
+	, "fishItems"
+];
 
-	, modal: true
+export default {
+	modal: true
 	, hasClose: true
 
 	, canvas: null
 	, size: {}
 	, ctx: null
 
-	, mouse: { x: 0, y: 0 }
-
 	, currentZoom: 1
 	, pos: { x: 0, y: 0 }
-	, oldPos: null
 
 	, panOrigin: null
 
@@ -48,21 +67,26 @@ export default {
 
 	, handlerResize: null
 
+	, beforeRender: function () {
+		this.tpl = locale.getLocalizedMessage(locale.dictionary, template);
+	}
 	, postRender: async function () {
-		input.init(this.el, zoom);
-
-		await _.asyncDelay(2500); // Fails if runs too early...
-		const temp = await performAction({
-			cpn: "passives", method: "getTree"
-			, data: {}
-		});
-		this.data.nodes = temp.nodes;
-		this.data.links = temp.links.map((l) => {
-			return {
-				from: { id: l.from }
-				, to: { id: l.to }
-			};
-		});
+		try {
+			await _.asyncDelay(2500); // Fails if runs too early...
+			const temp = await performAction({
+				cpn: "passives", method: "getTree"
+				, data: {}
+			});
+			this.data.nodes = temp.nodes;
+			this.data.links = temp.links.map((l) => {
+				return {
+					from: { id: l.from }
+					, to: { id: l.to }
+				};
+			});
+		} catch (error) {
+			_.log.passives.getTree.error(error);
+		}
 
 		//We need to be able to determine the size of elements
 		this.el.css({
@@ -86,27 +110,25 @@ export default {
 
 		this.ctx.lineWidth = constants.lineWidth;
 
-		$(this.canvas).on("contextmenu"
-			, () => {
-				return false;
-			}
-		);
+		$(this.canvas).on("contextmenu", () => false);
 		this.find(".btnReset").on("click", this.events.onReset.bind(this));
 
-		this.onEvent("onKeyDown", this.onKeyDown.bind(this));
-		this.onEvent("uiMouseUp", this.events.onPanEnd.bind(this));
 		this.onEvent("onGetPassives", this.events.onGetPassives.bind(this));
 		this.onEvent("onGetPassivePoints", this.events.onGetPassivePoints.bind(this));
 		this.onEvent("onShowPassives", this.toggle.bind(this));
 
-		if (isMobile) {
-			this.onEvent("uiTouchEnd", this.events.onPanEnd.bind(this));
-			this.onEvent("uiTouchStart", this.events.onPanStart.bind(this));
-			this.onEvent("uiTouchMove", this.events.onPan.bind(this));
-		} else {
-			this.onEvent("uiMouseMove", this.events.onPan.bind(this));
-			this.onEvent("uiMouseDown", this.events.onPanStart.bind(this));
-		}
+		this.onEvent("keydown", this.events.onKeyDown.bind(this));
+		this.el
+			.on("gamepad", this.events.keydown.bind(this))
+			.on("keydown", this.events.keydown.bind(this));
+		this.find(".bottom")
+			.on("mousedown", this.events.onPanStart.bind(this))
+			.on("mousemove", this.events.onPan.bind(this))
+			.on("mouseup", this.events.onPanEnd.bind(this))
+			.on("touchstart", this.events.onPanStart.bind(this))
+			.on("touchmove", this.events.onPan.bind(this))
+			.on("touchend", this.events.onPanEnd.bind(this))
+			.on("touchcancel", this.events.onPanEnd.bind(this));
 	}
 
 	, beforeDestroy: function () {
@@ -147,7 +169,21 @@ export default {
 		nodes.forEach((n) => this.renderers.node.call(this, n, n.pos.x, n.pos.y));
 	}
 
-	, onAfterShow: function () {
+	, onAfterShow: async function () {
+		if (!this.data.nodes) {
+			const temp = await performAction({
+				cpn: "passives", method: "getTree"
+				, data: {}
+			});
+			this.data.nodes = temp.nodes;
+			this.data.links = temp.links.map((l) => {
+				return {
+					from: { id: l.from }
+					, to: { id: l.to }
+				};
+			});
+		}
+
 		//Calculate midpoint
 		const pClass = window.player.class;
 		const start = this.data.nodes.find((n) => n.spiritStart === pClass);
@@ -173,17 +209,9 @@ export default {
 		this.tooltipId = null;
 	}
 
-	, onKeyDown: function (key) {
-		if (key === "p") {
-			this.toggle();
-		}
-	}
-
 	, renderers: {
 		clear: function () {
 			this.ctx.clearRect(0, 0, this.size.w, this.size.h);
-
-			delete this.oldPos;
 		}
 
 		, node: function (node) {
@@ -286,14 +314,26 @@ export default {
 	}
 
 	, events: {
-		onMouseMove: function (pos) {
-			if (this.mouse.x === pos.x && this.mouse.y === pos.y) {
-				return;
+		onKeyDown: function (e) {
+			if (e.key === "p") {
+				this.toggle();
 			}
-			this.mouse = { x: pos.x, y: pos.y };
+		}
+		, keydown: function (e) {
+			//const key = input.convertKeyCode(e);
+			const rawX = input.getAxis("horizontal");
+			const rawY = input.getAxis("vertical");
+
+			const scrollSpeed = constants.gridSize * constants.scrollSpeed / this.currentZoom;
+			this.pos.x += rawX * scrollSpeed;
+			this.pos.y += rawY * scrollSpeed;
+
+			this.renderNodes();
+		}
+		, onMouseMove: function (e) {
 			const cell = {
-				x: Math.floor((this.pos.x + this.mouse.x) / constants.gridSize)
-				, y: Math.floor((this.pos.y + this.mouse.y) / constants.gridSize)
+				x: Math.floor((this.pos.x + e.offsetX) / constants.gridSize)
+				, y: Math.floor((this.pos.y + e.offsetY) / constants.gridSize)
 			};
 			const node = this.data.nodes.find((n) => n.pos.x === cell.x && n.pos.y === cell.y);
 			if (node === this.hoverNode) {
@@ -301,44 +341,20 @@ export default {
 			}
 			this.hoverNode = node;
 			if (node) {
-				const percentageStats = [
-					"addCritChance"
-					, "addCritMultiplier"
-					, "addAttackCritChance"
-					, "addAttackCritMultiplier"
-					, "addSpellCritChance"
-					, "addSpellCritMultiplier"
-					, "sprintChance"
-					, "xpIncrease"
-					, "blockAttackChance"
-					, "blockSpellChance"
-					, "dodgeAttackChance"
-					, "dodgeSpellChance"
-					, "attackSpeed"
-					, "castSpeed"
-					, "itemQuantity"
-					, "magicFind"
-					, "catchChance"
-					, "catchSpeed"
-					, "fishRarity"
-					, "fishWeight"
-					, "fishItems"
-				];
-
 				let text = Object.keys(node.stats)
 					.map((s) => {
 						let statName = locale.translate("stats", s);
 						let statValue = node.stats[s];
-						if (s.indexOf("CritChance") > -1) {
+						if (s.includes("CritChance")) {
 							statValue /= 20;
 						}
 						let negative = ((statValue + "")[0] === "-");
 						if (percentageStats.includes(s)) {
 							statValue += "%";
 						}
-						return ((negative ? "" : "+") + statValue + " " + statName);
+						return `${negative ? "" : "+"}${statValue} ${statName}`;
 					})
-					.join("<br />");
+					.join("<br/>");
 
 				if (node.spiritStart === window.player.class) {
 					text = locale.translate("passives", "nodes", "myStart");
@@ -347,8 +363,8 @@ export default {
 				}
 
 				const tooltipPos = {
-					x: (input.mouse.raw.clientX + 15) / zoom
-					, y: (input.mouse.raw.clientY) / zoom
+					x: (e.clientX + 15) / zoom
+					, y: e.clientY / zoom
 				};
 				events.emit("onShowTooltip", text, this.el[0], tooltipPos);
 				this.tooltipId = node.id;
@@ -361,8 +377,8 @@ export default {
 		, onPanStart: function (e) {
 			if (isMobile) {
 				let cell = {
-					x: Math.floor((this.pos.x + e.x) / constants.gridSize)
-					, y: Math.floor((this.pos.y + e.y) / constants.gridSize)
+					x: Math.floor((this.pos.x + e.offsetX) / constants.gridSize)
+					, y: Math.floor((this.pos.y + e.offsetY) / constants.gridSize)
 				};
 
 				const node = this.data.nodes.find((n) => n.pos.x === cell.x && n.pos.y === cell.y);
@@ -383,8 +399,8 @@ export default {
 			this.events.onMouseMove.call(this, e);
 
 			this.panOrigin = {
-				x: e.raw.clientX * zoom
-				, y: e.raw.clientY * zoom
+				x: e.clientX * zoom
+				, y: e.clientY * zoom
 			};
 		}
 
@@ -393,14 +409,10 @@ export default {
 				this.events.onMouseMove.call(this, e);
 				return;
 			}
-			if (!this.oldPos) {
-				this.oldPos = { x: this.pos.x, y: this.pos.y };
-			}
-			let zoomPanMultiplier = this.currentZoom;
-			let scrollSpeed = constants.scrollSpeed / zoomPanMultiplier;
+			let scrollSpeed = constants.scrollSpeed / this.currentZoom;
 
-			const rawX = e.raw.clientX * zoom;
-			const rawY = e.raw.clientY * zoom;
+			const rawX = e.clientX * zoom;
+			const rawY = e.clientY * zoom;
 
 			this.pos.x += (this.panOrigin.x - rawX) * scrollSpeed;
 			this.pos.y += (this.panOrigin.y - rawY) * scrollSpeed;
