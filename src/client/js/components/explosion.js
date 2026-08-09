@@ -9,62 +9,50 @@ export default {
 		this.blueprint = {
 			new: true
 			, blueprint: _.assignWith("particles", {
-				particlesPerWave: 14
-				, behaviors: [
-					{ type: "color"
-						, config: {
-							color: {
-								list: [
-									{ time: 0, value: "929398" }
-									, { time: 0.33, value: "fcfcfc" }
-									, { time: 0.5, value: "929398" }
-									, { time: 0.66, value: "3c3f4c" }
-									, { time: 1, value: "505360" }
-								]
-							}
-						}
+				emitterVersion: "0.0.0"
+				, particlesPerWave: 14
+				, colorBehavior: {
+					mode: "list"
+					, listData: {
+						list: [
+							{ time: 0, value: "#929398" }
+							, { time: 0.33, value: "#fcfcfc" }
+							, { time: 0.5, value: "#929398" }
+							, { time: 0.66, value: "#3c3f4c" }
+							, { time: 1, value: "#505360" }
+						]
 					}
-					, { type: "scale"
-						, config: {
-							scale: {
-								list: [
-									{ time: 0, value: 18 }
-									, { time: 1, value: 12 }
-								]
-							}
-							, minMult: 0.3
-						}
+				}
+				, scaleBehavior: {
+					mode: "list"
+					, xListData: {
+						list: [
+							{ time: 0, value: 18 }
+							, { time: 1, value: 12 }
+						]
 					}
-				]
+				}
 			}, blueprint.blueprint, {
 				spawnChance: 1
-				, behaviors: [
-					{ type: "moveSpeed"
-						, config: {
-							speed: {
-								list: [
-									{ time: 0, value: 24 }
-									, { time: 1, value: 18 }
-								]
-							}
-							, minMult: 0.11
-						}
+				, movementBehavior: {
+					mode: "linear"
+					, space: "global"
+					, xListData: {
+						list: [
+							{ time: 0, value: 24 }
+							, { time: 1, value: 18 }
+						]
 					}
-					, { type: "scale"
-						, config: {
-							scale: {
-								list: [
-									{ time: 0, value: 16 }
-									, { time: 1, value: 10 }
-								]
-							}
-							, minMult: 0.1
-						}
+				}
+				, scaleBehavior: {
+					mode: "list"
+					, xListData: {
+						list: [
+							{ time: 0, value: 16 }
+							, { time: 1, value: 10 }
+						]
 					}
-					, { type: "spawnBurst"
-						, config: { start: 0, spacing: 0, distance: 0 }
-					}
-				]
+				}
 			})
 		};
 	}
@@ -74,8 +62,8 @@ export default {
 			return;
 		}
 		const particles = this.obj.addComponent("particles", this.blueprint);
-		particles.emitter.update(0.2);
-		particles.emitter.emit = false;
+		particles.emitter.prewarm(0.2);
+		particles.emitter.stop(false);
 		particles.emitter.disabled = true;
 	}
 };

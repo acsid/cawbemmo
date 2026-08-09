@@ -37,6 +37,14 @@ export const equipment = {
 	}
 };
 
+// Display labels for keymap tokens (the values stored in KEYBOARD_KEYS_DEFAULT, e.g. "esc", "space").
+// Keyed by the raw token so the help resolver can look up a label after reading the live keymap.
+// When key rebinding lands these stay valid: the token is what the user rebinds to, and the label is how we spell it here.
+export const key = {
+	esc: "escape"
+	, space: "space"
+};
+
 export const help = {
 	heading: "Help"
 
@@ -47,12 +55,12 @@ export const help = {
 	}
 	, cancelMove: {
 		name: "Cancel movement"
-		, desc: "Key: [escape]"
+		, desc: "Key: [${key.mainmenu}]"
 		, mobileDesc: "Shake the device"
 	}
 	, combat: {
 		name: "Combat"
-		, desc: "Click an enemy and press [space] to enable auto-attack"
+		, desc: "Click an enemy and press [${key.spell_0}] to enable auto-attack"
 		, mobileDesc: "Tap an enemy and press a spell"
 	}
 	, chat: {

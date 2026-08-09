@@ -16,9 +16,10 @@ const COMPONENTS_CONFIGURATIONS_PATHS = {
 	, itemEffects: "../items/itemEffects"
 	, profanities: "../language/profanities"
 };
-(async function () {
-	const workerConfig = JSON.parse(process.argv[2]);
 
+const workerConfig = JSON.parse(process.argv[2]);
+
+(async function () {
 	// Globals
 	global._ = (await import("../misc/helpers.mjs")).default;
 	// Configure logger base name

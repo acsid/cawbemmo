@@ -368,18 +368,21 @@ module.exports = {
 				, cdMax: 7
 				, targetRandom: true
 				, particles: {
-					color: {
-						start: ["c0c3cf", "929398"]
-						, end: ["929398", "c0c3cf"]
+					emitterVersion: "0.0.0"
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#c0c3cf" }
+								, { time: 0, value: "#929398" }
+							]
+						}
 					}
-					, spawnType: "circle"
-					, spawnCircle: {
-						x: 0
-						, y: 0
-						, r: 12
+					, spawnBehavior: {
+						shape: "circle"
+						, outerRadius: 12
 					}
-					, randomColor: true
-					, chance: 0.03
+					, spawnChance: 0.03
 				}
 			}, {
 				type: "projectile"
@@ -397,50 +400,52 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								color: {
-									start: ["fc66f7", "802343"]
-									, end: ["393268", "de43ae"]
-								}
-								, scale: {
-									start: {
-										min: 10
-										, max: 18
-									}
-									, end: {
-										min: 4
-										, max: 8
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 5
+								, maxParticleLifetime: 12
+								, colorBehavior: {
+									mode: "random"
+									, listData: {
+										list: [
+											{ time: 0, value: "#fc66f7" }
+											, { time: 0, value: "#393268" }
+										]
 									}
 								}
-								, speed: {
-									start: {
-										min: 6
-										, max: 12
+								, alphaBehavior: {
+									mode: "list"
+									, listData: {
+										list: [
+											{ time: 0, value: 0.25 }
+											, { time: 1, value: 0 }
+										]
 									}
-									, end: {
-										min: 2
-										, max: 4
+								}
+								, scaleBehavior: {
+									mode: "random"
+									, xListData: {
+										list: [
+											{ time: 0, value: 10 }
+											, { time: 0, value: 18 }
+										]
 									}
 								}
-								, lifetime: {
-									min: 5
-									, max: 12
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 6 }
+											, { time: 1, value: 2 }
+										]
+									}
 								}
-								, alpha: {
-									start: 0.25
-									, end: 0
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 48
+									, height: 48
 								}
-								, randomScale: true
-								, randomSpeed: true
-								, chance: 0.06
-								, randomColor: true
-								, spawnType: "rect"
-								, blendMode: "add"
-								, spawnRect: {
-									x: -24
-									, y: -24
-									, w: 48
-									, h: 48
-								}
+								, spawnChance: 0.06
 							}
 						};
 					}

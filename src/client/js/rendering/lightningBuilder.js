@@ -1,5 +1,7 @@
 import renderer from "/js/rendering/renderer.js";
 
+const BLEND_ADD = "add";
+
 export default {
 	build: function (config) {
 		let obj = {
@@ -75,8 +77,8 @@ export default {
 					lightPatch.width = scaleMult * linkSize;
 					lightPatch.height = scaleMult * linkSize;
 					lightPatch.alpha = Math.random() * 0.5;
-					lightPatch.tint = "0xffffff";
-					lightPatch.blendMode = PIXI.BLEND_MODES.ADD;
+					lightPatch.tint = "#ffffff";
+					lightPatch.blendMode = BLEND_ADD;
 					line.sprites.push(lightPatch);
 				}
 				x += Math.cos(nAngle) * scaleMult;
@@ -93,7 +95,7 @@ export default {
 			return hex.length === 1 ? "0" + hex : hex;
 		};
 
-		return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+		return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 	}
 
 	, update: function (obj) {

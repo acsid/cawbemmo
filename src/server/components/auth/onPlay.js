@@ -78,7 +78,7 @@ const checkLoginRewards = async (cpnAuth, character) => {
 	}
 };
 
-const updateStatus = function(cpnAuth, character) {
+const updateStatus = function (cpnAuth, character) {
 	const { username, accountInfo } = cpnAuth;
 	if (serverConfig.admins?.includes(username)) {
 		// Force as highest admin.

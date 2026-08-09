@@ -63,7 +63,7 @@ module.exports = {
 		return this.isTimeMatch(c.cron, time);
 	}
 
-	, isPlanned: function(cron, lastTime, time) {
+	, isPlanned: function (cron, lastTime, time) {
 		cron = cron.split(" ");
 		if (cron.length !== 5) {
 			_.log.cron.error("Invalid cron notation '%s'.", cron.join(" "));

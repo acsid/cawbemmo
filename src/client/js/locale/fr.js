@@ -37,6 +37,14 @@ export const equipment = {
 	}
 };
 
+// Étiquettes d'affichage pour les jetons de keymap (les valeurs stockées dans KEYBOARD_KEYS_DEFAULT, ex. "esc", "space").
+// Indexées par le jeton brut pour que le résolveur d'aide puisse chercher une étiquette après avoir lu la keymap active.
+// Quand le rebinding existera ces étiquettes resteront valides: le jeton est ce que l'utilisateur rebind, et l'étiquette est comment on l'écrit ici.
+export const key = {
+	esc: "escape"
+	, space: "espace"
+};
+
 export const help = {
 	heading: "Aide"
 
@@ -47,12 +55,12 @@ export const help = {
 	}
 	, cancelMove: {
 		name: "Cancellé le mouvement"
-		, desc: "Touche: [escape]"
+		, desc: "Touche: [${key.mainmenu}]"
 		, mobileDesc: "Secouer l'appareil"
 	}
 	, combat: {
 		name: "Combat"
-		, desc: "Cliquez sur un enemie et appuyé sur [espace] pour activé l'attaque automatique"
+		, desc: "Cliquez sur un enemie et appuyé sur [${key.spell_0}] pour activé l'attaque automatique"
 		, mobileDesc: "Touché un ennemie et appuyé sur une magie"
 	}
 	, chat: {

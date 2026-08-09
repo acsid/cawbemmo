@@ -11,8 +11,13 @@
 		<link rel="stylesheet" href="css/loader.css"/>
 		<link rel="stylesheet" href="css/main.css"/>
 		<script src="js/dependencies/jquery.slim.min.js"></script>
-		<script src="js/dependencies/pixi.min.js"></script>
-		<script src="/js/dependencies/pixi.particles.min.js"></script>
+		<script type="importmap">
+		{
+			"imports": {
+				"pixi.js": "/js/dependencies/pixi.min.mjs"
+			}
+		}
+		</script>
 		<script type="module" src="js/system/addons.js"></script>
 		<script type="module" src="js/main.js"></script>
 		<link rel="icon" href="images/favicon.ico"/>

@@ -9,16 +9,16 @@ if (!document.adoptedStyleSheets.includes(styles)) {
 const template = await _.loadHTML("/ui/templates/announcements/template.html", { raw: true });
 const templateLine = await _.loadHTML("/ui/templates/announcements/templateLine.html", { raw: true });
 
-//Function dictionary for locale.getLocalizedMessage: resolves `key.<action>` tokens against the live keymap (e.g. ${key.gather} -> "G"),
-// and re-emits any other token verbatim. Reuses the locale resolver's ${...} scanning rather than re-implementing it.
+// Function dictionary for locale.getLocalizedMessage:
+// resolves `key.<action>` tokens against the live keymap (e.g. ${key.gather} -> "G").
+// Non-key tokens return undefined so the resolver keeps the full ${token} literal and the client wrapper logs it,
+// rather than silently stripping the braces and rendering the bare dotted name. Reuses the locale resolver's ${...} scanning.
 const keyDict = (...parts) => {
 	if (parts[0] === "key" && parts[1]) {
 		const key = input.getKeyForAction(parts[1]);
-		//Fall back to the token's bare name if the action is unbound, matching
-		//how the locale resolver treats unresolved tokens.
-		return key || parts.join(".");
+		//Fall back to the token's bare name if the action is unbound, matching how the locale resolver treats unresolved tokens.
+		return (key && key.toUpperCase()) || parts.join(".");
 	}
-	return parts.join(".");
 };
 
 export default {

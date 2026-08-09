@@ -90,7 +90,7 @@ const main = {
 
 		input.init("#ui-container");
 		objects.init();
-		renderer.init();
+		await renderer.init();
 		numbers.init();
 		uiFactory.init();
 

@@ -37,6 +37,7 @@ export default {
 	, clear: function () {
 		this.quests = [];
 		this.el.find(".list").empty();
+		this.updateVisibility();
 	}
 
 	, onObtainQuest: function (quest) {
@@ -83,6 +84,8 @@ export default {
 				childEl.prependTo(list);
 			}
 		}
+
+		this.updateVisibility();
 	}
 
 	, onClick: function (el, quest) {
@@ -120,6 +123,8 @@ export default {
 			}
 			events.emit("onQuestReady", quest);
 		}
+
+		this.updateVisibility();
 	}
 
 	, onCompleteQuest: function (id) {
@@ -131,11 +136,38 @@ export default {
 
 		q.el.remove();
 		this.quests.spliceWhere((f) => f.id === id);
+
+		this.updateVisibility();
 	}
 
 	, toggleButtons: function (e) {
 		this.el.toggleClass("active");
 		e.stopPropagation();
+	}
+
+	// Manage the panel state from the current quest list:
+	// - No quests: hide the panel.
+	// - All quests disabled: dim the list as a whole (all-disabled class).
+	// - At least one active or ready quest: show the panel at full brightness.
+	// Does not override the user's showQuests:"off" setting.
+	, updateVisibility: function () {
+		if (!this.quests.length) {
+			if (config.showQuests !== "off") {
+				this.hide();
+			}
+			return;
+		}
+
+		const hasActive = this.quests.some((q) => q.el.hasClass("active") || q.el.hasClass("ready"));
+		if (hasActive) {
+			this.el.removeClass("all-disabled");
+		} else {
+			this.el.addClass("all-disabled");
+		}
+
+		if (config.showQuests !== "off") {
+			this.show();
+		}
 	}
 
 	, onToggleQuestsVisibility: function (state) {

@@ -281,18 +281,21 @@ module.exports = {
 				, cdMax: 7
 				, targetRandom: true
 				, particles: {
-					color: {
-						start: ["c0c3cf", "929398"]
-						, end: ["929398", "c0c3cf"]
+					emitterVersion: "0.0.0"
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#c0c3cf" }
+								, { time: 0, value: "#929398" }
+							]
+						}
 					}
-					, spawnType: "circle"
-					, spawnCircle: {
-						x: 0
-						, y: 0
-						, r: 12
+					, spawnBehavior: {
+						shape: "circle"
+						, outerRadius: 12
 					}
-					, randomColor: true
-					, chance: 0.03
+					, spawnChance: 0.03
 				}
 			}, {
 				type: "projectile"
@@ -310,63 +313,54 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								behaviors: [
-									{ type: "color"
-										, config: {
-											color: {
-												list: [
-													{ time: 0, value: "802343" }
-													, { time: 0.33, value: "fc66f7" }
-													, { time: 0.5, value: "802343" }
-													, { time: 0.66, value: "de43ae" }
-													, { time: 1, value: "393268" }
-												]
-											}
-										}
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 5
+								, maxParticleLifetime: 12
+								, colorBehavior: {
+									mode: "list"
+									, listData: {
+										list: [
+											{ time: 0, value: "#802343" }
+											, { time: 0.33, value: "#fc66f7" }
+											, { time: 0.5, value: "#802343" }
+											, { time: 0.66, value: "#de43ae" }
+											, { time: 1, value: "#393268" }
+										]
 									}
-									, { type: "alpha"
-										, config: {
-											alpha: {
-												list: [
-													{ time: 0, value: 0.25 }
-													, { time: 1, value: 0 }
-												]
-											}
-										}
+								}
+								, alphaBehavior: {
+									mode: "list"
+									, listData: {
+										list: [
+											{ time: 0, value: 0.25 }
+											, { time: 1, value: 0 }
+										]
 									}
-									, { type: "blendMode"
-										, config: { blendMode: "add" }
+								}
+								, scaleBehavior: {
+									mode: "list"
+									, xListData: {
+										list: [
+											{ time: 0, value: 18 }
+											, { time: 1, value: 8 }
+										]
 									}
-									, { type: "scale"
-										, config: {
-											scale: {
-												list: [
-													{ time: 0, value: 18 }
-													, { time: 1, value: 8 }
-												]
-											}
-											, minMult: 0.2
-										}
+								}
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 12 }
+											, { time: 1, value: 4 }
+										]
 									}
-									, { type: "moveSpeed",
-										config: {
-											speed: {
-												list: [
-													{ time: 0, value: 12 }
-													, { time: 1, value: 4 }
-												]
-											}
-											, minMult: 0.5
-										}
-									}
-									, { type: "spawnShape"
-										, config: {
-											type: "rect"
-											, data: { x: -24, y: -24, w: 48, h: 48 }
-										}
-									}
-								]
-								, lifetime: { min: 5, max: 12 }
+								}
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 48
+									, height: 48
+								}
 								, spawnChance: 0.06
 							}
 						};

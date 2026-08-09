@@ -4,14 +4,14 @@ module.exports = {
 		1: {
 			msg: [{
 				msg: "Teleportator !!!!"
-				, options: [1.1,1.2]
+				, options: [1.1, 1.2]
 			}]
 			, options: {
 				1.1: {
 					msg: "Ville"
 					, goto: "teleportTown"
 				}
-				,1.2: {
+				, 1.2: {
 					msg: "Depanneur"
 					, goto: "teleportDep"
 				}
@@ -23,7 +23,7 @@ module.exports = {
 			, method: "teleport"
 			, args: [{
 				toZone: "town"
-				,toPos: {"x":100,"y":100}
+				, toPos: { x: 100, y: 100 }
 			}]
 
 		}
@@ -41,14 +41,14 @@ module.exports = {
 		1: {
 			msg: [{
 				msg: "Questator !!!!"
-				, options: [1.1,1.2]
+				, options: [1.1, 1.2]
 			}]
 			, options: {
 				1.1: {
 					msg: "Ville"
 					, goto: "questToTown"
 				}
-				,1.2: {
+				, 1.2: {
 					msg: "Depanneur"
 					, goto: "questToDep"
 				}
@@ -75,7 +75,7 @@ module.exports = {
 
 			}]
 		}
-	}	, raymond: {
+	}, raymond: {
 		1: {
 			msg: [{
 				msg: "Bienvenue au snack bar"
@@ -96,7 +96,7 @@ module.exports = {
 				targetName: "raymond"
 			}]
 		}
-		,
+
 	}
 	, gislain: {
 		1: {
@@ -127,7 +127,7 @@ module.exports = {
 				}
 			}
 		}
-		, 2 : {
+		, 2: {
 			msg: [{
 				msg: "Oui j'ai perdu mon courrier avec plein de lettre d'admiratrice."
 				, options: [2.1]
@@ -139,7 +139,7 @@ module.exports = {
 				}
 			}
 		}
-		, 3 : {
+		, 3: {
 			msg: [{
 				msg: "Je lai ai perdu pres de la track de train au sud du village"
 				, options: [3.1, 3.2, 3.3]
@@ -157,7 +157,7 @@ module.exports = {
 					msg: "J'ai peut être de quoi qui vas t'intéressé."
 					, goto: "tradeSell"
 				}
-				,
+
 			}
 		}
 		, tradeBuy: {
@@ -181,7 +181,7 @@ module.exports = {
 			}]
 			, method: function (obj) {
 				let inventory = obj.inventory;
-				console.log(inventory)
+				_.log.giveLetter.trace("Inventory: %o", inventory);
 				let crystals = inventory.items.find((i) => (i.name === "Lettre d'admiratrice"));
 				if (!crystals) {
 					return;

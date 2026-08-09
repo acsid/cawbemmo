@@ -19,52 +19,46 @@ export default {
 
 	, init: function (blueprint) {
 		const particleBlueprint = _.assignWith("particles", {
-			lifetime: { min: 1, max: 2 }
-			, behaviors: [
-				{ type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "fcfcfc" }
-								, { time: 1, value: "c0c3cf" }
-							]
-						}
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 2
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#fcfcfc" }
+						, { time: 1, value: "#c0c3cf" }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.9 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.9 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-
-				, { type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 16 }
-								, { time: 1, value: 10 }
-							]
-						}
-						, minMult: 0.2
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 16 }
+						, { time: 1, value: 10 }
+					]
 				}
-				, { type: "moveSpeed"
-					, config: {
-						speed: {
-							list: [
-								{ time: 0, value: 20 }
-								, { time: 1, value: 8 }
-							]
-						}
-						, minMult: 0.1
-					}
+			}
+			, movementBehavior: {
+				mode: "linear"
+				, space: "global"
+				, xListData: {
+					list: [
+						{ time: 0, value: 20 }
+						, { time: 1, value: 8 }
+					]
 				}
-			]
+			}
 			, spawnChance: 0.4
 		}, this.particleBlueprint);
 

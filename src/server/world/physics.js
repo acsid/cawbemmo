@@ -139,7 +139,6 @@ module.exports = {
 			return;
 		}
 		let oId = obj.id;
-		let cLen = cell.length;
 		for (let i = cell.length - 1; i >= 0; --i) {
 			const c = cell[i];
 			if (c.id === oId) {

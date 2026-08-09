@@ -3,23 +3,21 @@
   , "description": "NodeJS Server for CawbeMMO."
   , "main": "index.js"
   , "dependencies": {
-    "axios": "^0.22.0"
-    , "bcrypt-nodejs": "0.0.3"
-    , "compression": "^1.7.4"
+    "bcrypt-nodejs": "0.0.3"
+    , "compression": "^1.8.1"
     , "cookie-parser": "^1.4.6"
-    , "express": "^4.17.1"
-    , "express-minify": "^1.0.0"
-    , "image-size": "^1.0.0"
-    , "ip-address": "^10.1.0"
+    , "express": "^5.1.0"
+    , "image-size": "^1.2.1"
+    , "ip-address": "^10.4.0"
     , "jsonwebtoken": "^9.0.2"
-    , "less-middleware": "^3.1.0"
     , "less": "^3.9.0"
+    , "less-middleware": "^3.1.0"
     , "rethinkdbdash": "^2.3.31"
-    , "socket.io": "^4.7.5"
+    , "socket.io": "^4.8.3"
     , "universal-analytics": "^0.5.1"
   }
   , "devDependencies": {
-    "sqlite3": "^5.0.3"
+    "sqlite3": "^5.1.7"
   }
   , "scripts": {
     "start": "nodejs index.js"

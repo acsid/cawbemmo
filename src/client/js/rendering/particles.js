@@ -1,78 +1,77 @@
-//import "/js/dependencies/pixi.particles.min.js";
-//import pixiParticles from "/js/dependencies/pixi.particles.min.js";
+import { ParticleContainer, Texture } from "pixi.js";
+import { Emitter } from "/js/dependencies/pixi-particle-system/index.js";
 import particleDefaults from "./particleDefaults.js";
-//import { Texture } from "/js/dependencies/pixi.min.js";
 
-//TODO Fix shader outline.
-//import shaderOutline from "/js/rendering/shaders/outline.js";
+const PARTICLE_TEXTURE_URL = "/images/particle.png";
 
 export default {
 	renderer: null
 	, stage: null
 
+	, texture: null
+
 	, emitters: []
 
-	, lastTick: null
-
-	, init: function (options) {
+	, init: async function (options) {
 		this.r = options.r;
 		this.renderer = options.renderer;
 		this.stage = options.stage;
-		this.lastTick = Date.now();
+
+		// Load the particle image the same way resources.js loads every other
+		// sprite (new Image + onload), then wrap it with Texture.from.
+		// We avoid PIXI's Assets loader here because its image parser isn't registered in
+		// this no-bundler client, so Assets.load throws "Cannot read properties of
+		// undefined (reading 'load')".
+		const image = await new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => resolve(img);
+			img.onerror = () => reject(new Error(`Failed to load particle image: ${PARTICLE_TEXTURE_URL}`));
+			img.src = PARTICLE_TEXTURE_URL;
+		});
+		this.texture = Texture.from(image);
+	}
+
+	, createContainer: function () {
+		return new ParticleContainer({
+			texture: this.texture
+		});
 	}
 
 	, buildEmitter: function (config) {
 		const obj = config.obj;
 		delete config.obj;
+		const pos = config.pos;
+		delete config.pos;
+		// blendMode is not a behavior in pixi-particle-system, and v8's
+		// ParticleContainer exposes no blend-mode setting, so the value is
+		// dropped (particles render with normal blending). It is still parsed
+		// out here so the library doesn't receive an unknown config field.
+		delete config.blendMode;
+
 		const options = _.assignWith("particles", {}, particleDefaults, config);
+		options.textureBehavior = {
+			textureConfigs: [{ textures: [this.texture] }]
+			, mode: "static"
+		};
 		//console.log("Particles emitter created", options);
-		const emitter = new PIXI.particles.Emitter(this.stage, options);
+		const emitter = new Emitter(this.stage, options);
 		emitter.obj = obj;
-		emitter.emit = true;
 		emitter.particleEngine = this;
+		if (pos) {
+			emitter.spawnBehavior.origin = pos;
+		}
+		emitter.play();
 		this.emitters.push(emitter);
 		return emitter;
 	}
 
 	, destroyEmitter: function (emitter) {
-		emitter.emit = false;
-	}
+		// stop(instant=true) removes existing particles immediately.
+		emitter.stop(true);
 
-	, update: function () {
-		const renderer = this.r;
-		const now = Date.now();
-		const emitters = this.emitters;
-		for (let i = emitters.length - 1; i >= 0; --i) {
-			const e = emitters[i];
-			let visible = null;
-			let destroy = (!e.emit && e.obj.destroyed);
-			if (destroy) {
-				if (e.particleCount > 0) {
-					visible = renderer.isVisible(e.spawnPos.x, e.spawnPos.y);
-					if (visible) {
-						destroy = false;
-					}
-				}
-			}
-			if (destroy) {
-				emitters.splice(i, 1);
-				e.destroy();
-				continue;
-			}
-			if (visible === null) {
-				visible = renderer.isVisible(e.spawnPos.x, e.spawnPos.y);
-			}
-			if (!visible) {
-				continue;
-			}
-			try {
-				//FIXME - Negative color crash in pixi.particles.js when tab is hidden for too long.
-				e.update((now - this.lastTick) * 0.001);
-			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.error(error);
-			}
+		const i = this.emitters.indexOf(emitter);
+		if (i >= 0) {
+			this.emitters.splice(i, 1);
 		}
-		this.lastTick = now;
 	}
 };

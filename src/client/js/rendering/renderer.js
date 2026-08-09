@@ -8,18 +8,26 @@ import shaderOutline from "/js/rendering/shaders/outline.js";
 import spritePool from "/js/rendering/spritePool.js";
 import spriteRegistry from "/js/system/spriteRegistry.js";
 import globals from "/js/system/globals.js";
+import {
+	autoDetectRenderer
+	, Container
+	, Graphics
+	, Rectangle
+	, Sprite
+	, Text as PixiText
+	, Texture
+	, AlphaFilter
+} from "pixi.js";
 
-const particleLayers = ["particlesUnder", "particles"];
-const particleEngines = {};
-
-// Minimum number of textures available.
-const PIXI_REQUIRED_SPRITE_MAX_TEXTURES = 16;
+// The single particle layer name. The legacy "particlesUnder" layer was dropped
+// (it was instantiated but never received any emitters).
+const particleLayerName = "particles";
+let particleEngine = null;
 
 export default {
 	stage: null
 	, layers: {
-		particlesUnder: null
-		, objects: null
+		objects: null
 		, mobs: null
 		, characters: null
 		, attacks: null
@@ -62,16 +70,7 @@ export default {
 
 	, hiddenRooms: null
 
-	, init: function () {
-		PIXI.settings.GC_MODE = PIXI.GC_MODES.AUTO;
-		PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-		if (PIXI.settings.SPRITE_MAX_TEXTURES < PIXI_REQUIRED_SPRITE_MAX_TEXTURES) {
-			_.log.renderer.warn("Texture limit of %s lower then minimum of %s", PIXI.settings.SPRITE_MAX_TEXTURES, PIXI_REQUIRED_SPRITE_MAX_TEXTURES);
-			PIXI.settings.SPRITE_MAX_TEXTURES = PIXI_REQUIRED_SPRITE_MAX_TEXTURES;
-			_.log.renderer.warn("Low texture limit raised to %s", PIXI.settings.SPRITE_MAX_TEXTURES);
-		}
-		PIXI.settings.RESOLUTION = 1;
-
+	, init: async function () {
 		events.on("onGetMap", this.onGetMap.bind(this));
 		events.on("onToggleFullscreen", this.toggleScreen.bind(this));
 		events.on("onMoveSpeedChange", this.adaptCameraMoveSpeed.bind(this));
@@ -83,33 +82,44 @@ export default {
 		this.showTilesW = Math.ceil((this.width / scale) / 2) + 3;
 		this.showTilesH = Math.ceil((this.height / scale) / 2) + 3;
 
-		this.renderer = new PIXI.Renderer({
+		// PixiJS v8: renderer construction is async (supports WebGPU/WebGL).
+		// v8 removed PIXI.settings — resolution goes in renderer options and
+		// scaleMode is set per-texture-source (see buildSpritesTexture).
+		this.renderer = await autoDetectRenderer({
 			width: this.width
 			, height: this.height
-			, backgroundColor: "0x2d2136"
+			, preference: "webgl"
+			, background: "#2d2136"
+			, resolution: 1
 		});
 
 		window.addEventListener("resize", this.onResize.bind(this));
 
-		$(this.renderer.view).appendTo(".canvas-container");
+		// v8: renderer.view was renamed to renderer.canvas.
+		$(this.renderer.canvas).appendTo(".canvas-container");
 
-		this.stage = new PIXI.Container();
+		this.stage = new Container();
+
+		particleEngine = _.assign({}, particles);
+		await particleEngine.init({
+			r: this
+			, renderer: this.renderer
+			, stage: null
+		});
 
 		const layers = this.layers;
 		for (const l in layers) {
-			layers[l] = new PIXI.Container();
+			// The particle layer must be a ParticleContainer (v8 batched renderer),
+			if (l === particleLayerName) {
+				layers[l] = particleEngine.createContainer();
+			} else {
+				layers[l] = new Container();
+			}
 			layers[l].layer = (l === "tileSprites") ? "tiles" : l;
 			this.stage.addChild(layers[l]);
 		}
-		for (const p of particleLayers) {
-			const engine = _.assign({}, particles);
-			engine.init({
-				r: this
-				, renderer: this.renderer
-				, stage: this.layers[p]
-			});
-			particleEngines[p] = engine;
-		}
+		particleEngine.stage = this.layers[particleLayerName];
+
 		this.buildSpritesTexture();
 	}
 
@@ -119,14 +129,14 @@ export default {
 		const h = this.h = map[0].length;
 
 		this.stage.removeChild(this.layers.hiders);
-		this.layers.hiders = new PIXI.Container();
+		this.layers.hiders = new Container();
 		this.layers.hiders.layer = "hiders";
 		this.stage.addChild(this.layers.hiders);
 
 		let container = this.layers.tileSprites;
 		this.stage.removeChild(container);
 
-		this.layers.tileSprites = container = new PIXI.Container();
+		this.layers.tileSprites = container = new Container();
 		container.layer = "tiles";
 		this.stage.addChild(container);
 
@@ -158,8 +168,11 @@ export default {
 		const { clientConfig: { atlasTextureDimensions, atlasTextures, spriteSizes, textureList } } = globals;
 		const sprites = resources.sprites;
 		textureList.forEach((t) => {
-			this.textures[t] = new PIXI.BaseTexture(sprites[t]);
-			this.textures[t].scaleMode = PIXI.settings.SCALE_MODE;
+			// v8 merged BaseTexture into Texture. The underlying source keeps the
+			// width/height we read below; scaleMode lives on the source.
+			const texture = Texture.from(sprites[t]);
+			texture.source.scaleMode = "nearest";
+			this.textures[t] = texture;
 		});
 		atlasTextures.forEach((t) => {
 			const texture = this.textures[t];
@@ -246,7 +259,7 @@ export default {
 		}
 		if (baseTex === "sprites") {
 			// The 'sprites' texture maps to all the sheets in loading order.
-			const { clientConfig: { atlasTextureDimensions, atlasTextures, spriteSizes } } = globals;
+			const { clientConfig: { atlasTextures, spriteSizes } } = globals;
 			let curId = 0;
 			baseTex = atlasTextures.find((t) => {
 				const texture = this.textures[t];
@@ -269,22 +282,23 @@ export default {
 		const sheetColumns = (this.textures[baseTex].width / size);
 		let y = Math.floor(cell / sheetColumns);
 		let x = cell - (y * sheetColumns);
-		//console.log(`Creating sub texture[${x}, ${y}]`, this.textures[baseTex], new PIXI.Rectangle(x * size, y * size, size, size));
-		cached = new PIXI.Texture(this.textures[baseTex], new PIXI.Rectangle(x * size, y * size, size, size));
+			//console.log(`Creating sub texture[${x}, ${y}]`, this.textures[baseTex], new Rectangle(x * size, y * size, size, size));
+		// v8: Texture takes an options object { source, frame } instead of (base, rect).
+		cached = new Texture({ source: this.textures[baseTex].source, frame: new Rectangle(x * size, y * size, size, size) });
 		this.textureCache[textureName] = cached;
 		return cached;
 	}
 
 	, clean: function () {
 		this.stage.removeChild(this.layers.hiders);
-		this.layers.hiders = new PIXI.Container();
+		this.layers.hiders = new Container();
 		this.layers.hiders.layer = "hiders";
 		this.stage.addChild(this.layers.hiders);
 
 		let container = this.layers.tileSprites;
 		this.stage.removeChild(container);
 
-		this.layers.tileSprites = container = new PIXI.Container();
+		this.layers.tileSprites = container = new Container();
 		container.layer = "tiles";
 		this.stage.addChild(container);
 
@@ -303,7 +317,7 @@ export default {
 	}
 
 	, buildTile: function (c, i, j) {
-		const tile = new PIXI.Sprite(this.getTexture("sprites", c));
+		const tile = new Sprite(this.getTexture("sprites", c));
 		tile.alpha = tileOpacity.map(c);
 		tile.position.x = i * scale;
 		tile.position.y = j * scale;
@@ -337,8 +351,8 @@ export default {
 		this.clean();
 		spritePool.clean();
 
-		this.stage.filters = [new PIXI.AlphaFilter()];
-		this.stage.filterArea = new PIXI.Rectangle(0, 0, Math.max(w * scale, this.width), Math.max(h * scale, this.height));
+		this.stage.filters = [new AlphaFilter()];
+		this.stage.filterArea = new Rectangle(0, 0, Math.max(w * scale, this.width), Math.max(h * scale, this.height));
 
 		this.hiddenRooms = msg.hiddenRooms;
 
@@ -726,13 +740,13 @@ export default {
 	}
 
 	, buildContainer: function (obj) {
-		const container = new PIXI.Container();
+		const container = new Container();
 		this.layers[obj.layerName || obj.sheetName].addChild(container);
 		return container;
 	}
 
 	, buildRectangle: function (obj) {
-		const graphics = new PIXI.Graphics();
+		const graphics = new Graphics();
 
 		let alpha = obj.alpha;
 		if (obj.has("alpha")) {
@@ -740,16 +754,16 @@ export default {
 		}
 
 		let fillAlpha = obj.fillAlpha;
-		if (obj.has("fillAlpha")) {
+		if (!obj.has("fillAlpha")) {
 			fillAlpha = 1;
 		}
-		graphics.beginFill(obj.color || "0x48edff", fillAlpha);
+
+		graphics.rect(0, 0, obj.w, obj.h);
+		graphics.fill({ color: obj.color || "#48edff", alpha: fillAlpha });
 
 		if (obj.strokeColor) {
-			graphics.lineStyle(scaleMult, obj.strokeColor);
+			graphics.stroke({ width: scaleMult, color: obj.strokeColor });
 		}
-		graphics.drawRect(0, 0, obj.w, obj.h);
-		graphics.endFill();
 
 		(obj.parent || this.layers[obj.layerName || obj.sheetName]).addChild(graphics);
 
@@ -769,7 +783,7 @@ export default {
 	, buildObject: function (obj) {
 		const { sheetName, parent: container, layerName, visible = true } = obj;
 
-		const sprite = new PIXI.Sprite();
+		const sprite = new Sprite();
 		obj.sprite = sprite;
 
 		this.setSprite(obj);
@@ -807,12 +821,15 @@ export default {
 		const { text, visible, x, y, parent: spriteParent, layerName } = obj;
 		const { fontSize = 14, color = 0xF2F5F5 } = obj;
 
-		const textSprite = new PIXI.Text(text, {
-			fontFamily: "var(--main-font)"
-			, fontSize: fontSize
-			, fill: color
-			, stroke: 0x2d2136
-			, strokeThickness: 4
+		const textSprite = new PixiText({
+			text: text
+			, style: {
+				fontFamily: "var(--main-font)"
+				, fontSize: fontSize
+				, fill: color
+				, stroke: 0x2d2136
+				, strokeThickness: 4
+			}
 		});
 
 		if (visible === false) {
@@ -829,15 +846,10 @@ export default {
 	}
 
 	, buildEmitter: function (config) {
-		const { layerName = "particles" } = config;
-		const particleEngine = particleEngines[layerName];
-
 		return particleEngine.buildEmitter(config);
 	}
 
 	, destroyEmitter: function (emitter) {
-		const particleEngine = emitter.particleEngine;
-
 		particleEngine.destroyEmitter(emitter);
 	}
 
@@ -960,9 +972,6 @@ export default {
 			return;
 		}
 		effects.render();
-		for (const p of particleLayers) {
-			particleEngines[p].update();
-		}
-		this.renderer.render(this.stage);
+		this.renderer.render({ container: this.stage });
 	}
 };

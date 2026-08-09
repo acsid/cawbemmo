@@ -24,7 +24,7 @@ module.exports = {
 				}
 			}
 		}
-		, "vidanges": {
+		, vidanges: {
 			level: 10
 			, faction: "hostile"
 			, regular: {
@@ -110,23 +110,26 @@ module.exports = {
 			, spells: [{
 				type: "projectile"
 				, particles: {
-					scale: {
-						start: {
-							min: 6
-							, max: 18
-						}
-						, end: {
-							min: 2
-							, max: 8
+					emitterVersion: "0.0.0"
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#fc66f7" }
+								, { time: 0, value: "#393268" }
+							]
 						}
 					}
-					, color: {
-						start: ["fc66f7", "a24eff"]
-						, end: ["393268", "933159"]
+					, scaleBehavior: {
+						mode: "random"
+						, xListData: {
+							list: [
+								{ time: 0, value: 6 }
+								, { time: 0, value: 18 }
+							]
+						}
 					}
-					, chance: 0.65
-					, randomScale: true
-					, randomColor: true
+					, spawnChance: 0.65
 				}
 			}, {
 				type: "smokeBomb"
@@ -141,50 +144,59 @@ module.exports = {
 				, element: "arcane"
 				, cdMax: 8
 				, particles: {
-					scale: {
-						start: {
-							min: 6
-							, max: 18
+					emitterVersion: "0.0.0"
+					, minParticleLifetime: 1
+					, maxParticleLifetime: 3
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#ff4252" }
+								, { time: 0, value: "#802343" }
+							]
 						}
-						, end: {
-							min: 4
-							, max: 10
+					}
+					, alphaBehavior: {
+						mode: "list"
+						, listData: {
+							list: [
+								{ time: 0, value: 0.01 }
+								, { time: 1, value: 0 }
+							]
 						}
 					}
-					, opacity: {
-						start: 0.01
-						, end: 0
+					, scaleBehavior: {
+						mode: "random"
+						, xListData: {
+							list: [
+								{ time: 0, value: 6 }
+								, { time: 0, value: 18 }
+							]
+						}
 					}
-					, lifetime: {
-						min: 1
-						, max: 3
+					, movementBehavior: {
+						mode: "linear"
+						, space: "global"
+						, xListData: {
+							list: [
+								{ time: 0, value: 2 }
+								, { time: 1, value: 0 }
+							]
+						}
 					}
-					, speed: {
-						start: 2
-						, end: 0
+					, spawnBehavior: {
+						shape: "rectangle"
+						, width: 20
+						, height: 20
 					}
-					, color: {
-						start: ["ff4252", "d43346"]
-						, end: ["802343", "a82841"]
-					}
-					, chance: 0.125
-					, randomColor: true
-					, randomScale: true
-					, blendMode: "add"
-					, spawnType: "rect"
-					, spawnRect: {
-						x: -10
-						, y: -10
-						, w: 20
-						, h: 20
-					}
+					, spawnChance: 0.125
 				}
 			}, {
 				type: "summonConsumableFollower"
 			}]
 		}
 
-		, "canette": {
+		, canette: {
 			level: 4
 			, faction: "hostile"
 			, regular: {
@@ -219,62 +231,54 @@ module.exports = {
 				, element: "arcane"
 				, cdMax: 5
 				, particles: {
-					lifetime: { min: 1, max: 2 }
-					, behaviors: [
-						{ type: "color"
-							, config: {
-								color: {
-									list: [
-										{ time: 0, value: "a24eff" }
-										, { time: 0.33, value: "fc66f7" }
-										, { time: 0.5, value: "a24eff" }
-										, { time: 0.66, value: "933159" }
-										, { time: 1, value: "393268" }
-									]
-								}
-							}
+					emitterVersion: "0.0.0"
+					, minParticleLifetime: 1
+					, maxParticleLifetime: 2
+					, colorBehavior: {
+						mode: "list"
+						, listData: {
+							list: [
+								{ time: 0, value: "#a24eff" }
+								, { time: 0.33, value: "#fc66f7" }
+								, { time: 0.5, value: "#a24eff" }
+								, { time: 0.66, value: "#933159" }
+								, { time: 1, value: "#393268" }
+							]
 						}
-						, { type: "alpha"
-							, config: {
-								alpha: {
-									list: [
-										{ time: 0, value: 0.4 }
-										, { time: 1, value: 0.1 }
-									]
-								}
-							}
+					}
+					, alphaBehavior: {
+						mode: "list"
+						, listData: {
+							list: [
+								{ time: 0, value: 0.4 }
+								, { time: 1, value: 0.1 }
+							]
 						}
-						, { type: "scale"
-							, config: {
-								scale: {
-									list: [
-										{ time: 0, value: 25 }
-										, { time: 1, value: 10 }
-									]
-								}
-								, minMult: 0.25
-							}
+					}
+					, scaleBehavior: {
+						mode: "list"
+						, xListData: {
+							list: [
+								{ time: 0, value: 25 }
+								, { time: 1, value: 10 }
+							]
 						}
-						, { type: "blendMode"
-							, config: { blendMode: "add" }
+					}
+					, movementBehavior: {
+						mode: "linear"
+						, space: "global"
+						, xListData: {
+							list: [
+								{ time: 0, value: 3 }
+								, { time: 1, value: 0 }
+							]
 						}
-						, { type: "moveSpeed",
-							config: {
-								speed: {
-									list: [
-										{ time: 0, value: 3 }
-										, { time: 1, value: 0 }
-									]
-								}
-							}
-						}
-						, { type: "spawnShape"
-							, config: {
-								type: "rect"
-								, data: { x: -10, y: -10, w: 20, h: 20 }
-							}
-						}
-					]
+					}
+					, spawnBehavior: {
+						shape: "rectangle"
+						, width: 20
+						, height: 20
+					}
 					, spawnChance: 0.125
 				}
 			}]
@@ -310,18 +314,21 @@ module.exports = {
 				, cdMax: 7
 				, targetRandom: true
 				, particles: {
-					color: {
-						start: ["c0c3cf", "929398"]
-						, end: ["929398", "c0c3cf"]
+					emitterVersion: "0.0.0"
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#c0c3cf" }
+								, { time: 0, value: "#929398" }
+							]
+						}
 					}
-					, spawnType: "circle"
-					, spawnCircle: {
-						x: 0
-						, y: 0
-						, r: 12
+					, spawnBehavior: {
+						shape: "circle"
+						, outerRadius: 12
 					}
-					, randomColor: true
-					, chance: 0.03
+					, spawnChance: 0.03
 				}
 			}, {
 				type: "projectile"
@@ -339,50 +346,52 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								color: {
-									start: ["fc66f7", "802343"]
-									, end: ["393268", "de43ae"]
-								}
-								, scale: {
-									start: {
-										min: 10
-										, max: 18
-									}
-									, end: {
-										min: 4
-										, max: 8
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 5
+								, maxParticleLifetime: 12
+								, colorBehavior: {
+									mode: "random"
+									, listData: {
+										list: [
+											{ time: 0, value: "#fc66f7" }
+											, { time: 0, value: "#393268" }
+										]
 									}
 								}
-								, speed: {
-									start: {
-										min: 6
-										, max: 12
+								, alphaBehavior: {
+									mode: "list"
+									, listData: {
+										list: [
+											{ time: 0, value: 0.25 }
+											, { time: 1, value: 0 }
+										]
 									}
-									, end: {
-										min: 2
-										, max: 4
+								}
+								, scaleBehavior: {
+									mode: "random"
+									, xListData: {
+										list: [
+											{ time: 0, value: 10 }
+											, { time: 0, value: 18 }
+										]
 									}
 								}
-								, lifetime: {
-									min: 5
-									, max: 12
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 6 }
+											, { time: 1, value: 2 }
+										]
+									}
 								}
-								, alpha: {
-									start: 0.25
-									, end: 0
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 48
+									, height: 48
 								}
-								, randomScale: true
-								, randomSpeed: true
-								, chance: 0.06
-								, randomColor: true
-								, spawnType: "rect"
-								, blendMode: "add"
-								, spawnRect: {
-									x: -24
-									, y: -24
-									, w: 48
-									, h: 48
-								}
+								, spawnChance: 0.06
 							}
 						};
 					}

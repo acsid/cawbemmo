@@ -1,5 +1,6 @@
 const buildMob = (objects, mobConfig, i) => {
-	const { id, sheetName, cell, name, properties, pos } = mobConfig;
+	const { id, sheetName, cell, name, properties } = mobConfig;
+	let pos = mobConfig.pos;
 	if (typeof(pos) === "function") {
 		pos = pos(i);
 	}

@@ -130,6 +130,7 @@ module.exports = {
 		}
 
 		//Only objects and syncer should update if there are players
+		const players = objects.objects.filter((o) => o.player && !o.destroyed);
 		if (players.length) {
 			objects.update();
 			syncer.update();

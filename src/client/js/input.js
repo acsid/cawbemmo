@@ -584,7 +584,9 @@ export default {
 	}
 
 	//Reverse of getMapping: resolves an action name back to its first bound
-	//key, uppercased for display (e.g. getKeyForAction("gather") -> "G").
+	//key token (e.g. getKeyForAction("gather") -> "g", "mainmenu" -> "esc").
+	//Returns the raw token as stored in the keymap; callers format it for
+	//display (uppercase) or use it to look up a per-locale label.
 	//Returns "" if the action has no binding for inputType.
 	, getKeyForAction: function (actionName, inputType = "keyboard") {
 		const inputMap = this.mappings[inputType];
@@ -603,7 +605,7 @@ export default {
 		}
 		const keys = Array.isArray(value) ? value : [ value ];
 		const first = keys[0];
-		return (typeof first === "string") ? first.toUpperCase() : String(first);
+		return (typeof first === "string") ? first : String(first);
 	}
 
 	, getTartgetName: function (target) {

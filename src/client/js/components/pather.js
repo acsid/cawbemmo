@@ -9,7 +9,7 @@ export default {
 
 	, path: []
 
-	, pathColor: "0x48edff"
+	, pathColor: "#48edff"
 	, pathAlpha: 0.2
 
 	, pathPos: { x: 0, y: 0 }

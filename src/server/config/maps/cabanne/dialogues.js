@@ -3,7 +3,7 @@ module.exports = {
 		1: {
 			msg: [{
 				msg: "Ou voulez vous allez?"
-				, options: [1.1,1.2]
+				, options: [1.1, 1.2]
 			}]
 			, options: {
 				1.1: {
@@ -18,7 +18,7 @@ module.exports = {
 			, method: "teleport"
 			, args: [{
 				toZone: "town"
-				,toPos: {"x":96,"y":96}
+				, toPos: { x: 96, y: 96 }
 			}]
 		}
 	}

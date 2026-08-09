@@ -21,10 +21,10 @@ const baseRecipes = {
 
 const buildRecipe = function (recipe, item, materials, effects) {
 	if (!recipe?.name) {
-		throw new Error("Missing recipe name.")
+		throw new Error("Missing recipe name.");
 	}
 	if (!item?.name) {
-		throw new Error("Missing item name.")
+		throw new Error("Missing item name.");
 	}
 	if (materials && !Array.isArray(materials)) {
 		materials = [ materials ];
@@ -49,13 +49,13 @@ module.exports = [
 			, description: "Un gros hamburger <br /><br />Donne: 100 Hp instant"
 		}
 		// item
-		,{ name: "Hamburger"
+		, { name: "Hamburger"
 			, sprite: [0, 6]
 			, description: "Un gros hamburger <br /><br />Donne: 100 Hp instant"
 			, getXp: 10
 		}
 		// materials
-		,  [
+		, [
 			{ name: "Steak", quantity: 1 }
 			, { name: "pain", quantity: 1 }]
 		// effects

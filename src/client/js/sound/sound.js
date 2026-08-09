@@ -1,4 +1,4 @@
-import "/js/dependencies/howler.core.min.js";
+import "/js/dependencies/howler.min.js";
 import config from "/js/config.js";
 import events from "/js/system/events.js";
 import globals from "/js/system/globals.js";
@@ -6,8 +6,21 @@ import physics from "/js/misc/physics.js";
 
 const MASTER_VOLUME = 0.3;
 const MIN_DISTANCE = 10;
+// Ramp time for volume changes driven by player movement, in milliseconds.
+// Replaces what would otherwise be an instant snap on each tile step.
+const FADE_DURATION = 250;
 
-const distanceFalloff = (d) => _.clamp(1 - (d * d) / (MIN_DISTANCE * MIN_DISTANCE), 0, 1);
+// Quadratic curve: full at the center, near-silent at the edge.
+// (1 - d/D)^2 keeps the threshold cut at d>MIN_DISTANCE inaudible.
+const distanceFalloff = (d) => {
+	const t = _.clamp(1 - d / MIN_DISTANCE, 0, 1);
+	return t * t;
+};
+
+// Stereo pan from the signed X offset of the source from the player.
+// A source to the player's right pans right; one to the left pans left.
+// Howler.stereo expects a value in the range [-1, 1].
+const panFromX = (sourceX, playerX) => _.clamp((sourceX - playerX) / MIN_DISTANCE, -1, 1);
 
 let soundVolume = config.soundVolume;
 let musicVolume = config.musicVolume;
@@ -79,14 +92,12 @@ export default {
 			return;
 		}
 		const { player: { x: playerX, y: playerY } } = window;
-		const dx = Math.abs(x - playerX);
-		const dy = Math.abs(y - playerY);
-		const distance = Math.max(dx, dy);
+		const distance = Math.max(Math.abs(x - playerX), Math.abs(y - playerY));
 		if (distance >= MIN_DISTANCE) {
 			return;
 		}
 
-		//eslint-disable-next-line no-undef, no-unused-vars
+		//eslint-disable-next-line no-undef
 		const sound = new Howl({
 			src: [file]
 			, volume: (soundVolume / 100) * distanceFalloff(distance) * (volume ?? 1)
@@ -94,6 +105,7 @@ export default {
 			, autoplay: true
 			, html5: false
 		});
+		sound.stereo(panFromX(x, playerX));
 	}
 
 	, play: function (entry, volume = 1) {
@@ -120,6 +132,14 @@ export default {
 			entry.sound = this.loadSound(entry.file, entry.loop, Boolean(volume > 0), 0.01);
 			updated = true;
 		}
+		const isPlaying = entry.sound.playing();
+		// Start playback before scheduling the ramp: Howler.play() resets the
+		// gain node, so a ramp scheduled before play() would be discarded and
+		// the sound would jump to the target instead of fading in.
+		if (!isPlaying && volume > 0) {
+			entry.sound.play();
+			updated = true;
+		}
 		const curVol = entry.sound.volume();
 		if (Math.abs(curVol - volume) > 0.001) {
 			if (fadeDuration > 0) {
@@ -129,13 +149,11 @@ export default {
 			}
 			updated = true;
 		}
-		const isPlaying = entry.sound.playing();
-		if (isPlaying && curVol <= 0) {
+		// Stop only when both the current gain and the target are at silence.
+		// Checking the target prevents stopping a sound right after scheduling
+		// a fade-in ramp from 0 (which would cancel the ramp).
+		if (isPlaying && volume <= 0 && curVol <= 0) {
 			entry.sound.stop();
-			updated = true;
-		}
-		if (!isPlaying && volume > 0) {
-			entry.sound.play();
 			updated = true;
 		}
 		return updated;
@@ -170,7 +188,11 @@ export default {
 				continue;
 			}
 			const volume = s.maxVolume * distanceFalloff(distance) * (soundVolume / 100);
-			this.fade(s, volume);
+			this.fade(s, volume, FADE_DURATION);
+			// Pan from the signed X offset: cx is the centroid for area sounds, x otherwise.
+			if (s.sound) {
+				s.sound.stereo(panFromX(s.cx ?? s.x, x));
+			}
 		}
 	}
 
@@ -220,11 +242,18 @@ export default {
 				, [x, y + h]
 			];
 		}
+		// Music streams from disk (html5); everything else decodes into Web Audio
+		// so .stereo() can pan it. See panFromX and updateSounds.
+		const html5 = Boolean(music);
+		// For area sounds, x/y is the top-left corner. Cache the centroid X so
+		// updateSounds has a stable pan reference at the area's center.
+		const cx = area ? area.reduce((sum, [vx]) => sum + vx, 0) / area.length : x;
 		const entry = {
 			name: soundName
 			, scope
 			, file
 			, x, y, area
+			, cx
 			, loop: Boolean(loop)
 			, music: Boolean(music)
 			, defaultMusic: Boolean(defaultMusic)
@@ -234,9 +263,9 @@ export default {
 		this.sounds.push(entry);
 
 		if (typeof autoLoad === "object") {
-			entry.sound = this.loadSound(file, loop, false, music ? 0 : volume, autoLoad);
+			entry.sound = this.loadSound(file, loop, false, music ? 0 : volume, autoLoad, html5);
 		} else if (autoLoad) {
-			entry.sound = this.loadSound(file, loop, false, music ? 0 : volume);
+			entry.sound = this.loadSound(file, loop, false, music ? 0 : volume, undefined, html5);
 		}
 
 		if (window.player?.x !== undefined) {
@@ -245,14 +274,14 @@ export default {
 		return entry;
 	}
 
-	, loadSound: function (file, loop = false, autoplay = false, volume = 1, onLoad = undefined) {
+	, loadSound: function (file, loop = false, autoplay = false, volume = 1, onLoad = undefined, html5 = loop) {
 		//eslint-disable-next-line no-undef
 		const sound = new Howl({
 			src: [file]
 			, volume
 			, loop
 			, autoplay
-			, html5: loop
+			, html5
 		});
 		if (typeof onLoad === "function") {
 			sound.once("load", onLoad);

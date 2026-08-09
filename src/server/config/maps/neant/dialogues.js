@@ -140,7 +140,7 @@ module.exports = {
 				}
 			}
 		}
-		, 2 : {
+		, 2: {
 			msg: [{
 				msg: "Oui j'ai perdu mon courrier avec plein de lettre d'admiratrice."
 				, options: [2.1]
@@ -152,7 +152,7 @@ module.exports = {
 				}
 			}
 		}
-		, 3 : {
+		, 3: {
 			msg: [{
 				msg: "Je lai ai perdu pres de la track de train au sud du village"
 				, options: [3.1, 3.2, 3.3]
@@ -170,7 +170,7 @@ module.exports = {
 					msg: "J'ai peut être de quoi qui vas t'intéressé."
 					, goto: "tradeSell"
 				}
-				,
+
 			}
 		}
 		, tradeBuy: {

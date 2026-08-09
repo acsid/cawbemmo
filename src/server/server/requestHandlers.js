@@ -17,7 +17,11 @@ const appRoot = (req, res) => {
 
 const appFile = (req, res) => {
 	let root = req.url.split("/")[1];
-	let file = req.params[0];
+	// Express 5 wildcard "*splat" yields an array of path segments; join to a string.
+	let file = req.params.splat;
+	if (Array.isArray(file)) {
+		file = file.join("/");
+	}
 	if (file.length <= root.length + 2) {
 		file = "index.html";
 	} else {

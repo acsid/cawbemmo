@@ -102,7 +102,6 @@ module.exports = {
 		}
 	}
 
-	/* eslint-disable-next-line max-lines-per-function */
 	, update: function () {
 		const obj = this.obj;
 		let target = null;

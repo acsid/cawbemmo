@@ -55,56 +55,49 @@ let cpnSmokePatch = {
 };
 
 const particles = {
-	lifetime: { min: 1, max: 3 }
-	, behaviors: [
-		{ type: "color"
-			, config: {
-				color: {
-					list: [
-						{ time: 0, value: "80f643" }
-						, { time: 0.33, value: "fcfcfc" }
-						, { time: 0.5, value: "80f643" }
-						, { time: 0.66, value: "c0c3cf" }
-						, { time: 1, value: "2b4b3e" }
-					]
-				}
-			}
+	emitterVersion: "0.0.0"
+	, minParticleLifetime: 1
+	, maxParticleLifetime: 3
+	, colorBehavior: {
+		mode: "list"
+		, listData: {
+			list: [
+				{ time: 0, value: "#80f643" }
+				, { time: 0.33, value: "#fcfcfc" }
+				, { time: 0.5, value: "#80f643" }
+				, { time: 0.66, value: "#c0c3cf" }
+				, { time: 1, value: "#2b4b3e" }
+			]
 		}
-		, { type: "alpha"
-			, config: {
-				alpha: {
-					list: [
-						{ time: 0, value: 0.2 }
-						, { time: 1, value: 0 }
-					]
-				}
-			}
+	}
+	, alphaBehavior: {
+		mode: "list"
+		, listData: {
+			list: [
+				{ time: 0, value: 0.2 }
+				, { time: 1, value: 0 }
+			]
 		}
-		, { type: "scale"
-			, config: {
-				scale: {
-					list: [
-						{ time: 0, value: 30 }
-						, { time: 1, value: 14 }
-					]
-				}
-				, minMult: 0.5
-			}
+	}
+	, scaleBehavior: {
+		mode: "list"
+		, xListData: {
+			list: [
+				{ time: 0, value: 30 }
+				, { time: 1, value: 14 }
+			]
 		}
-		, { type: "moveSpeed",
-			config: {
-				speed: {
-					list: [
-						{ time: 0, value: 12 }
-						, { time: 1, value: 2 }
-					]
-				}
-			}
+	}
+	, movementBehavior: {
+		mode: "linear"
+		, space: "global"
+		, xListData: {
+			list: [
+				{ time: 0, value: 12 }
+				, { time: 1, value: 2 }
+			]
 		}
-		, { type: "blendMode"
-			, config: { blendMode: "screen" }
-		}
-	]
+	}
 	, spawnChance: 0.03
 };
 

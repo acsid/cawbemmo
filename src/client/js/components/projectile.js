@@ -43,43 +43,39 @@ export default {
 			blueprint: this.particles
 		} : {
 			blueprint: {
-				lifetime: { min: 1, max: 3 }
-				, behaviors: [
-					{ type: "color"
-						, config: {
-							color: {
-								list: [
-									{ time: 0, value: "7a3ad3" }
-									, { time: 0.33, value: "3fa7dd" }
-									, { time: 0.5, value: "7a3ad3" }
-									, { time: 0.66, value: "3fa7dd" }
-									, { time: 1, value: "3c3f4c" }
-								]
-							}
-						}
+				emitterVersion: "0.0.0"
+				, minParticleLifetime: 1
+				, maxParticleLifetime: 3
+				, colorBehavior: {
+					mode: "list"
+					, listData: {
+						list: [
+							{ time: 0, value: "#7a3ad3" }
+							, { time: 0.33, value: "#3fa7dd" }
+							, { time: 0.5, value: "#7a3ad3" }
+							, { time: 0.66, value: "#3fa7dd" }
+							, { time: 1, value: "#3c3f4c" }
+						]
 					}
-					, { type: "alpha"
-						, config: {
-							alpha: {
-								list: [
-									{ time: 0, value: 0.7 }
-									, { time: 1, value: 0.1 }
-								]
-							}
-						}
+				}
+				, alphaBehavior: {
+					mode: "list"
+					, listData: {
+						list: [
+							{ time: 0, value: 0.7 }
+							, { time: 1, value: 0.1 }
+						]
 					}
-					, { type: "scale"
-						, config: {
-							scale: {
-								list: [
-									{ time: 0, value: 14 }
-									, { time: 1, value: 8 }
-								]
-							}
-							, minMult: 0.1
-						}
+				}
+				, scaleBehavior: {
+					mode: "list"
+					, xListData: {
+						list: [
+							{ time: 0, value: 14 }
+							, { time: 1, value: 8 }
+						]
 					}
-				]
+				}
 				, spawnChance: 0.6
 			}
 		});
@@ -103,7 +99,7 @@ export default {
 		if (ticksLeft <= 0) {
 			source.x = tx;
 			source.y = ty;
-			this.particles.emitter.emit = false;
+			this.particles.emitter.stop(false);
 			if (!this.noExplosion) {
 				source.explosion.explode();
 			}

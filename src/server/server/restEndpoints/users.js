@@ -4,7 +4,7 @@ module.exports = {
 		const users = (await io.getAllAsync({
 			table: "accountInfo"
 			, isArray: true
-		})).map(entry => ({ username: entry.key, ...entry.value }));
+		})).map((entry) => ({ username: entry.key, ...entry.value }));
 
 		const characterList = (await io.getAllAsync({
 			table: "characterList"

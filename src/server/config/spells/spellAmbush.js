@@ -28,50 +28,45 @@ module.exports = {
 	, tickParticles: {
 		ttl: 5
 		, blueprint: {
-			lifetime: { min: 1, max: 2 }
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 12 }
-								, { time: 1, value: 6 }
-							]
-						}
-						, minMult: 0.1
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 2
+			, spawnInterval: 0.25
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#a24eff" }
+						, { time: 0.33, value: "#7a3ad3" }
+						, { time: 0.5, value: "#a24eff" }
+						, { time: 0.66, value: "#533399" }
+						, { time: 1, value: "#393268" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "a24eff" }
-								, { time: 0.33, value: "7a3ad3" }
-								, { time: 0.5, value: "a24eff" }
-								, { time: 0.66, value: "533399" }
-								, { time: 1, value: "393268" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.9 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.9 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 12 }
+						, { time: 1, value: 6 }
+					]
 				}
-				, { type: "spawnShape"
-					, config: {
-						type: "rect"
-						, data: { x: -12, y: -12, w: 24, h: 24 }
-					}
-				}
-			]
-			, frequency: 0.25
+			}
+			, spawnBehavior: {
+				shape: "rectangle"
+				, width: 24
+				, height: 24
+			}
 		}
 	}
 
@@ -158,7 +153,7 @@ module.exports = {
 		const { x, y, instance: { objects } } = obj;
 
 		const particleBlueprint = _.assign({}, tickParticles.blueprint, {
-			frequency: particleFrequency
+			spawnInterval: particleFrequency
 		});
 
 		objects.buildObjects([{

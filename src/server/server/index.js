@@ -1,11 +1,11 @@
 //Imports
+const fs = require("fs");
 const http = require("http");
 
 const socketIo = require("socket.io");
 
 const express = require("express");
 const compression = require("compression");
-const minify = require("express-minify");
 const lessMiddleware = require("less-middleware");
 const cookieParser = require("cookie-parser");
 
@@ -85,9 +85,6 @@ const init = async function () {
 	global.cons.sockets = this.socketServer.sockets;
 
 	app.use(compression());
-	if (IS_PROD) {
-		app.use(minify());
-	}
 
 	app.use(cookieParser());
 	app.use(express.json({ limit: "50mb" }));
@@ -148,9 +145,31 @@ const init = async function () {
 	}));
 
 	app.get("/", appRoot);
-	app.get(/^(.*)$/, appFile);
+	app.get("*splat", appFile);
+
+	// Error-handling middleware (4-arg signature). Express 5 forwards
+	// rejected promises from async routes here automatically.
+	app.use((err, req, res, next) => {
+		_.log["server/index"].error("Unhandled route error:", err);
+		if (res.headersSent) {
+			return next(err);
+		}
+		res.status(500).jsonp({ message: "Internal server error" });
+	});
 
 	this.socketServer.on("connection", onConnection);
+
+	// Log the vendored client library versions from the dependencies manifest.
+	try {
+		const depVersions = JSON.parse(fs.readFileSync("../client/js/dependencies/versions.json", "utf8"));
+		const versionList = Object.entries(depVersions)
+			.map(([lib, ver]) => `${lib}@${ver}`)
+			.join(", ");
+		_.log.Server.info(`Client dependencies: ${versionList}`);
+	} catch (err) {
+		_.log["server/index"].warn(`Failed to read client dependency versions: ${err.message}`);
+	}
+
 	_.log.Server.info(`Starting server with 'NODE_ENV=${nodeEnv} REALM=${realmName} SRV_PORT=${port}'`);
 	await new Promise((resolve) => this.server.listen(port, resolve));
 	_.log.Server.info(startupMessage);

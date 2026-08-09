@@ -1,41 +1,24 @@
-export const vertex = `
-	attribute vec2 aVertexPosition;
+import {
+	Color
+	, Filter
+	, GlProgram
+	, UniformGroup
+	, defaultFilterVert
+} from "pixi.js";
 
-	uniform mat3 projectionMatrix;
+const fragment = `
+	in vec2 vTextureCoord;
 
-	varying vec2 vTextureCoord;
+	out vec4 finalColor;
 
-	uniform vec4 inputSize;
-	uniform vec4 outputFrame;
-
-	vec4 filterVertexPosition( void )
-	{
-		vec2 position = aVertexPosition * max(outputFrame.zw, vec2(0.)) + outputFrame.xy;
-
-		return vec4((projectionMatrix * vec3(position, 1.0)).xy, 0.0, 1.0);
-	}
-
-	vec2 filterTextureCoord( void )
-	{
-		return aVertexPosition * (outputFrame.zw * inputSize.zw);
-	}
-
-	void main(void)
-	{
-		gl_Position = filterVertexPosition();
-		vTextureCoord = filterTextureCoord();
-	}
-`;
-
-export const fragment = `
-	varying vec2 vTextureCoord;
-	uniform sampler2D uSampler;
-	uniform vec4 filterClamp;
+	uniform sampler2D uTexture;
 
 	uniform float uAlpha;
 	uniform vec2 uThickness;
 	uniform vec4 uColor;
-	uniform bool uKnockout;
+	// uKnockout is provided as f32 (0/1) by the JS side; UniformGroup has no bool
+	// type, so the GLSL treats it as a float and compares against 0.5.
+	uniform float uKnockout;
 
 	const float DOUBLE_PI = 2. * 3.14159265358979323846264;
 	const float ANGLE_STEP = $angleStep$;
@@ -52,45 +35,75 @@ export const fragment = `
 		for (float angle = 0.; angle <= DOUBLE_PI; angle += ANGLE_STEP) {
 			displacedPos.x = vTextureCoord.x + uThickness.x * cos(angle);
 			displacedPos.y = vTextureCoord.y + uThickness.y * sin(angle);
-			displacedColor = texture2D(uSampler, clamp(displacedPos, filterClamp.xy, filterClamp.zw));
+			// uInputSize.zw is 1/inputSize, converting pixel offsets to UV space.
+			displacedColor = texture(uTexture, displacedPos);
 			maxAlpha = max(maxAlpha, displacedColor.a);
 		}
 
 		return maxAlpha;
 	}
 
-	void main(void) {
-		vec4 sourceColor = texture2D(uSampler, vTextureCoord);
-		vec4 contentColor = sourceColor * float(!uKnockout);
+	void main() {
+		vec4 sourceColor = texture(uTexture, vTextureCoord);
+		// uKnockout is a float (0/1): when > 0.5 the source content is hidden,
+		// leaving only the outline.
+		vec4 contentColor = sourceColor * (1.0 - step(0.5, uKnockout));
 		float outlineAlpha = uAlpha * outlineMaxAlphaAtPos(vTextureCoord.xy) * (1.-sourceColor.a);
 		vec4 outlineColor = vec4(vec3(uColor) * outlineAlpha, outlineAlpha);
-		gl_FragColor = contentColor + outlineColor;
+		finalColor = contentColor + outlineColor;
 	}
 `;
 
-export default class OutlineFilter extends PIXI.Filter {
+export default class OutlineFilter extends Filter {
 	constructor ({ thickness = 5, color = 0xFFFFFF, quality = 0.1, alpha = 1.0, knockout = false }) {
 		const angleStep = Math.PI / 2;
 
-		super(vertex, fragment.replace("$angleStep$", angleStep));
+		const glProgram = GlProgram.from({
+			vertex: defaultFilterVert
+			, fragment: fragment.replace("$angleStep$", angleStep)
+			, name: "outline-filter"
+		});
 
-		this.uniforms.uThickness = new Float32Array([thickness, thickness]);
-		this.uniforms.uColor = new Float32Array([1, 1, 1, 1]);
-		this.uniforms.uAlpha = alpha;
-		this.uniforms.uKnockout = knockout;
+		// v8: uniforms live in a UniformGroup attached via resources, not on
+		// this.uniforms. The thickness is expressed in UV units (pixels / input size)
+		// at apply() time.
+		const outlineUniforms = new UniformGroup({
+			uThickness: { value: new Float32Array([thickness, thickness]), type: "vec2<f32>" }
+			, uColor: { value: new Float32Array([1, 1, 1, 1]), type: "vec4<f32>" }
+			, uAlpha: { value: alpha, type: "f32" }
+			, uKnockout: { value: knockout ? 1 : 0, type: "f32" }
+		});
 
-		const rgbColor = PIXI.utils.hex2rgb(color);
-		this.uniforms.uColor = PIXI.utils.hex2rgb(rgbColor, this.uniforms.uColor);
+		super({
+			glProgram
+			, resources: {
+				outlineUniforms
+			}
+		});
+
+		// The filter needs to sample outside the sprite's edge (by `thickness`
+		// pixels) to draw the outline. padding grows the sampled area so the
+		// displaced samples are not clipped.
+		this.padding = thickness;
 
 		Object.assign(this, { thickness, color, quality, alpha, knockout });
 	}
 
 	apply (filterManager, input, output, clear) {
-		this.uniforms.uThickness[0] = this.thickness / input._frame.width;
-		this.uniforms.uThickness[1] = this.thickness / input._frame.height;
-		this.uniforms.uAlpha = this.alpha;
-		this.uniforms.uKnockout = this.knockout;
-		this.uniforms.uColor = PIXI.utils.hex2rgb(this.color, this.uniforms.uColor);
+		const uniforms = this.resources.outlineUniforms.uniforms;
+		// v8: Texture exposes .frame (a Rectangle) directly; the old _frame
+		// private property is gone. Thickness is converted to UV units.
+		const frame = input.frame;
+		uniforms.uThickness[0] = this.thickness / frame.width;
+		uniforms.uThickness[1] = this.thickness / frame.height;
+		uniforms.uAlpha = this.alpha;
+		uniforms.uKnockout = this.knockout ? 1 : 0;
+
+		// v8 Color replaces the removed PIXI.utils.hex2rgb/rgb2hex helpers.
+		const [r, g, b] = new Color(this.color).toArray();
+		uniforms.uColor[0] = r;
+		uniforms.uColor[1] = g;
+		uniforms.uColor[2] = b;
 
 		filterManager.applyFilter(this, input, output, clear);
 	}
@@ -103,10 +116,10 @@ export default class OutlineFilter extends PIXI.Filter {
 	}
 
 	get color () {
-		return PIXI.utils.rgb2hex(this.uniforms.uColor);
+		return this._color;
 	}
 	set color (value) {
-		PIXI.utils.hex2rgb(value, this.uniforms.uColor);
+		this._color = value;
 	}
 
 	get knockout () {

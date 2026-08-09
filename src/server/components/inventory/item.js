@@ -1,4 +1,4 @@
-const { getById: faction_getById } = require("../../config/factions");
+const { getById: factionGetById } = require("../../config/factions");
 const learnRecipe = require("./learnRecipe");
 
 const itemBase = {
@@ -143,7 +143,7 @@ module.exports = class Item {
 		}
 		if (result.factions) {
 			result.factions = result.factions.map((f) => {
-				const faction = faction_getById(f.id);
+				const faction = factionGetById(f.id);
 				if (!faction) {
 					_.log.simplifyItem.faction.error("Faction '%s' can't be found!", f.id);
 					return;

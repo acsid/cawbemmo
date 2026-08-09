@@ -1,3 +1,4 @@
+/* eslint-disable no-process-env */
 import logging from "../../common/logging.mjs";
 import gExports from "../../common/globals.mjs";
 

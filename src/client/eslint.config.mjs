@@ -22,7 +22,6 @@ export default [{
 			, EventTarget: false
 			, FormData: false
 			, Map: true
-			, PIXI: false
 			, Promise: true
 			, Set: true
 			, XMLHttpRequest: false

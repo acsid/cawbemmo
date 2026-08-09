@@ -132,19 +132,23 @@ describe("getLocalizedMessage", () => {
 		});
 	});
 
-	describe("single-pass resolution (current contract)", () => {
-		//getLocalizedMessage uses String.replaceAll, which does NOT re-scan the
-		//replacement text. So a dictionary value that itself contains a token
-		//is left with that inner token literal. This pins that behaviour; the
-		//recursion phase will change these expectations.
-		it("does not re-resolve a token embedded in a resolved value (object dict)", () => {
+	describe("recursive resolution", () => {
+		//getLocalizedMessage re-scans its output until it stops changing, so a
+		//value that itself contains a token resolves fully. A pass cap breaks
+		//self-referential cycles.
+		it("resolves a token embedded in a resolved value (object dict)", () => {
 			const dict = { outer: "x ${inner}", inner: "Y" };
-			expect(getLocalizedMessage(dict, "${outer}")).to.equal("x ${inner}");
+			expect(getLocalizedMessage(dict, "${outer}")).to.equal("x Y");
 		});
 
-		it("does not re-resolve a token embedded in a resolved value (function dict)", () => {
+		it("resolves a token embedded in a resolved value (function dict)", () => {
 			const dict = (name) => (name === "outer" ? "x ${inner}" : "Y");
-			expect(getLocalizedMessage(dict, "${outer}")).to.equal("x ${inner}");
+			expect(getLocalizedMessage(dict, "${outer}")).to.equal("x Y");
+		});
+
+		it("leaves a resolved value intact when it has no tokens", () => {
+			const dict = { outer: "plain" };
+			expect(getLocalizedMessage(dict, "${outer}")).to.equal("plain");
 		});
 	});
 });

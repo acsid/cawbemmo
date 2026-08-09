@@ -1,9 +1,12 @@
 import renderer from "/js/rendering/renderer.js";
 
+// v8: blend modes are strings, not PIXI.BLEND_MODES enums.
+const BLEND_ADD = "add";
+
 export default {
 	type: "lightPatch"
 
-	, color: "ffeb38"
+	, color: "#ffeb38"
 	, patches: []
 	, rays: []
 
@@ -32,9 +35,9 @@ export default {
 				sprite.height = size;
 				sprite.x += scaleMult * Math.floor(Math.random() * 4);
 				sprite.y += scaleMult * Math.floor(Math.random() * 4);
-				sprite.tint = "0x" + this.color;
+				sprite.tint = this.color;
 				sprite.alpha = (maxAlpha * 0.3) + (Math.random() * (maxAlpha * 0.7));
-				sprite.blendMode = PIXI.BLEND_MODES.ADD;
+				sprite.blendMode = BLEND_ADD;
 				this.patches.push(sprite);
 			}
 		}
@@ -66,7 +69,7 @@ export default {
 				ray.height = scaleMult * hm;
 				ray.tint = 0xffeb38;
 				ray.alpha = ((1.0 - (j / h)) * 0.4);
-				ray.blendMode = PIXI.BLEND_MODES.ADD;
+				ray.blendMode = BLEND_ADD;
 			}
 		}
 		this.setVisible(obj.isVisible);

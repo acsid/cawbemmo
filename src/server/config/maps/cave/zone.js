@@ -51,43 +51,52 @@ module.exports = {
 				, element: "arcane"
 				, cdMax: 5
 				, particles: {
-					scale: {
-						start: {
-							min: 10
-							, max: 25
+					emitterVersion: "0.0.0"
+					, minParticleLifetime: 1
+					, maxParticleLifetime: 2
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#fc66f7" }
+								, { time: 0, value: "#933159" }
+							]
 						}
-						, end: {
-							min: 10
-							, max: 0
+					}
+					, alphaBehavior: {
+						mode: "list"
+						, listData: {
+							list: [
+								{ time: 0, value: 0.3 }
+								, { time: 1, value: 0 }
+							]
 						}
 					}
-					, opacity: {
-						start: 0.3
-						, end: 0
+					, scaleBehavior: {
+						mode: "random"
+						, xListData: {
+							list: [
+								{ time: 0, value: 10 }
+								, { time: 0, value: 25 }
+							]
+						}
 					}
-					, lifetime: {
-						min: 1
-						, max: 2
+					, movementBehavior: {
+						mode: "linear"
+						, space: "global"
+						, xListData: {
+							list: [
+								{ time: 0, value: 3 }
+								, { time: 1, value: 0 }
+							]
+						}
 					}
-					, speed: {
-						start: 3
-						, end: 0
+					, spawnBehavior: {
+						shape: "rectangle"
+						, width: 20
+						, height: 20
 					}
-					, color: {
-						start: ["fc66f7", "a24eff"]
-						, end: ["933159", "393268"]
-					}
-					, chance: 0.125
-					, randomColor: true
-					, randomScale: true
-					, blendMode: "add"
-					, spawnType: "rect"
-					, spawnRect: {
-						x: -10
-						, y: -10
-						, w: 20
-						, h: 20
-					}
+					, spawnChance: 0.125
 				}
 			}]
 		}
@@ -125,43 +134,52 @@ module.exports = {
 				, element: "arcane"
 				, cdMax: 5
 				, particles: {
-					scale: {
-						start: {
-							min: 4
-							, max: 14
+					emitterVersion: "0.0.0"
+					, minParticleLifetime: 1
+					, maxParticleLifetime: 2
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#ff6942" }
+								, { time: 0, value: "#953f36" }
+							]
 						}
-						, end: {
-							min: 2
-							, max: 8
+					}
+					, alphaBehavior: {
+						mode: "list"
+						, listData: {
+							list: [
+								{ time: 0, value: 0.2 }
+								, { time: 1, value: 0 }
+							]
 						}
 					}
-					, opacity: {
-						start: 0.2
-						, end: 0
+					, scaleBehavior: {
+						mode: "random"
+						, xListData: {
+							list: [
+								{ time: 0, value: 4 }
+								, { time: 0, value: 14 }
+							]
+						}
 					}
-					, lifetime: {
-						min: 1
-						, max: 2
+					, movementBehavior: {
+						mode: "linear"
+						, space: "global"
+						, xListData: {
+							list: [
+								{ time: 0, value: 2 }
+								, { time: 1, value: 0 }
+							]
+						}
 					}
-					, speed: {
-						start: 2
-						, end: 0
+					, spawnBehavior: {
+						shape: "rectangle"
+						, width: 20
+						, height: 20
 					}
-					, color: {
-						start: ["ff6942", "ffeb38"]
-						, end: ["953f36", "9a5a3c"]
-					}
-					, chance: 0.125
-					, randomColor: true
-					, randomScale: true
-					, blendMode: "add"
-					, spawnType: "rect"
-					, spawnRect: {
-						x: -10
-						, y: -10
-						, w: 20
-						, h: 20
-					}
+					, spawnChance: 0.125
 				}
 			}]
 		}
@@ -197,23 +215,26 @@ module.exports = {
 			, spells: [{
 				type: "projectile"
 				, particles: {
-					scale: {
-						start: {
-							min: 6
-							, max: 18
-						}
-						, end: {
-							min: 2
-							, max: 8
+					emitterVersion: "0.0.0"
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#fc66f7" }
+								, { time: 0, value: "#393268" }
+							]
 						}
 					}
-					, color: {
-						start: ["fc66f7", "a24eff"]
-						, end: ["393268", "933159"]
+					, scaleBehavior: {
+						mode: "random"
+						, xListData: {
+							list: [
+								{ time: 0, value: 6 }
+								, { time: 0, value: 18 }
+							]
+						}
 					}
-					, chance: 0.65
-					, randomScale: true
-					, randomColor: true
+					, spawnChance: 0.65
 				}
 			}, {
 				type: "smokeBomb"
@@ -228,43 +249,52 @@ module.exports = {
 				, element: "arcane"
 				, cdMax: 8
 				, particles: {
-					scale: {
-						start: {
-							min: 6
-							, max: 18
+					emitterVersion: "0.0.0"
+					, minParticleLifetime: 1
+					, maxParticleLifetime: 3
+					, colorBehavior: {
+						mode: "random"
+						, listData: {
+							list: [
+								{ time: 0, value: "#ff4252" }
+								, { time: 0, value: "#802343" }
+							]
 						}
-						, end: {
-							min: 4
-							, max: 10
+					}
+					, alphaBehavior: {
+						mode: "list"
+						, listData: {
+							list: [
+								{ time: 0, value: 0.01 }
+								, { time: 1, value: 0 }
+							]
 						}
 					}
-					, opacity: {
-						start: 0.01
-						, end: 0
+					, scaleBehavior: {
+						mode: "random"
+						, xListData: {
+							list: [
+								{ time: 0, value: 6 }
+								, { time: 0, value: 18 }
+							]
+						}
 					}
-					, lifetime: {
-						min: 1
-						, max: 3
+					, movementBehavior: {
+						mode: "linear"
+						, space: "global"
+						, xListData: {
+							list: [
+								{ time: 0, value: 2 }
+								, { time: 1, value: 0 }
+							]
+						}
 					}
-					, speed: {
-						start: 2
-						, end: 0
+					, spawnBehavior: {
+						shape: "rectangle"
+						, width: 20
+						, height: 20
 					}
-					, color: {
-						start: ["ff4252", "d43346"]
-						, end: ["802343", "a82841"]
-					}
-					, chance: 0.125
-					, randomColor: true
-					, randomScale: true
-					, blendMode: "add"
-					, spawnType: "rect"
-					, spawnRect: {
-						x: -10
-						, y: -10
-						, w: 20
-						, h: 20
-					}
+					, spawnChance: 0.125
 				}
 			}, {
 				type: "summonConsumableFollower"
@@ -374,45 +404,43 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								color: {
-									start: ["fc66f7", "a24eff"]
-									, end: ["933159", "393268"]
-								}
-								, scale: {
-									start: {
-										min: 2
-										, max: 10
-									}
-									, end: {
-										min: 0
-										, max: 2
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 1
+								, maxParticleLifetime: 4
+								, colorBehavior: {
+									mode: "random"
+									, listData: {
+										list: [
+											{ time: 0, value: "#fc66f7" }
+											, { time: 0, value: "#933159" }
+										]
 									}
 								}
-								, speed: {
-									start: {
-										min: 4
-										, max: 16
+								, scaleBehavior: {
+									mode: "random"
+									, xListData: {
+										list: [
+											{ time: 0, value: 2 }
+											, { time: 0, value: 10 }
+										]
 									}
-									, end: {
-										min: 2
-										, max: 8
+								}
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 4 }
+											, { time: 1, value: 2 }
+										]
 									}
 								}
-								, lifetime: {
-									min: 1
-									, max: 4
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 60
+									, height: 60
 								}
-								, randomScale: true
-								, randomSpeed: true
-								, chance: 0.04
-								, randomColor: true
-								, spawnType: "rect"
-								, spawnRect: {
-									x: -20
-									, y: -20
-									, w: 60
-									, h: 60
-								}
+								, spawnChance: 0.04
 							}
 						};
 					}
@@ -426,45 +454,43 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								color: {
-									start: ["fff4252", "ff6942"]
-									, end: ["802343", "f953f36"]
-								}
-								, scale: {
-									start: {
-										min: 2
-										, max: 6
-									}
-									, end: {
-										min: 0
-										, max: 2
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 1
+								, maxParticleLifetime: 2
+								, colorBehavior: {
+									mode: "random"
+									, listData: {
+										list: [
+											{ time: 0, value: "#ff4252" }
+											, { time: 0, value: "#802343" }
+										]
 									}
 								}
-								, speed: {
-									start: {
-										min: 0
-										, max: 4
+								, scaleBehavior: {
+									mode: "random"
+									, xListData: {
+										list: [
+											{ time: 0, value: 2 }
+											, { time: 0, value: 6 }
+										]
 									}
-									, end: {
-										min: 0
-										, max: 0
+								}
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 0 }
+											, { time: 1, value: 0 }
+										]
 									}
 								}
-								, lifetime: {
-									min: 1
-									, max: 2
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 40
+									, height: 40
 								}
-								, randomScale: true
-								, randomSpeed: true
-								, chance: 0.2
-								, randomColor: true
-								, spawnType: "rect"
-								, spawnRect: {
-									x: -20
-									, y: -20
-									, w: 40
-									, h: 40
-								}
+								, spawnChance: 0.2
 							}
 						};
 					}
@@ -562,50 +588,52 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								color: {
-									start: ["c0c3cf", "929398"]
-									, end: ["69696e", "69696e"]
-								}
-								, scale: {
-									start: {
-										min: 32
-										, max: 18
-									}
-									, end: {
-										min: 16
-										, max: 8
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 4
+								, maxParticleLifetime: 16
+								, colorBehavior: {
+									mode: "random"
+									, listData: {
+										list: [
+											{ time: 0, value: "#c0c3cf" }
+											, { time: 0, value: "#69696e" }
+										]
 									}
 								}
-								, speed: {
-									start: {
-										min: 2
-										, max: 6
+								, alphaBehavior: {
+									mode: "list"
+									, listData: {
+										list: [
+											{ time: 0, value: 0.2 }
+											, { time: 1, value: 0 }
+										]
 									}
-									, end: {
-										min: 0
-										, max: 4
+								}
+								, scaleBehavior: {
+									mode: "random"
+									, xListData: {
+										list: [
+											{ time: 0, value: 32 }
+											, { time: 0, value: 18 }
+										]
 									}
 								}
-								, lifetime: {
-									min: 4
-									, max: 16
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 2 }
+											, { time: 1, value: 0 }
+										]
+									}
 								}
-								, alpha: {
-									start: 0.2
-									, end: 0
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 160
+									, height: 160
 								}
-								, randomScale: true
-								, randomSpeed: true
-								, chance: 0.02
-								, randomColor: true
-								, spawnType: "rect"
-								, blendMode: "screen"
-								, spawnRect: {
-									x: -80
-									, y: -80
-									, w: 160
-									, h: 160
-								}
+								, spawnChance: 0.02
 							}
 						};
 					}
@@ -619,50 +647,52 @@ module.exports = {
 						return {
 							type: "particles"
 							, blueprint: {
-								color: {
-									start: ["48edff", "3fa7dd"]
-									, end: ["69696e", "42548d"]
-								}
-								, scale: {
-									start: {
-										min: 2
-										, max: 8
-									}
-									, end: {
-										min: 2
-										, max: 4
+								emitterVersion: "0.0.0"
+								, minParticleLifetime: 1
+								, maxParticleLifetime: 3
+								, colorBehavior: {
+									mode: "random"
+									, listData: {
+										list: [
+											{ time: 0, value: "#48edff" }
+											, { time: 0, value: "#69696e" }
+										]
 									}
 								}
-								, speed: {
-									start: {
-										min: 2
-										, max: 6
+								, alphaBehavior: {
+									mode: "list"
+									, listData: {
+										list: [
+											{ time: 0, value: 0.5 }
+											, { time: 1, value: 0 }
+										]
 									}
-									, end: {
-										min: 0
-										, max: 4
+								}
+								, scaleBehavior: {
+									mode: "random"
+									, xListData: {
+										list: [
+											{ time: 0, value: 2 }
+											, { time: 0, value: 8 }
+										]
 									}
 								}
-								, lifetime: {
-									min: 1
-									, max: 3
+								, movementBehavior: {
+									mode: "linear"
+									, space: "global"
+									, xListData: {
+										list: [
+											{ time: 0, value: 2 }
+											, { time: 1, value: 0 }
+										]
+									}
 								}
-								, alpha: {
-									start: 0.5
-									, end: 0
+								, spawnBehavior: {
+									shape: "rectangle"
+									, width: 60
+									, height: 60
 								}
-								, randomScale: true
-								, randomSpeed: true
-								, chance: 0.2
-								, randomColor: true
-								, spawnType: "rect"
-								, blendMode: "screen"
-								, spawnRect: {
-									x: -20
-									, y: -20
-									, w: 60
-									, h: 60
-								}
+								, spawnChance: 0.2
 							}
 						};
 					}

@@ -4,9 +4,16 @@ const jwt = require("jsonwebtoken");
 
 const util = require("util");
 const bCompare = util.promisify(bcrypt.compare);
+const bHash = util.promisify(bcrypt.hash);
 const jVerify = util.promisify(jwt.verify);
 
 let jwtSecret = require("crypto").randomBytes(35).toString("hex");
+
+// Mirrors components/auth.js. Blocks characters that would break
+// server-side string interpolation or confuse downstream parsers.
+const LOGIN_ILLEGAL_CHARS = [
+	"'", "\"", "/", "\\", "(", ")", "[", "]", "{", "}", ":", ";", "<", ">", "+", "?", "*"
+];
 
 // eslint-disable-next-line max-lines-per-function
 const createRouter = (options) => {
@@ -25,7 +32,7 @@ const createRouter = (options) => {
 		try {
 			const decodedToken = await jVerify(token, jwtSecret);
 			if (!decodedToken.username) {
-				return res.status(204);
+				return res.status(204).send();
 			}
 			const accountInfo = await io.getAsync({
 				key: decodedToken.username
@@ -57,54 +64,53 @@ const createRouter = (options) => {
 				, noParse: true
 			});
 			if (!storedPassword) {
-				res.status(401).jsonp({
+				return res.status(401).jsonp({
 					message: "Login not successful"
 					, error: "User not found"
 				});
 			}
 			const compareResult = await bCompare(password, storedPassword);
 			if (!compareResult) {
-				res.status(401).jsonp({
+				return res.status(401).jsonp({
 					message: "Login not successful"
 					, error: "User not found"
 				});
-			} else {
-				const accountInfo = await io.getAsync({
-					key: username
-					, table: "accountInfo"
-					, noDefault: true
-				}) || {
-					loginStreak: 0
-					, level: 0
-				};
-				const maxAge = 3 * 60 * 60;
-				const token = jwt.sign(
-					{
-						username
-						, level: accountInfo.level
-					}
-					, jwtSecret
-					, {
-						// 3hrs in sec
-						expiresIn: maxAge
-					}
-				);
-				res.cookie("jwt", token, {
-					// Flags the cookie to be accessible only by the web server.
-					httpOnly: true
-					// 3hrs in ms
-					, maxAge: maxAge * 1000
-				});
-				res.status(200).jsonp({
-					message: "Login successful"
-					, user: {
-						username
-						, ...accountInfo
-					}
-					, jwt: token
-					, expiresIn: maxAge
-				});
 			}
+			const accountInfo = await io.getAsync({
+				key: username
+				, table: "accountInfo"
+				, noDefault: true
+			}) || {
+				loginStreak: 0
+				, level: 0
+			};
+			const maxAge = 3 * 60 * 60;
+			const token = jwt.sign(
+				{
+					username
+					, level: accountInfo.level
+				}
+				, jwtSecret
+				, {
+					// 3hrs in sec
+					expiresIn: maxAge
+				}
+			);
+			res.cookie("jwt", token, {
+				// Flags the cookie to be accessible only by the web server.
+				httpOnly: true
+				// 3hrs in ms
+				, maxAge: maxAge * 1000
+			});
+			res.status(200).jsonp({
+				message: "Login successful"
+				, user: {
+					username
+					, ...accountInfo
+				}
+				, jwt: token
+				, expiresIn: maxAge
+			});
 		} catch (err) {
 			return res.status(400).jsonp({
 				message: "An error occurred"
@@ -168,23 +174,44 @@ const createRouter = (options) => {
 				message: "Username or Password not present"
 			});
 		}
+		if (username.length > 32) {
+			return res.status(400).jsonp({ message: "Username longer than 32 characters" });
+		}
 		if (password.length < 6) {
 			return res.status(400).jsonp({ message: "Password less than 6 characters" });
 		}
+		if (username.split("").some((c) => LOGIN_ILLEGAL_CHARS.includes(c))) {
+			return res.status(400).jsonp({ message: "Username contains illegal characters" });
+		}
 		try {
-			throw new Error("Not implemented...");
-			const user = await User.create({
-				username
-				, password
+			const exists = await io.getAsync({
+				key: username
+				, ignoreCase: true
+				, table: "login"
+				, noDefault: true
+				, noParse: true
 			});
-			res.status(200).jsonp({
-				message: "User successfully created"
-				, user
+			if (exists) {
+				return res.status(409).jsonp({ message: "User already exists" });
+			}
+			const hashedPassword = await bHash(password, null);
+			await io.setAsync({
+				key: username
+				, table: "login"
+				, value: hashedPassword
 			});
+			await io.setAsync({
+				key: username
+				, table: "characterList"
+				, value: []
+				, serialize: true
+			});
+			res.status(201).jsonp({ message: "User successfully created" });
 		} catch (err) {
-			res.status(401).jsonp({
+			_.log.routes.auth.error(err);
+			res.status(500).jsonp({
 				message: "User creation failed"
-				, error: err.mesage
+				, error: err.message
 			});
 		}
 	});

@@ -323,7 +323,7 @@ module.exports = {
 		}, [serverId]);
 	}
 
-	, getPlayerList: function(data) {
+	, getPlayerList: function (data) {
 		const currentPlayers = cons.players.filter((p) => p.name) .map((p) => p.getSimple(false, false, true));
 		if (data.callback) {
 			data.callback(currentPlayers);

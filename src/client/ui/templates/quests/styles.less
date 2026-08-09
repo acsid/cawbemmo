@@ -16,36 +16,53 @@
 			cursor: pointer;
 			padding: 8px;
 			background-color: fade(#3a3b4a, 90%);
+			border-left: 3px solid @grayD;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: baseline;
 
 			&:hover {
 				background-color: fade(lighten(#3a3b4a, 15%), 90%);
 			}
 
-			.zone {
-				color: @grayD;
-				margin-bottom: 4px;
-				text-align: right;
-			}
-
 			.name {
 				color: @white;
+				flex: 1;
 				margin-bottom: 3px;
+			}
+
+			.zone {
+				color: @tealC;
+				margin-left: 8px;
+				text-align: right;
 			}
 
 			.description {
 				color: darken(@white, 35%);
+				flex-basis: 100%;
 			}
 
 			&.disabled {
+				opacity: 1;
+				padding: 4px 8px;
+				.name {
+					color: @grayD;
+					&::before {
+						content: "○\00a0";
+					}
+				}
 				.description {
 					display: none;
 				}
-
+				.zone {
+					color: @grayD;
+				}
 			}
 
 			.reward {
 				display: none;
 				color: @tealC;
+				flex-basis: 100%;
 			}
 
 			&:hover {
@@ -61,18 +78,26 @@
 
 			.ready-text {
 				display: none;
+				flex-basis: 100%;
 			}
 
 			&.active {
+				border-left-color: @blueB;
 				.name {
 					color: @blueB;
+					&::before {
+						content: "▸\00a0";
+					}
 				}
-
 			}
 
 			&.ready {
+				border-left-color: @greenA;
 				.name {
 					color: @greenA;
+					&::before {
+						content: "✓\00a0";
+					}
 				}
 
 				.description {
@@ -103,6 +128,17 @@
 			display: none;
 		}
 
+	}
+
+	// When every quest is disabled, dim the list as a whole instead of
+	// each item individually. Cancel the per-item opacity so we do not
+	// double-dim.
+	&.all-disabled .list {
+		opacity: 0.5;
+
+		.quest.disabled {
+			opacity: 1;
+		}
 	}
 
 }

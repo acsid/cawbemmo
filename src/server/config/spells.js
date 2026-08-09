@@ -35,43 +35,39 @@ const spells = [
 			}
 		}
 		, particles: {
-			lifetime: { min: 1, max: 1 }
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 14 }
-								, { time: 1, value: 8 }
-							]
-						}
-						, minMult: 0.1
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 1
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#ff6942" }
+						, { time: 0.33, value: "#ffeb38" }
+						, { time: 0.5, value: "#ff6942" }
+						, { time: 0.66, value: "#d43346" }
+						, { time: 1, value: "#ff6942" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "ff6942" }
-								, { time: 0.33, value: "ffeb38" }
-								, { time: 0.5, value: "ff6942" }
-								, { time: 0.66, value: "d43346" }
-								, { time: 1, value: "ff6942" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.6 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.6 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 14 }
+						, { time: 1, value: 8 }
+					]
 				}
-			]
+			}
 			, spawnChance: 0.25
 		}
 	}
@@ -94,43 +90,39 @@ const spells = [
 			}
 		}
 		, particles: {
-			lifetime: { min: 1, max: 3 }
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 14 }
-								, { time: 1, value: 8 }
-							]
-						}
-						, minMult: 0.1
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 3
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#3fa7dd" }
+						, { time: 0.33, value: "#7a3ad3" }
+						, { time: 0.5, value: "#3fa7dd" }
+						, { time: 0.66, value: "#7a3ad3" }
+						, { time: 1, value: "#3fa7dd" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "3fa7dd" }
-								, { time: 0.33, value: "7a3ad3" }
-								, { time: 0.5, value: "3fa7dd" }
-								, { time: 0.66, value: "7a3ad3" }
-								, { time: 1, value: "3fa7dd" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.8 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.8 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 14 }
+						, { time: 1, value: 8 }
+					]
 				}
-			]
+			}
 			, spawnChance: 0.6
 		}
 	}
@@ -154,44 +146,40 @@ const spells = [
 			}
 		}
 		, particles: {
-			lifetime: { min: 1, max: 2 }
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 12 }
-								, { time: 1, value: 6 }
-							]
-						}
-						, minMult: 0.1
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 2
+			, spawnInterval: 0.2
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#48edff" }
+						, { time: 0.33, value: "#51fc9a" }
+						, { time: 0.5, value: "#48edff" }
+						, { time: 0.66, value: "#44cb95" }
+						, { time: 1, value: "#48edff" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "48edff" }
-								, { time: 0.33, value: "51fc9a" }
-								, { time: 0.5, value: "48edff" }
-								, { time: 0.66, value: "44cb95" }
-								, { time: 1, value: "48edff" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.9 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.9 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 12 }
+						, { time: 1, value: 6 }
+					]
 				}
-			]
-			, frequency: 0.2
+			}
 		}
 	}
 
@@ -214,56 +202,50 @@ const spells = [
 			}
 		}
 		, particles: {
-			emitterLifetime: 0.15
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 24 }
-								, { time: 1, value: 12 }
-							]
-						}
-						, minMult: 0.1
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 2
+			, spawnInterval: 0.02
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#d43346" }
+						, { time: 0.33, value: "#faac45" }
+						, { time: 0.5, value: "#d43346" }
+						, { time: 0.66, value: "#929398" }
+						, { time: 1, value: "#c0c3cf" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "d43346" }
-								, { time: 0.33, value: "faac45" }
-								, { time: 0.5, value: "d43346" }
-								, { time: 0.66, value: "929398" }
-								, { time: 1, value: "c0c3cf" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.9 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.9 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 24 }
+						, { time: 1, value: 12 }
+					]
 				}
-				, { type: "moveSpeed"
-					, config: {
-						speed: {
-							list: [
-								{ time: 0, value: 24 }
-								, { time: 1, value: 12 }
-							]
-						}
-						, minMult: 0.2
-					}
+			}
+			, movementBehavior: {
+				mode: "linear"
+				, space: "global"
+				, xListData: {
+					list: [
+						{ time: 0, value: 24 }
+						, { time: 1, value: 12 }
+					]
 				}
-			]
-			, frequency: 0.02
-			, lifetime: { min: 1, max: 2 }
+			}
 		}
 	}
 
@@ -309,54 +291,49 @@ const spells = [
 			}
 		}
 		, particles: {
-			lifetime: { min: 1, max: 3 }
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 16 }
-								, { time: 1, value: 4 }
-							]
-						}
-						, minMult: 0.33
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 3
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#fcfcfc" }
+						, { time: 0.33, value: "#ffeb38" }
+						, { time: 0.5, value: "#fcfcfc" }
+						, { time: 0.66, value: "#faac45" }
+						, { time: 1, value: "#fcfcfc" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "fcfcfc" }
-								, { time: 0.33, value: "ffeb38" }
-								, { time: 0.5, value: "fcfcfc" }
-								, { time: 0.66, value: "faac45" }
-								, { time: 1, value: "fcfcfc" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.55 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.55 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 16 }
+						, { time: 1, value: 4 }
+					]
 				}
-				, { type: "moveSpeed"
-					, config: {
-						speed: {
-							list: [
-								{ time: 0, value: 12 }
-								, { time: 1, value: 4 }
-							]
-						}
-						, minMult: 0.2
-					}
+			}
+			, movementBehavior: {
+				mode: "linear"
+				, space: "global"
+				, xListData: {
+					list: [
+						{ time: 0, value: 12 }
+						, { time: 1, value: 4 }
+					]
 				}
-			]
+			}
 			, spawnChance: 0.02
 		}
 	}
@@ -380,54 +357,49 @@ const spells = [
 			}
 		}
 		, particles: {
-			lifetime: { min: 1, max: 3 }
-			, behaviors: [
-				{ type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 16 }
-								, { time: 1, value: 4 }
-							]
-						}
-						, minMult: 0.33
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 3
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#fcfcfc" }
+						, { time: 0.33, value: "#ffeb38" }
+						, { time: 0.5, value: "#fcfcfc" }
+						, { time: 0.66, value: "#faac45" }
+						, { time: 1, value: "#fcfcfc" }
+					]
 				}
-				, { type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "fcfcfc" }
-								, { time: 0.33, value: "ffeb38" }
-								, { time: 0.5, value: "fcfcfc" }
-								, { time: 0.66, value: "faac45" }
-								, { time: 1, value: "fcfcfc" }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.55 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.55 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 16 }
+						, { time: 1, value: 4 }
+					]
 				}
-				, { type: "moveSpeed"
-					, config: {
-						speed: {
-							list: [
-								{ time: 0, value: 12 }
-								, { time: 1, value: 4 }
-							]
-						}
-						, minMult: 0.2
-					}
+			}
+			, movementBehavior: {
+				mode: "linear"
+				, space: "global"
+				, xListData: {
+					list: [
+						{ time: 0, value: 12 }
+						, { time: 1, value: 4 }
+					]
 				}
-			]
+			}
 			, spawnChance: 0.02
 		}
 	}
@@ -526,57 +498,49 @@ const spells = [
 			}
 		}
 		, particles: {
-			lifetime: { min: 1, max: 3 }
-			, behaviors: [
-				{ type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "80f643" }
-								, { time: 0.33, value: "fcfcfc" }
-								, { time: 0.5, value: "80f643" }
-								, { time: 0.66, value: "c0c3cf" }
-								, { time: 1, value: "2b4b3e" }
-							]
-						}
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 3
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#80f643" }
+						, { time: 0.33, value: "#fcfcfc" }
+						, { time: 0.5, value: "#80f643" }
+						, { time: 0.66, value: "#c0c3cf" }
+						, { time: 1, value: "#2b4b3e" }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.3 }
-								, { time: 1, value: 0.1 }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.3 }
+						, { time: 1, value: 0.1 }
+					]
 				}
-				, { type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 30 }
-								, { time: 1, value: 14 }
-							]
-						}
-						, minMult: 0.5
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 30 }
+						, { time: 1, value: 14 }
+					]
 				}
-				, { type: "blendMode"
-					, config: { blendMode: "screen" }
+			}
+			, movementBehavior: {
+				mode: "linear"
+				, space: "global"
+				, xListData: {
+					list: [
+						{ time: 0, value: 12 }
+						, { time: 1, value: 2 }
+					]
 				}
-
-				, { type: "moveSpeed"
-					, config: {
-						speed: {
-							list: [
-								{ time: 0, value: 12 }
-								, { time: 1, value: 2 }
-							]
-						}
-					}
-				}
-			]
+			}
 			, spawnChance: 0.03
 		}
 	}
@@ -650,54 +614,49 @@ const spells = [
 			]
 		}
 		, particles: {
-			lifetime: { min: 1, max: 1 }
-			, behaviors: [
-				{ type: "color"
-					, config: {
-						color: {
-							list: [
-								{ time: 0, value: "c0c3cf" }
-								, { time: 0.33, value: "929398" }
-								, { time: 0.5, value: "c0c3cf" }
-								, { time: 0.66, value: "929398" }
-								, { time: 1, value: "c0c3cf" }
-							]
-						}
-					}
+			emitterVersion: "0.0.0"
+			, minParticleLifetime: 1
+			, maxParticleLifetime: 1
+			, colorBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: "#c0c3cf" }
+						, { time: 0.33, value: "#929398" }
+						, { time: 0.5, value: "#c0c3cf" }
+						, { time: 0.66, value: "#929398" }
+						, { time: 1, value: "#c0c3cf" }
+					]
 				}
-				, { type: "alpha"
-					, config: {
-						alpha: {
-							list: [
-								{ time: 0, value: 0.2 }
-								, { time: 1, value: 0 }
-							]
-						}
-					}
+			}
+			, alphaBehavior: {
+				mode: "list"
+				, listData: {
+					list: [
+						{ time: 0, value: 0.2 }
+						, { time: 1, value: 0 }
+					]
 				}
-				, { type: "scale"
-					, config: {
-						scale: {
-							list: [
-								{ time: 0, value: 10 }
-								, { time: 1, value: 4 }
-							]
-						}
-						, minMult: 0.33
-					}
+			}
+			, scaleBehavior: {
+				mode: "list"
+				, xListData: {
+					list: [
+						{ time: 0, value: 10 }
+						, { time: 1, value: 4 }
+					]
 				}
-				, { type: "moveSpeed"
-					, config: {
-						speed: {
-							list: [
-								{ time: 0, value: 16 }
-								, { time: 1, value: 8 }
-							]
-						}
-						, minMult: 0.1
-					}
+			}
+			, movementBehavior: {
+				mode: "linear"
+				, space: "global"
+				, xListData: {
+					list: [
+						{ time: 0, value: 16 }
+						, { time: 1, value: 8 }
+					]
 				}
-			]
+			}
 			, spawnChance: 0.075
 		}
 	}

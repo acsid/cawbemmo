@@ -9,7 +9,7 @@ module.exports = {
 			, data: {
 				messages: [{
 					class: "color-blueA"
-					, message: config.msg
+					, message: String(req.query.msg)
 					, type: "chat"
 				}]
 			}

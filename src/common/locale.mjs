@@ -32,7 +32,6 @@ const getMessage = function getMessage (target, nParts, curPath = []) {
 		return target;
 	}
 	if (typeof target !== "object") {
-		_.log.locale.getMessage.error(`Current path ${curPath.join(".")} is missing ${nParts.join(".")}`);
 		return undefined;
 	}
 	const np = nParts.shift();
@@ -40,7 +39,6 @@ const getMessage = function getMessage (target, nParts, curPath = []) {
 	curPath.push(np);
 
 	if (!subTarget) {
-		_.log.locale.getMessage.error(curPath.join(".") + " not found.");
 		return undefined;
 	}
 	return getMessage(subTarget, nParts, curPath);
@@ -57,18 +55,18 @@ const getLocalizedMessage = function getLocalizedMessage (dictionary, message) {
 		return message;
 	}
 	const logger = _.log.getLocalizedMessage;
-	return message.replaceAll(_reLocAllMsg, (match, msgName, offset, curString) => {
+	const replaceOnce = (input) => input.replaceAll(_reLocAllMsg, (match, msgName) => {
 		msgName = msgName.trim();
 		if (!msgName) {
 			logger.warn(`The localised message "${match}" is invalid as it results into an empty name.`);
 			return match;
 		}
-		logger.trace(`Looking for "${msgName}"`);
 		if (!msgName.includes(".")) {
 			if (typeof dictionary === "object" && Object.prototype.has.call(dictionary, msgName)) {
 				return dictionary[msgName];
 			} else if (typeof dictionary === "function") {
-				return dictionary(msgName);
+				const strMsg = dictionary(msgName);
+				return (typeof strMsg === "string" ? strMsg : match);
 			}
 			return match;
 		}
@@ -76,7 +74,6 @@ const getLocalizedMessage = function getLocalizedMessage (dictionary, message) {
 		if (typeof dictionary === "function") {
 			const strMsg = dictionary(...nameParts);
 			if (strMsg === undefined || strMsg === null) {
-				logger.error(`dictionary("${msgName}") returned an empty value!`);
 				return match;
 			}
 			return strMsg;
@@ -85,10 +82,22 @@ const getLocalizedMessage = function getLocalizedMessage (dictionary, message) {
 			// getMessage returns undefined and String.replaceAll substitutes the literal string "undefined" into the message.
 			return getMessage(dictionary, nameParts) ?? match;
 		}
-		logger.error(`dictionary "${dictionary}" does not declare "${msgName}"`);
-		logger.trace(dictionary);
 		return match;
 	});
+
+	// Re-scan until the message stops changing, so a value that itself contains
+	// a token (e.g. a help string embedding ${key.*}) resolves fully.
+	// Cap the passes to break self-referential cycles (a token whose value contains the same token).
+	let result = message;
+	for (let pass = 0; pass < 10; pass++) {
+		const next = replaceOnce(result);
+		if (next === result) {
+			return next;
+		}
+		result = next;
+	}
+	logger.warn(`Stopped resolving after 10 passes; possible self-referential token cycle in: ${message}`);
+	return result;
 };
 
 const stringifyStatValue = function stringifyStatValue (statName, statValue) {

@@ -3,79 +3,68 @@ import renderer from "/js/rendering/renderer.js";
 
 const getEmitterConfig = function (pos, blueprint, maxAlpha) {
 	return {
-		lifetime: blueprint.lifetime || {
-			min: 1
-			, max: 4
-		}
-		, frequency: 0.9 + Math.random()
-		, emitterLifetime: -1
+		emitterVersion: "0.0.0"
+		, minParticleLifetime: (blueprint.lifetime || { min: 1 }).min
+		, maxParticleLifetime: (blueprint.lifetime || { max: 4 }).max
+		, spawnInterval: 0.9 + Math.random()
 		, addAtBack: false
+		// spawnBehavior.origin replaces the legacy `pos` field; set at build time.
 		, pos
-		, behaviors: [
-			{ type: "textureSingle"
-				, config: { texture: "images/particle.png" }
+		, colorBehavior: {
+			mode: "list"
+			, listData: {
+				list: blueprint.color || [
+					{ time: 0, value: "#ffeb38" }
+					, { time: 1, value: "#" + _.getRandomFrom("ff6942", "d43346") }
+				]
 			}
-			, { type: "color"
-				, config: {
-					color: {
-						list: blueprint.color || [
-							{ time: 0, value: "ffeb38" }
-							, { time: 1, value: _.getRandomFrom("ff6942", "d43346") }
-						]
-					}
-				}
+		}
+		, alphaBehavior: {
+			mode: "list"
+			, listData: {
+				list: [
+					{ time: 0, value: maxAlpha }
+					, { time: 1, value: 0 }
+				]
 			}
-			, { type: "alpha"
-				, config: {
-					alpha: {
-						list: [
-							{ time: 0, value: maxAlpha }
-							, { time: 1, value: 0 }
-						]
-					}
-				}
+		}
+		, movementBehavior: {
+			mode: "linear"
+			, space: "global"
+			, xListData: {
+				list: [
+					{ time: 0, value: 4 }
+					, { time: 1, value: 2 }
+				]
 			}
-			, { type: "blendMode"
-				, config: { blendMode: "screen" }
+		}
+		, scaleBehavior: {
+			mode: "list"
+			, xListData: {
+				list: [
+					{ time: 0, value: 32 }
+					, { time: 1, value: 22 }
+				]
 			}
-
-			, { type: "moveSpeed"
-				, config: {
-					speed: {
-						list: [
-							{ time: 0, value: 4 }
-							, { time: 1, value: 2 }
-						]
-					}
-				}
+		}
+		, rotationBehavior: {
+			mode: "random"
+			, useDegrees: true
+			, listData: {
+				list: [
+					{ time: 0, value: 0 }
+					, { time: 0, value: 360 }
+				]
 			}
-			, { type: "scale"
-				, config: {
-					scale: {
-						list: [
-							{ time: 0, value: 32 }
-							, { time: 1, value: 22 }
-						]
-					}
-					, minMult: 0.5
-				}
-			}
-			, { type: "rotationStatic"
-				, config: { min: 0, max: 360 }
-			}
-
-			, { type: "spawnShape"
-				, config: {
-					type: "torus"
-					, data: {
-						x: 0, y: 0
-						, radius: 30
-						, innerRadius: 10
-						, affectRotation: false
-					}
-				}
-			}
-		]
+		}
+		, spawnBehavior: {
+			shape: "circle"
+			, outerRadius: 30
+			, innerRadius: 10
+		}
+		// blendMode ("screen") is applied to the ParticleContainer, not per-emitter
+		// (pixi-particle-system has no blend-mode behavior). See particles.js.
+		, blendMode: "screen"
 	};
 };
 
@@ -113,7 +102,13 @@ export default {
 	, setVisible: function (visible) {
 		let emitters = this.emitters;
 		for (let p in emitters) {
-			emitters[p].emit = visible;
+			// The new Emitter self-ticks; toggle emission via play()/stop().
+			// stop(false) lets existing particles fade naturally.
+			if (visible) {
+				emitters[p].play();
+			} else {
+				emitters[p].stop(false);
+			}
 		}
 	}
 

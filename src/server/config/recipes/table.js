@@ -15,16 +15,16 @@ const baseRecipes = {
 		}
 		, materials: [
 			{
-			name: "weed"
-			, quantity: 1
+				name: "weed"
+				, quantity: 1
 			}
-			,{
-			name: "Papier a roulé"
-			, quantity: 1
+			, {
+				name: "Papier a roulé"
+				, quantity: 1
 			}
 		]
 	}
-	,bouteille: {
+	, bouteille: {
 		item: {
 			name: "Liquide louche"
 			, type: "consumable"
@@ -40,26 +40,26 @@ const baseRecipes = {
 					duration: 500
 				}
 			}]
+		}
+		, materials: [{
+			name: "Bouteille vide"
+			, quantity: 1
+		}, {
+			name: "champignon"
+			, quantity: 3
+		}, {
+			name: "weed"
+			, quantity: 1
+		}]
 	}
-	, materials: [{
-		name: "Bouteille vide"
-		, quantity: 1
-	}, {
-		name: "champignon"
-		, quantity: 3
-	}, {
-		name: "weed"
-		, quantity: 1
-	}]
-}
 };
 
 const buildRecipe = function (recipe, item, materials, effects) {
 	if (!recipe?.name) {
-		throw new Error("Missing recipe name.")
+		throw new Error("Missing recipe name.");
 	}
 	if (!item?.name) {
-		throw new Error("Missing item name.")
+		throw new Error("Missing item name.");
 	}
 	if (materials && !Array.isArray(materials)) {
 		materials = [ materials ];
@@ -85,7 +85,7 @@ module.exports = [
 			, description: "Un bon vieux joint pour ce heal<br /><br />Donne: 50% Hp instant"
 		}
 		// item
-		,{ name: "Un bon vieux joint"
+		, { name: "Un bon vieux joint"
 			, description: "Un bon vieux joint pour ce heal<br /><br />Donne: 50% Hp instant"
 			, getXp: 10
 		}
@@ -125,7 +125,7 @@ module.exports = [
 		}
 	)
 
-		, buildRecipe(
+	, buildRecipe(
 		// recette
 		{ name: "bouteille"
 			, description: "Ca pue mais ca rend l'arme plus forte."
@@ -137,15 +137,15 @@ module.exports = [
 		}
 		// Materials
 		, [ {
-		name: "Bouteille vide"
-		, quantity: 1
-	}, {
-		name: "champignon"
-		, quantity: 3
-	}, {
-		name: "weed"
-		, quantity: 1
-	}
+			name: "Bouteille vide"
+			, quantity: 1
+		}, {
+			name: "champignon"
+			, quantity: 3
+		}, {
+			name: "weed"
+			, quantity: 1
+		}
 		]
 		, {
 			rolls: {
@@ -153,9 +153,5 @@ module.exports = [
 			}
 		}
 	)
-
-
-
-
 
 ];

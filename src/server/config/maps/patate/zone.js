@@ -23,8 +23,8 @@ module.exports = {
 					, rolls: 1
 				}
 			}
-		},
-		mouette: {
+		}
+		, mouette: {
 			level: 2
 			, regular: {
 				drops: {
@@ -40,7 +40,7 @@ module.exports = {
 				, sprite: [0, 0]
 			}
 		}
-		, "Sbire": {
+		, Sbire: {
 			level: 3
 			, faction: "hostile"
 			, regular: {
@@ -53,8 +53,8 @@ module.exports = {
 				name: "Cagoule"
 				, sprite: [0, 0]
 			}
-		} ,
-		raymond: {
+		}
+		, raymond: {
 			level: 10
 			, faction: "vendeurs"
 			, walkDistance: 0
@@ -86,8 +86,7 @@ module.exports = {
 							}
 						}]
 						, infinite: true
-						, noSalvage: true
-					},{
+					}, {
 						name: "Hamburger"
 						, type: "consumable"
 						, sprite: [0, 6]
@@ -106,8 +105,7 @@ module.exports = {
 							}
 						}]
 						, infinite: true
-						, noSalvage: true
-					},{
+					}, {
 						name: "Pince de crabe cuite"
 						, type: "consumable"
 						, sprite: [0, 3]
@@ -126,7 +124,6 @@ module.exports = {
 							}
 						}]
 						, infinite: true
-						, noSalvage: true
 					}]
 					, level: {
 						min: 1

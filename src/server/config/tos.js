@@ -19,4 +19,4 @@ Les termes de services peuvent changé sans préavis.
 
 Pour plus d'information communiquez avec nous sur le Discord'
 
-`};
+` };

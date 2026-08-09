@@ -248,7 +248,6 @@ module.exports = {
 
 	, update: function () {
 		const effects = this.effects;
-		let eLen = effects.length;
 		for (let i = effects.length - 1; i >= 0; --i) {
 			const e = effects[i];
 			if (e.ttl > 0) {

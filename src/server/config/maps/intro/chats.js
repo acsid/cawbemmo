@@ -8,5 +8,5 @@ module.exports = {
 	}, {
 		msg: "ya don bin pas de char icitte"
 	}]
-	
+
 };

@@ -1,5 +1,16 @@
 import events from "/js/system/events.js";
-import { getMessage, getLocalizedMessage, stringifyStatValue, translate } from "/common/locale.mjs";
+import { _reLocAllMsg, getMessage, getLocalizedMessage, stringifyStatValue, translate } from "/common/locale.mjs";
+
+const _clientGetLocalizedMessage = function (dictionary, message) {
+	const resolved = getLocalizedMessage(dictionary, message);
+	if (typeof resolved === "string") {
+		const unresolved = resolved.match(_reLocAllMsg);
+		if (unresolved) {
+			_.log.locale.error(`Unresolved tokens in message: ${unresolved.join(", ")}`);
+		}
+	}
+	return resolved;
+};
 
 /** Localize an HTML structure using the current locale.
  * @static
@@ -21,7 +32,7 @@ const localizeHTML = function localizeHTML (dictionary, element) {
 				for (let i = attrs.length - 1; i >= 0; --i) {
 					const attrib = attrs[i];
 					const attrVal = attrib.value;
-					attrib.value = getLocalizedMessage(dictionary, attrVal);
+					attrib.value = _clientGetLocalizedMessage(dictionary, attrVal);
 					if (attrib.value !== attrVal) {
 						_.log.localizeHTML.debug(`Node: ${element.nodeName}, Attribute "${attrs[i]}" tranlated.`);
 					}
@@ -29,7 +40,7 @@ const localizeHTML = function localizeHTML (dictionary, element) {
 			}
 			if (element instanceof HTMLElement) {
 				if (!hasChildNodes) {
-					element.innerText = getLocalizedMessage(dictionary, element.innerText);
+					element.innerText = _clientGetLocalizedMessage(dictionary, element.innerText);
 				}
 			} else if (element instanceof SVGElement) {
 				_.log.localizeHTML.warn("SVG elements are unsupported. Returning unmoddified element");
@@ -44,7 +55,7 @@ const localizeHTML = function localizeHTML (dictionary, element) {
 			|| element instanceof Comment
 			|| element instanceof Text
 		) {
-			element.nodeValue = getLocalizedMessage(dictionary, element.nodeValue);
+			element.nodeValue = _clientGetLocalizedMessage(dictionary, element.nodeValue);
 		} else if (element.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
 			_.log.localizeHTML.warn(`Unknown node type "${element.nodeName}.nodeType: ${element.nodeType}`);
 		}
@@ -56,7 +67,7 @@ const localizeHTML = function localizeHTML (dictionary, element) {
 	} else if (typeof element === "string") {
 		// HTML element string
 		// <p>${propName}</p>
-		return getLocalizedMessage(dictionary, element);
+		return _clientGetLocalizedMessage(dictionary, element);
 	} else {
 		_.log.localizeHTML.warn("Unknown instance type \"%o\" is unsupported.", element);
 	}
@@ -96,7 +107,7 @@ export default {
 		return this.availableLanguages[0];
 	}
 
-	, getLocalizedMessage
+	, getLocalizedMessage: _clientGetLocalizedMessage
 	, getMessage
 	, localizeHTML
 

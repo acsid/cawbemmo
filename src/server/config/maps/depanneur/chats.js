@@ -1,5 +1,5 @@
 module.exports = {
-	"commis": [{
+	commis: [{
 		msg: "Une tite lotterie avec ca"
 	}, {
 		msg: "Un grateux ?"
@@ -12,8 +12,7 @@ module.exports = {
 	}, {
 		msg: "*burp*"
 	}]
-	,
-	"cultist biorn": [{
+	, "cultist biorn": [{
 		msg: "That pool sure looks cold"
 	}, {
 		msg: "*sighs*"

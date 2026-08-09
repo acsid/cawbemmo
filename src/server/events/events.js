@@ -189,10 +189,8 @@ module.exports = {
 					if (!scheduler.isActive(c, time)) {
 						continue;
 					}
-				} else {
-					if (!scheduler.shouldRun(c, time)) {
-						continue;
-					}
+				} else if (!scheduler.shouldRun(c, time)) {
+					continue;
 				}
 			}
 			c.event = this.startEvent(c);
@@ -438,13 +436,13 @@ module.exports = {
 			if (!phase) {
 				const typeTemplate = _.safeRequire(module, "./phases/phase" + p.type.capitalize());
 				phase = _.assign({
-						instance: this.instance
-						, event: event
-						, step: i
-					}
-					, phaseTemplate
-					, typeTemplate
-					, p
+					instance: this.instance
+					, event: event
+					, step: i
+				}
+				, phaseTemplate
+				, typeTemplate
+				, p
 				);
 				event.phases.push(phase);
 				event.currentPhase = phase;

@@ -41,14 +41,14 @@ module.exports = class Faction {
 	static mappings = {};
 	static #cache = {};
 
-	static async init(mappings) {
+	static async init (mappings) {
 		if (mappings) {
 			_.assign(Faction.mappings, mappings);
 		}
 		await events.emit("onBeforeGetFactions", Faction.mappings);
 	}
 
-	static fromJSON(json) {
+	static fromJSON (json) {
 		if (typeof json !== "object") {
 			throw new Error("json object missing!");
 		}
@@ -56,7 +56,7 @@ module.exports = class Faction {
 		return _.assign(faction, factionBase, json);
 	}
 
-	static getById(id) {
+	static getById (id) {
 		if (id in Faction.#cache) {
 			return Faction.#cache[id];
 		}
@@ -77,7 +77,7 @@ module.exports = class Faction {
 		return res;
 	}
 
-	constructor() {
+	constructor () {
 	}
 
 	/*

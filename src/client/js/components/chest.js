@@ -33,35 +33,33 @@ export default {
 		this.obj.addComponent("particles", {
 			chance: chances[index]
 			, blueprint: {
-				lifetime: { min: 1, max: 4 }
-				, behaviors: [
-					{ type: "color"
-						, config: {
-							color: {
-								list: [
-									{ time: 0, value: colors[index] }
-									, { time: 1, value: "f5b830" }
-								]
-							}
-						}
+				emitterVersion: "0.0.0"
+				, minParticleLifetime: 1
+				, maxParticleLifetime: 4
+				, colorBehavior: {
+					mode: "list"
+					, listData: {
+						list: [
+							{ time: 0, value: "#" + colors[index] }
+							, { time: 1, value: "#f5b830" }
+						]
 					}
-					, { type: "alpha"
-						, config: {
-							alpha: {
-								list: [
-									{ time: 0, value: 0.75 }
-									, { time: 1, value: 0 }
-								]
-							}
-						}
+				}
+				, alphaBehavior: {
+					mode: "list"
+					, listData: {
+						list: [
+							{ time: 0, value: 0.75 }
+							, { time: 1, value: 0 }
+						]
 					}
-					, { type: "spawnShape"
-						, config: {
-							type: "rect"
-							, data: { x: -4, y: -4, w: 8, h: 8 }
-						}
-					}
-				]
+				}
+				, spawnBehavior: {
+					shape: "rectangle"
+					, width: 8
+					, height: 8
+					, origin: { x: -4, y: -4 }
+				}
 				, spawnChance: chances[index]
 			}
 		});

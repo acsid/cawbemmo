@@ -22,7 +22,11 @@ export default {
 		//Sometimes, we make emitters stop emitting for a reason
 		// for example, when an explosion stops
 		if (!this.emitter.disabled) {
-			this.emitter.emit = visible;
+			if (visible) {
+				this.emitter.play();
+			} else {
+				this.emitter.stop(false);
+			}
 		}
 	}
 
@@ -41,12 +45,14 @@ export default {
 			}
 		}
 
-		if (!emitter.emit) {
+		if (!emitter.isEmitting) {
 			return;
 		}
 
-		emitter.spawnPos.x = (obj.x * scale) + (scale / 2) + obj.offsetX;
-		emitter.spawnPos.y = (obj.y * scale) + (scale / 2) + obj.offsetY;
+		emitter.spawnBehavior.origin = {
+			x: (obj.x * scale) + (scale / 2) + (obj.offsetX || 0)
+			, y: (obj.y * scale) + (scale / 2) + (obj.offsetY || 0)
+		};
 	}
 
 	, destroy: function () {

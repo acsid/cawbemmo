@@ -1,3 +1,5 @@
+import { Sprite } from "pixi.js";
+
 const BACKGROUND_REGIONS = {
 	snow: 4
 	, grass: 6
@@ -43,7 +45,7 @@ const renderLoginBackground = (renderer) => {
 			} else {
 				tile = tile[0];
 			}
-			const sprite = new PIXI.Sprite(renderer.getTexture("sprites", tile));
+			const sprite = new Sprite(renderer.getTexture("sprites", tile));
 
 			alpha = Math.min(Math.max(0.15, alpha), 0.65);
 			sprite.alpha = alpha;

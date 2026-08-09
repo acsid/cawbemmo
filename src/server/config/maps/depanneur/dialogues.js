@@ -1,21 +1,21 @@
 module.exports = {
 
-	"commis": {
+	commis: {
 		1: {
 			msg: [{
 				msg: "Si c'est pas du crème soda on en a pas"
-				, options: [1.1,1.2,1.3]
+				, options: [1.1, 1.2, 1.3]
 			}]
-			,options: {
+			, options: {
 				1.1: {
 					msg: "Pouvez-vous me dire ou sont les toilettes?"
 					, goto: "2"
-				},
-				1.2: {
+				}
+				, 1.2: {
 					msg: "Pourquoi vendez vous juste du crème soda?"
 					, goto: "3"
 				}
-				,1.3: {
+				, 1.3: {
 					msg: "J'ai trouvé la clé des toilettes."
 					, prereq: function (obj) {
 						let crystals = obj.inventory.items.find((i) => (i.name === "Clé des toilettes"));
@@ -24,33 +24,31 @@ module.exports = {
 					, goto: "giveCle"
 				}
 			}
-		},
-		2: {
+		}
+		, 2: {
 			msg: [{
 				msg: "Sont dans le fond a droite a côté du crème soda."
 				, options: [2.1]
 			}]
-			,options: {
+			, options: {
 				2.1: {
 					msg: "Pourquoi vendez vous juste du crème soda?"
 					, goto: "3"
 				}
 			}
 
-
-		},
-		3: {
+		}
+		, 3: {
 			msg: [{
 				msg: "Parce c'est ce qu'il y a de mieux. En plus les canettes sont jolie"
 				, options: [3.1]
 			}]
-			,options: {
+			, options: {
 				3.1: {
 					msg: "Pouvez-vous me dire ou sont les toilettes?"
 					, goto: "2"
 				}
 			}
-
 
 		}
 		, giveCle: {
@@ -70,10 +68,9 @@ module.exports = {
 				inventory.destroyItem({ itemId: crystals.id });
 			}
 		}
-	},
+	}
 
-
-	"thaumaturge yala": {
+	, "thaumaturge yala": {
 		1: {
 			msg: [{
 				msg: "Yes?"
