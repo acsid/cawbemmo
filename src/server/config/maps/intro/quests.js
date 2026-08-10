@@ -3,6 +3,6 @@ module.exports = {
 		name: "Pas manqué l'autobus'"
 		, type: "gatherResource"
 		, subType: "herb"
-		, quantity: 1
+		, quantity: [1,1]
 	}]
 };
