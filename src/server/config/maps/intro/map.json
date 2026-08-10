@@ -899,6 +899,7 @@
                  "height":0,
                  "id":1128,
                  "name":"",
+                 "opacity":1,
                  "polygon":[
                         {
                          "x":0,
@@ -960,6 +961,7 @@
                  "height":24,
                  "id":1125,
                  "name":"|talkbanddo",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -971,6 +973,7 @@
                  "height":80,
                  "id":1130,
                  "name":"|pre",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"cpnNotice",
@@ -988,6 +991,7 @@
                  "height":56,
                  "id":1131,
                  "name":"|tutoDialogue",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"cpnNotice",
@@ -1005,6 +1009,7 @@
                  "height":96,
                  "id":1134,
                  "name":"|tutoAttack",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"cpnNotice",
@@ -1022,6 +1027,7 @@
                  "height":80,
                  "id":1136,
                  "name":"|tutoTravel",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"cpnNotice",
@@ -1039,6 +1045,7 @@
                  "height":24,
                  "id":1137,
                  "name":"|talkChauffeur",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -1073,6 +1080,7 @@
                  "height":8,
                  "id":1121,
                  "name":"banddo",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -1085,6 +1093,7 @@
                  "height":8,
                  "id":1132,
                  "name":"rien",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -1097,6 +1106,7 @@
                  "height":8,
                  "id":1133,
                  "name":"rien",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -1109,12 +1119,26 @@
                  "height":8,
                  "id":1135,
                  "name":"chauffeur",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":8,
                  "x":872,
                  "y":712
+                }, 
+                {
+                 "gid":518,
+                 "height":8,
+                 "id":1138,
+                 "name":"pogo",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":536,
+                 "y":616
                 }],
          "opacity":1,
          "properties":[
@@ -1145,7 +1169,7 @@
          "y":0
         }],
  "nextlayerid":31,
- "nextobjectid":1138,
+ "nextobjectid":1139,
  "orientation":"orthogonal",
  "properties":[
         {
@@ -1164,13 +1188,13 @@
          "value":"[{\"x\":40,\"y\":75}]"
         }],
  "renderorder":"right-down",
- "tiledversion":"1.11.0",
+ "tiledversion":"1.12.0",
  "tileheight":8,
  "tilesets":[
         {
          "columns":16,
          "firstgid":1,
-         "image":"..\/..\/..\/..\/..\/..\/..\/cawbemmo\/src\/client\/images\/walls.png",
+         "image":"..\/..\/..\/..\/client\/images\/walls.png",
          "imageheight":256,
          "imagewidth":128,
          "margin":0,
@@ -1220,7 +1244,7 @@
         {
          "columns":8,
          "firstgid":513,
-         "image":"..\/..\/..\/..\/..\/..\/..\/cawbemmo\/src\/client\/images\/mobs.png",
+         "image":"..\/..\/..\/..\/client\/images\/mobs.png",
          "imageheight":88,
          "imagewidth":64,
          "margin":0,
@@ -1243,7 +1267,7 @@
         {
          "columns":16,
          "firstgid":601,
-         "image":"..\/..\/..\/..\/..\/..\/..\/cawbemmo\/src\/client\/images\/tiles.png",
+         "image":"..\/..\/..\/..\/client\/images\/tiles.png",
          "imageheight":224,
          "imagewidth":128,
          "margin":0,
@@ -1345,7 +1369,7 @@
         {
          "columns":16,
          "firstgid":1049,
-         "image":"..\/..\/..\/..\/..\/..\/..\/cawbemmo\/src\/client\/images\/objects.png",
+         "image":"..\/..\/..\/..\/client\/images\/objects.png",
          "imageheight":176,
          "imagewidth":128,
          "margin":0,
@@ -1363,7 +1387,7 @@
         {
          "columns":8,
          "firstgid":1401,
-         "image":"..\/..\/..\/..\/..\/..\/..\/cawbemmo\/src\/client\/images\/bigObjects.png",
+         "image":"..\/..\/..\/..\/client\/images\/bigObjects.png",
          "imageheight":240,
          "imagewidth":192,
          "margin":0,
@@ -1376,7 +1400,7 @@
         {
          "columns":8,
          "firstgid":1481,
-         "image":"..\/..\/..\/..\/..\/..\/..\/cawbemmo\/src\/client\/images\/bosses.png",
+         "image":"..\/..\/..\/..\/client\/images\/bosses.png",
          "imageheight":240,
          "imagewidth":192,
          "margin":0,

@@ -46,6 +46,11 @@ module.exports = {
 			, walkDistance: 0
 			, attackable: false
 		}
+		, pogo: {
+			level: 10
+			, walkDistance: 2
+			, attackable: false
+		}
 		, banddo: {
 			level: 10
 			, walkDistance: 0

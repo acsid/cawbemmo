@@ -8,5 +8,12 @@ module.exports = {
 	}, {
 		msg: "ya don bin pas de char icitte"
 	}]
+	, pogo: [{
+		msg: "*woufffe*"
+	},{
+		msg: "ketchup"
+	},{
+		msg: "*wouf"
+	}]
 
 };
