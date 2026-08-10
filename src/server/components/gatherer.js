@@ -226,7 +226,7 @@ module.exports = {
 		let promptKey = null;
 		if (nodeType === "fish") {
 			promptKey = "fishPrompt";
-		} else if (nodeType === "herb") {
+		} else if (nodeType === "herb" || nodeType === "ticket") {
 			promptKey = "herbPrompt";
 		}
 		if (promptKey) {

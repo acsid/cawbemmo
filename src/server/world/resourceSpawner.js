@@ -78,7 +78,7 @@ module.exports = {
 		let x = blueprint.x;
 		let y = blueprint.y;
 
-		if (blueprint.type === "herb" && !blueprint.positions) {
+		if (blueprint.type === "herb" || blueprint.type === "ticket" && !blueprint.positions) {
 			x = Math.floor(Math.random() * w);
 			y = Math.floor(Math.random() * h);
 
@@ -153,7 +153,7 @@ module.exports = {
 		let obj = this.objects.buildObjects([objBlueprint]);
 		delete obj.ttl;
 
-		if (blueprint.type === "herb") {
+		if (blueprint.type === "herb" || blueprint.type === "ticket") {
 			this.syncer.queue("onGetObject", {
 				x: obj.x, y: obj.y
 				, components: [{

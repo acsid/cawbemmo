@@ -3,7 +3,7 @@ module.exports = {
 	, level: [1, 12]
 	, resources: {
 		"ticket d\'autobus": {
-			type: "herb"
+			type: "ticket"
 			, sheetName: "tiles"
 			, cell: 55
 			, itemSprite: [2, 0]

@@ -12,7 +12,7 @@ module.exports = {
 
 			this.need = quantity[0] + Math.floor(Math.random() * (quantity[1] - quantity[0]));
 
-			this.gatherType = subType ?? _.getRandomFrom("herb", "fish");
+			this.gatherType = subType ?? _.getRandomFrom("herb", "fish", "ticket");
 
 			if (this.gatherType === "fish") {
 				this.name = "Une pause a la pêche";
@@ -25,11 +25,17 @@ module.exports = {
 			}
 		}
 
-		if (["herb", "fish"].indexOf(this.gatherType) === -1) {
+		if (["herb", "fish", "ticket"].indexOf(this.gatherType) === -1) {
 			this.gatherType = "herb";
 		}
-
-		this.typeName = (this.gatherType === "herb") ? "herbs" : "fish";
+		if (this.gatherType === "herb") {
+			this.typeName = "herbs";
+		} else if ( this.gatherType === "fish" ) {
+			this.typeName = "fish";
+		} else if ( this.gatherType === "ticket") {
+			this.typeName = "ticket";
+		}
+		//this.typeName = (this.gatherType === "herb") ? "herbs" : "fish";
 
 		this.updateDescription();
 
@@ -54,6 +60,7 @@ module.exports = {
 		let action = ({
 			herb: "Ceuille"
 			, fish: "Attrape"
+			, ticket: "Ramasse"
 		})[this.gatherType];
 
 		this.description = `${action} ${this.have}/${this.need} ${typeName}`;

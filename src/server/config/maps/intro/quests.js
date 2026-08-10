@@ -2,7 +2,7 @@ module.exports = {
 	infini: [{
 		name: "Pas manqué l'autobus'"
 		, type: "gatherResource"
-		, subType: "herb"
+		, subType: "ticket"
 		, quantity: [1,1]
 	}]
 };
