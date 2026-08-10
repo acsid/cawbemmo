@@ -24,6 +24,18 @@ module.exports = {
 				}
 			}
 		}
+		, michel: {
+			level: 10
+			, walkDistance: 0
+			, attackable: false
+			, rare: {
+				count: 0
+			}
+			, properties: {
+
+			}
+		}
+		,
 		, "truite à panache": {
 			level: 7
 			, regular: {
