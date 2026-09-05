@@ -4,5 +4,8 @@ module.exports = {
 		, type: "gatherResource"
 		, subType: "ticket"
 		, quantity: [1,1]
-	}]
+	}
+
+	]
+
 };
