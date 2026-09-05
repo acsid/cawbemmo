@@ -24,6 +24,17 @@ module.exports = {
 				}
 			}
 		}
+		, elzigo: {
+			level: 10
+			, walkDistance: 0
+			, attackable: false
+			, rare: {
+				count: 0
+			}
+			, properties: {
+
+			}
+		}
 		, "renard-garous": {
 			level: 5
 			, faction: "hostile"
@@ -73,7 +84,7 @@ module.exports = {
 					, alsoRandom: true
 					, blueprints: [{
 						chance: 35
-						, name: "Lettre d'admiratrice"
+						, name: "Lettre pour elziggg"
 						, quality: 5
 						, quest: true
 						, sprite: [0, 4]
